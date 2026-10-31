@@ -335,6 +335,8 @@ x = [0]; row = [x[:], x[:]]; row[0].append(9); print(row)
 ```python
 a = [1]; b = [a, a]; a = [2]; print(b)
 ```
+<img width="241" height="320" alt="IMG_20261031_180520551" src="https://github.com/user-attachments/assets/a5759bc5-b0e0-49ca-8023-509a0227218f" />
+
 
 ### 2.1.3 id() and type(): first tools
 

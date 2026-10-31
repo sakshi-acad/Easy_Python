@@ -139,15 +139,7 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 
 ### Core idea of the whole chapter
 
-```text
-name  --->  object
-
-assignment (x = ...)  moves an arrow
-mutation   (x.append) changes the object everyone points at
-'is'  asks: same object?     '=='  asks: equal values?
-```
-
----
+![Core idea: name points to object](C02___Variables\images\Memory_allocation_for_variables_in_python.png)
 
 ## Section 2.1 Concept of Variables
 

@@ -139,16 +139,7 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 
 ### Core idea of the whole chapter
 
-```text
-name  --->  object
-
-assignment (x = ...)  moves an arrow
-mutation   (x.append) changes the object everyone points at
-'is'  asks: same object?     '=='  asks: equal values?
-```
-
----
-
+![Memory allocation for variables](images/memory-variables.png)
 ## Section 2.1 Concept of Variables
 
 ### 2.1.1 What is a variable (name binding, not a box)

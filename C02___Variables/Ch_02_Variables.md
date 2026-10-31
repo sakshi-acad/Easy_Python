@@ -152,7 +152,7 @@ Step 1: Python evaluates the right-hand side and produces (or finds) an object. 
 > **Key rule:** Rule: "x = expr" means "make the name x refer to the object that expr produced".
 
 **Example 2.1.1.1: Binding a name, then rebinding it to an object of another type**
-![Dynamic Typing In Python](C02___Variables\images\dynamic_typing_in_python.png)
+<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
 
 ```python
 x = 10
@@ -169,6 +169,8 @@ ten <class 'str'>
 ```
 
 **Example 2.1.1.2: Two names, one object: the box model cannot explain this**
+<img width="241" height="320" alt="file_0000000051a88210994c2e3074c95f41" src="https://github.com/user-attachments/assets/85d9b285-1a30-4a3c-be97-d5f71fe75dfe" />
+
 
 ```python
 a = [1, 2]

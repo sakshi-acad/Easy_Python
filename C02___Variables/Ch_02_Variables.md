@@ -401,6 +401,15 @@ True
 ```
 
 **Example 2.1.4.2: Reassigning the parameter does not affect the caller; mutating does**
+<img width="1600" height="2742" alt="case1_int_plus_equals" src="https://github.com/user-attachments/assets/92a8bbe3-c5f6-4aea-8d52-0ee2f0ae111d" />
+<img width="1600" height="2658" alt="case2_list_plus_equals" src="https://github.com/user-attachments/assets/2af71a53-909b-48ca-a982-2936679bc145" />
+<img width="1600" height="2730" alt="case3_list_reassign" src="https://github.com/user-attachments/assets/d1e37389-cc9c-494d-a62e-b926e3fa8b85" />
+<img width="1600" height="2672" alt="case4_slice_assign" src="https://github.com/user-attachments/assets/12f1a3e3-e6cf-46a4-9f45-d39448fecdae" />
+<img width="1600" height="1362" alt="case5_summary" src="https://github.com/user-attachments/assets/425e0193-8af7-4999-8b1f-ecb97fddfaec" />
+
+
+
+
 
 ```python
 def f(p):

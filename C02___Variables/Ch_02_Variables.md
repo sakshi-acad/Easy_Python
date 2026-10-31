@@ -1,3 +1,4 @@
+
 # Python Chapter 2: Variables
 
 **PYTHON | CHAPTER 02**
@@ -138,8 +139,9 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 - If an output surprises you, that is the point: stop and redraw the name-to-object arrows.
 
 ### Core idea of the whole chapter
+<img width="1536" height="1024" alt="memory_variables" src="https://github.com/user-attachments/assets/6a7d9197-7cd1-4e4e-8831-002652c44468" />
 
-![Memory allocation for variables](images/memory-variables.png)<img width="1536" height="1024" alt="memory_variables" src="https://github.com/user-attachments/assets/68155a36-eefa-436b-be3b-1db70d290af4" />
+
 
 ## Section 2.1 Concept of Variables
 

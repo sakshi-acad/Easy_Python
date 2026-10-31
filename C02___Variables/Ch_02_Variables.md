@@ -183,7 +183,9 @@ print(a, b, a is b)
 [1, 2, 3] [1, 2, 3] True
 ```
 
-**Example 2.1.1.3: Rebinding one name leaves the other untouched**
+**Example 2.1.1.3: Rebinding one name leaves the other untouched for immutable objects and it changes for mutable objects**
+<img width="1980" height="1155" alt="rebinding_vs_mutation" src="https://github.com/user-attachments/assets/8c21656c-1106-4476-9e4a-bc984e0d6f10" />
+
 
 ```python
 x = 5

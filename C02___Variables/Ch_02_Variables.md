@@ -237,6 +237,8 @@ a = [1]; b = a; b += [2]; print(a, b)
 ```python
 a = "hi"; b = a; b += "!"; print(a, b)
 ```
+<img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" />
+
 
 ### 2.1.2 Variable as reference to an object
 

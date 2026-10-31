@@ -454,6 +454,8 @@ x = [1, 2]; f(x); print(x)
 In a statically typed language (C, Java) the variable has a declared type and the compiler rejects wrong assignments. In Python the TYPE BELONGS TO THE OBJECT; a name can be rebound to any object at any time. Type errors appear at run time, when an operation meets an unsupported object.
 
 Optional type hints (x: int) are read by tools like mypy, not enforced by the interpreter.
+<img width="1600" height="2658" alt="IMG_20261031_194846826" src="https://github.com/user-attachments/assets/e439668e-c20b-41dd-b0f2-10a38dfa07b8" />
+
 
 **Example 2.1.5.1: One name, three types**
 
@@ -475,6 +477,26 @@ list
 ```
 
 **Example 2.1.5.2: Hints are not enforced**
+**                                              Hints are also called as annotated assignments                 **
+<img width="1600" height="2743" alt="A1_annotated_basics" src="https://github.com/user-attachments/assets/69a5c57e-e0b6-4dd1-8cce-281a378a779a" />
+<img width="1600" height="3313" alt="A2_annotated_enforce_novalue" src="https://github.com/user-attachments/assets/90078bd6-fb9d-4a74-bebd-caca6dcf20da" />
+<img width="1600" height="3629" alt="A3_annotated_collections_variations" src="https://github.com/user-attachments/assets/a949239b-55d9-4713-8947-fe673246d074" />
+<img width="1600" height="2898" alt="W1_walrus_basics" src="https://github.com/user-attachments/assets/bc69fb69-f641-4499-a834-d84a641ec1f7" />
+<img width="1600" height="3381" alt="W2_walrus_loops_rules (1)" src="https://github.com/user-attachments/assets/22ebddf6-5b57-49c5-80e6-f1d25d692bcf" />
+<img width="1600" height="3805" alt="W3_walrus_traps" src="https://github.com/user-attachments/assets/71448fc8-7bb9-458f-bbcf-ebc0444f66f8" />
+<img width="1600" height="3694" alt="W4_walrus_patterns" src="https://github.com/user-attachments/assets/824be4af-130a-48e4-ac45-eabede642b8e" />
+<img width="1600" height="3402" alt="P1_practice_annotated" src="https://github.com/user-attachments/assets/fdf0806b-efd3-46e7-ab2a-e6148f1cc5d5" />
+<img width="1600" height="4102" alt="P2_practice_walrus" src="https://github.com/user-attachments/assets/0ad643c8-21d0-475b-99e7-ae1662863bdb" />
+<img width="1600" height="5052" alt="P3_answers_annotated" src="https://github.com/user-attachments/assets/ccc43af1-439c-491f-9ceb-89f23dce7336" />
+<img width="1600" height="6117" alt="P4_answers_walrus" src="https://github.com/user-attachments/assets/03561753-b4de-4eb5-8513-9d8a98efa964" />
+
+
+
+
+
+
+
+
 
 ```python
 x: int = "hello"

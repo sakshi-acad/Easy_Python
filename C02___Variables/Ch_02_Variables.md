@@ -139,7 +139,8 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 - If an output surprises you, that is the point: stop and redraw the name-to-object arrows.
 
 ### Core idea of the whole chapter
-<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
+<img width="1536" height="1024" alt="memory_variables" src="https://github.com/user-attachments/assets/6a7d9197-7cd1-4e4e-8831-002652c44468" />
+
 
 
 ## Section 2.1 Concept of Variables
@@ -153,7 +154,7 @@ Step 1: Python evaluates the right-hand side and produces (or finds) an object. 
 > **Key rule:** Rule: "x = expr" means "make the name x refer to the object that expr produced".
 
 **Example 2.1.1.1: Binding a name, then rebinding it to an object of another type**
-![Dynamic Typing In Python](<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/3440a95b-ab9e-45a0-9479-f80e7de84a4b" />)
+<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
 
 ```python
 x = 10

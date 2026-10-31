@@ -405,6 +405,8 @@ a = [1]; b = list(a); print(a == b, id(a) == id(b))
 ```python
 print(type(type(5)))
 ```
+<img width="241" height="320" alt="IMG_20261031_182003091" src="https://github.com/user-attachments/assets/38294a74-d65c-4b98-83bb-8e303ef3625e" />
+
 
 ### 2.1.4 Names vs values
 

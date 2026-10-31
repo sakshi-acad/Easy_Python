@@ -1,4 +1,4 @@
-<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/2821df3a-82b2-4021-a0f4-ed4c7c3076b8" /><img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/00866bc3-9f53-49d4-a922-b68f9116d60c" /><img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/4ceeae21-6a34-4df5-a70b-41fac0116520" /><img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/b28c30d2-d01a-4edb-bb3a-47c6978c5197" /><img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/631eec3f-d8e7-4f00-bbe9-716ebb4bdd50" />
+
 # Python Chapter 2: Variables
 
 **PYTHON | CHAPTER 02**

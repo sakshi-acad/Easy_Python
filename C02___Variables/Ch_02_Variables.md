@@ -291,6 +291,9 @@ print(row)
 ```
 
 **Example 2.1.2.3: The same arrow idea for strings and ints (immutable, but still references)**
+<img width="3072" height="4080" alt="IMG_20261031_175152797" src="https://github.com/user-attachments/assets/33270394-88c0-4178-9da8-c7c127c28a58" />
+
+
 
 ```python
 s = "python"

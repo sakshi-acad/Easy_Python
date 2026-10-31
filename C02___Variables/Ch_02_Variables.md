@@ -139,7 +139,8 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 
 ### Core idea of the whole chapter
 
-![Memory allocation for variables](images/memory-variables.png)
+![Memory allocation for variables](images/memory-variables.png)<img width="1536" height="1024" alt="memory_variables" src="https://github.com/user-attachments/assets/68155a36-eefa-436b-be3b-1db70d290af4" />
+
 ## Section 2.1 Concept of Variables
 
 ### 2.1.1 What is a variable (name binding, not a box)

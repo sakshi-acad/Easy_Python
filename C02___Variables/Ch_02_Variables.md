@@ -1,4 +1,4 @@
-
+<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/2821df3a-82b2-4021-a0f4-ed4c7c3076b8" /><img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/00866bc3-9f53-49d4-a922-b68f9116d60c" /><img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/4ceeae21-6a34-4df5-a70b-41fac0116520" /><img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/b28c30d2-d01a-4edb-bb3a-47c6978c5197" /><img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/631eec3f-d8e7-4f00-bbe9-716ebb4bdd50" />
 # Python Chapter 2: Variables
 
 **PYTHON | CHAPTER 02**
@@ -245,6 +245,16 @@ a = "hi"; b = a; b += "!"; print(a, b)
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
 
 Draw it: after a = [1, 2]; b = a there is ONE list object and TWO arrows into it. After b = [1, 2] there are TWO list objects, each with one arrow.
+<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/34461afa-e893-4c97-b99f-fa3c1325063e" />
+<img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/aadc2582-e19d-49cf-b379-673592dc7396" />
+<img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/4d26a274-fe16-4a34-8175-800afaa7c2c0" />
+
+
+
+
+
+
+
 
 **Example 2.1.2.1: Same object versus equal objects**
 

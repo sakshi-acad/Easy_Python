@@ -171,6 +171,8 @@ ten <class 'str'>
 ```
 
 **Example 2.1.1.2: Two names, one object: the box model cannot explain this**
+<img width="241" height="320" alt="file_0000000051a88210994c2e3074c95f41" src="https://github.com/user-attachments/assets/85d9b285-1a30-4a3c-be97-d5f71fe75dfe" />
+
 
 ```python
 a = [1, 2]

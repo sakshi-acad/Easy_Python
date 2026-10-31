@@ -274,6 +274,8 @@ True False
 ```
 
 **Example 2.1.2.2: A list holds references, not copies**
+<img width="1280" height="964" alt="6282615415871574875" src="https://github.com/user-attachments/assets/38e76579-5622-4c5e-83ab-bd154bfb6be6" />
+
 
 ```python
 x = [0]

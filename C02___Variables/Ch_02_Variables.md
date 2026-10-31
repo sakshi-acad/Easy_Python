@@ -490,7 +490,7 @@ x = [1, 2]; f(x); print(x)
 In a statically typed language (C, Java) the variable has a declared type and the compiler rejects wrong assignments. In Python the TYPE BELONGS TO THE OBJECT; a name can be rebound to any object at any time. Type errors appear at run time, when an operation meets an unsupported object.
 
 Optional type hints (x: int) are read by tools like mypy, not enforced by the interpreter.
-<img width="28" height="40" alt="IMG_20261031_194846826" src="https://github.com/user-attachments/assets/e439668e-c20b-41dd-b0f2-10a38dfa07b8" />
+<img width="1600" height="2658" alt="IMG_20261031_194846826" src="https://github.com/user-attachments/assets/e439668e-c20b-41dd-b0f2-10a38dfa07b8" />
 
 
 **Example 2.1.5.1: One name, three types**

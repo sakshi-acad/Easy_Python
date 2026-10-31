@@ -139,7 +139,7 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 
 ### Core idea of the whole chapter
 
-!(C02___Variables\images\Memory_allocation_for_variables_in_python.png)
+![Memory allocation for variables in python](images/Memory_allocation_for_variables_in_python.png)
 
 ## Section 2.1 Concept of Variables
 

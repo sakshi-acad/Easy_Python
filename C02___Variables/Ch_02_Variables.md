@@ -1,4 +1,4 @@
-<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
+
 # Python Chapter 2: Variables
 
 **PYTHON | CHAPTER 02**
@@ -139,8 +139,8 @@ Each topic follows the same teaching order, matching your index: **what it is**,
 - If an output surprises you, that is the point: stop and redraw the name-to-object arrows.
 
 ### Core idea of the whole chapter
+<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
 
-![Memory allocation for variables](images/memory-variables.png)<img width="1536" height="1024" alt="memory_variables" src="https://github.com/user-attachments/assets/68155a36-eefa-436b-be3b-1db70d290af4" />
 
 ## Section 2.1 Concept of Variables
 

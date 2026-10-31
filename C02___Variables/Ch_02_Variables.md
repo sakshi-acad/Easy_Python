@@ -231,12 +231,24 @@ a = [1]; b = a; b += [2]; print(a, b)
 ```python
 a = "hi"; b = a; b += "!"; print(a, b)
 ```
+<img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" />
+
 
 ### 2.1.2 Variable as reference to an object
 
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
 
 Draw it: after a = [1, 2]; b = a there is ONE list object and TWO arrows into it. After b = [1, 2] there are TWO list objects, each with one arrow.
+<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/34461afa-e893-4c97-b99f-fa3c1325063e" />
+<img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/aadc2582-e19d-49cf-b379-673592dc7396" />
+<img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/4d26a274-fe16-4a34-8175-800afaa7c2c0" />
+
+
+
+
+
+
+
 
 **Example 2.1.2.1: Same object versus equal objects**
 
@@ -256,6 +268,8 @@ True False
 ```
 
 **Example 2.1.2.2: A list holds references, not copies**
+<img width="1280" height="964" alt="6282615415871574875" src="https://github.com/user-attachments/assets/38e76579-5622-4c5e-83ab-bd154bfb6be6" />
+
 
 ```python
 x = [0]
@@ -271,6 +285,9 @@ print(row)
 ```
 
 **Example 2.1.2.3: The same arrow idea for strings and ints (immutable, but still references)**
+<img width="3072" height="4080" alt="IMG_20261031_175152797" src="https://github.com/user-attachments/assets/33270394-88c0-4178-9da8-c7c127c28a58" />
+
+
 
 ```python
 s = "python"
@@ -312,6 +329,8 @@ x = [0]; row = [x[:], x[:]]; row[0].append(9); print(row)
 ```python
 a = [1]; b = [a, a]; a = [2]; print(b)
 ```
+<img width="241" height="320" alt="IMG_20261031_180520551" src="https://github.com/user-attachments/assets/a5759bc5-b0e0-49ca-8023-509a0227218f" />
+
 
 ### 2.1.3 id() and type(): first tools
 
@@ -380,6 +399,8 @@ a = [1]; b = list(a); print(a == b, id(a) == id(b))
 ```python
 print(type(type(5)))
 ```
+<img width="241" height="320" alt="IMG_20261031_182003091" src="https://github.com/user-attachments/assets/38294a74-d65c-4b98-83bb-8e303ef3625e" />
+
 
 ### 2.1.4 Names vs values
 

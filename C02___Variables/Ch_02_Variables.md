@@ -3564,6 +3564,618 @@ hi hi hi
 1 3
 10
 ```
+# 2.2.10 — Throwaway Name `_` in Python
+
+## 1. What Is `_`?
+
+In Python, `_` (a single underscore) is a valid variable name.
+
+For example:
+
+```python
+a = 10
+b = 20
+_ = 30
+
+print(a)
+print(b)
+print(_)
+```
+
+**Output:**
+
+```text
+10
+20
+30
+```
+
+Nothing magical happened!
+
+We created three variables:
+
+```text
+a  ──────>  10
+
+b  ──────>  20
+
+_  ──────>  30
+```
+
+So why do programmers use `_`?
+
+Because sometimes we receive a value but don't actually need it.
+
+Instead of giving that value a meaningful name, we use `_` to indicate:
+
+**"I know this value exists, but I don't need it."**
+
+This is called a *throwaway name* or *throwaway variable*.
+
+---
+
+## 2. Example 2.2.10.1 — Common Uses
+
+Let's understand the three examples separately.
+
+### A. Using `_` in a `for` loop
+
+```python
+for _ in range(3):
+    print("hi", end=" ")
+
+print()
+```
+
+**Output:**
+
+```text
+hi hi hi
+```
+
+Let's understand it step by step.
+
+**Step 1:**
+
+```python
+range(3)
+```
+
+This produces three numbers:
+
+```text
+0
+1
+2
+```
+
+**Step 2:**
+
+```python
+for _ in range(3):
+```
+
+A `for` loop takes one value at a time from the sequence.
+
+Normally, we might write:
+
+```python
+for i in range(3):
+    print(i)
+```
+
+Output:
+
+```text
+0
+1
+2
+```
+
+Here, `i` stores each number.
+
+But in our original example:
+
+```python
+for _ in range(3):
+    print("hi", end=" ")
+```
+
+We don't need the numbers `0`, `1`, or `2`.
+
+We only want the loop to run three times.
+
+Therefore, we use `_` instead of `i`.
+
+**Visual representation:**
+
+```text
+          range(3)
+              |
+              v
+        +-----------+
+        |  0        | ----> Loop runs
+        |  1        | ----> Loop runs
+        |  2        | ----> Loop runs
+        +-----------+
+              |
+              v
+       Print "hi" each time
+
+
+       Output:
+       hi hi hi
+```
+
+Notice something important:
+
+`_` still receives each value. We are simply choosing not to use it.
+
+**Step 3:**
+
+```python
+print("hi", end=" ")
+```
+
+Normally, `print()` moves to the next line after printing.
+
+But `end=" "` tells Python to put a space instead of a newline.
+
+Therefore, all three `hi` values appear on the same line.
+
+**Step 4:**
+
+```python
+print()
+```
+
+This prints an empty line break, moving the cursor to the next line.
+
+---
+
+### B. Using `_` in Unpacking
+
+Consider:
+
+```python
+a, _, c = (1, 2, 3)
+
+print(a, c)
+```
+
+**Output:**
+
+```text
+1 3
+```
+
+First, understand what unpacking means.
+
+Unpacking means taking individual values from a collection and assigning them to separate variables.
+
+For example:
+
+```python
+a, b, c = (1, 2, 3)
+```
+
+Python assigns:
+
+```text
+a  <-----  1
+
+b  <-----  2
+
+c  <-----  3
+```
+
+Now look at our original code:
+
+```python
+a, _, c = (1, 2, 3)
+```
+
+Python still assigns all three values.
+
+```text
+       (1, 2, 3)
+           |
+           v
+
+     a       _       c
+     |       |       |
+     v       v       v
+     1       2       3
+```
+
+We simply don't care about the middle value.
+
+Therefore:
+
+```python
+print(a, c)
+```
+
+prints:
+
+```text
+1 3
+```
+
+**Important:** `_` does not skip the second value. It receives that value just like any other variable.
+
+---
+
+### C. Using `*_` in Unpacking
+
+Now let's understand the slightly more interesting example.
+
+```python
+first, *_ = [10, 20, 30]
+
+print(first)
+```
+
+**Output:**
+
+```text
+10
+```
+
+First, let's understand the `*` symbol in unpacking.
+
+The `*` symbol collects multiple remaining values into a list.
+
+For example:
+
+```python
+first, *others = [10, 20, 30]
+
+print(first)
+print(others)
+```
+
+Output:
+
+```text
+10
+[20, 30]
+```
+
+Visual representation:
+
+```text
+       [10, 20, 30]
+             |
+             v
+       first, *others
+          |       |
+          v       v
+         10    [20, 30]
+```
+
+Now replace `others` with `_`:
+
+```python
+first, *_ = [10, 20, 30]
+```
+
+Python performs the same unpacking:
+
+```text
+       [10, 20, 30]
+             |
+             v
+       first, *_
+          |    |
+          v    v
+         10  [20, 30]
+```
+
+The variable `first` gets `10`.
+
+The variable `_` gets `[20, 30]`.
+
+We don't need the remaining values, so we use `_`.
+
+**Important:** `*_` does not mean ignore everything automatically. The `*` collects the remaining values into a list, and `_` is the variable receiving that list.
+
+---
+
+## 3. Practice 2.2.10 — Solutions
+
+### Q1. BASIC
+
+**Question:**
+
+```python
+a, _ = (1, 2)
+print(a)
+```
+
+**Output:**
+
+```text
+1
+```
+
+**Explanation:**
+
+We have two values:
+
+```text
+(1, 2)
+```
+
+And two variables:
+
+```text
+a, _
+```
+
+Python assigns:
+
+```text
+a  <-----  1
+
+_  <-----  2
+```
+
+We print only `a`.
+
+Therefore, the output is `1`.
+
+---
+
+### Q2. MID
+
+**Question:**
+
+```python
+_, _, z = (1, 2, 3)
+print(z)
+```
+
+**Output:**
+
+```text
+3
+```
+
+**Explanation:**
+
+Python assigns the values one by one:
+
+```text
+       (1, 2, 3)
+           |
+           v
+
+     _       _       z
+     |       |       |
+     v       v       v
+     1       2       3
+```
+
+The first `_` receives `1`.
+
+The second `_` receives `2`.
+
+The variable `z` receives `3`.
+
+We print `z`.
+
+Therefore, the output is `3`.
+
+**A small but important detail:**
+
+Both `_` variables have the same name!
+
+The second assignment replaces the value previously stored in `_`.
+
+After unpacking:
+
+```python
+print(_)
+```
+
+would print:
+
+```text
+2
+```
+
+---
+
+### Q3. HARD
+
+**Question:**
+
+```python
+for _ in range(2):
+    pass
+
+print(_)
+```
+
+**Output:**
+
+```text
+1
+```
+
+**Explanation:**
+
+This question is interesting because it tests whether you understand that `_` is still an ordinary variable.
+
+**Step 1:**
+
+```python
+range(2)
+```
+
+Produces:
+
+```text
+0
+1
+```
+
+**Step 2:**
+
+```python
+for _ in range(2):
+```
+
+The loop runs twice.
+
+Let's track the value of `_`.
+
+| Loop iteration | Value assigned to `_` |
+|---|---:|
+| First iteration | 0 |
+| Second iteration | 1 |
+
+Visual representation:
+
+```text
+          range(2)
+              |
+              v
+          First round
+              |
+              v
+          _ = 0
+              |
+              v
+         Second round
+              |
+              v
+          _ = 1
+              |
+              v
+         Loop finishes
+              |
+              v
+          print(_)
+              |
+              v
+              1
+```
+
+**Step 3: What is `pass`?**
+
+```python
+pass
+```
+
+`pass` is a statement that does nothing.
+
+It is used when Python requires a statement, but we don't want to perform any operation.
+
+For example:
+
+```python
+for _ in range(2):
+    pass
+```
+
+The loop still runs twice. It simply performs no action inside the loop.
+
+**Step 4:**
+
+```python
+print(_)
+```
+
+Here is the important part:
+
+After the loop finishes, `_` still exists.
+
+Its last assigned value was `1`.
+
+Therefore:
+
+```text
+1
+```
+
+**Why doesn't `_` disappear after the loop?**
+
+Because `for` loops do not automatically delete their loop variables after completion.
+
+The variable `_` remains available in the surrounding scope.
+
+---
+
+## 4. Very Important: `_` Is Not Always a Throwaway Variable
+
+There is another special convention involving `_` in the Python interactive interpreter (REPL).
+
+In the standard Python REPL, `_` stores the result of the last evaluated expression.
+
+For example:
+
+```python
+>>> 10 + 20
+30
+
+>>> _
+30
+
+>>> _ + 5
+35
+```
+
+Here, `_` refers to the previous result.
+
+**But be careful!**
+
+This special REPL behaviour is different from using `_` as an ordinary variable in a Python script.
+
+For example:
+
+```python
+_ = 100
+print(_)
+```
+
+Output:
+
+```text
+100
+```
+
+In a normal Python script, `_` is simply a variable name unless a particular environment or library gives it some other meaning.
+
+---
+
+## 5. Summary — Everything in One Place
+
+| Situation | Example | Meaning |
+|---|---|---|
+| Ordinary variable | `_ = 10` | Stores the value `10` |
+| For loop | `for _ in range(3)` | Loop value is not needed |
+| Unpacking | `a, _ = (1, 2)` | Second value is not needed |
+| Star unpacking | `first, *_ = [1, 2, 3]` | Collects remaining values into `_` |
+| Multiple unpacking targets | `_, _, z = (1, 2, 3)` | First two values are not needed |
+| REPL | `_` | Refers to the last evaluated result in the standard Python REPL |
+
+---
+
+## 6. Final Takeaway
+
+Remember these three things:
+
+1. `_` is an ordinary, valid Python variable name.
+2. Programmers commonly use `_` when they don't need a particular value.
+3. `_` still stores the value assigned to it. It does not automatically discard or delete that value.
+
+**One sentence to remember:**
+
+`_` means "I am receiving this value, but I don't intend to use it."
+
+
 
 #### Practice 2.2.10
 

@@ -2921,6 +2921,331 @@ print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
 ```text
 True False
 ```
+# Example 2.2.8.2: Safe Check Using `hasattr()` and `builtins`
+
+## 1. The Code
+
+```python
+import builtins
+
+print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
+```
+
+**Output:**
+
+```text
+True False
+```
+
+Let's understand what is happening, one step at a time.
+
+---
+
+## 2. What Is `builtins`?
+
+Python already provides many functions that we can use directly without importing anything.
+
+For example:
+
+```python
+print("Hello")
+sum([10, 20, 30])
+len("Python")
+max(10, 20, 30)
+min(10, 20, 30)
+```
+
+Where do these functions come from?
+
+They are available through a special Python module called **`builtins`**.
+
+Think of `builtins` as a collection of names that Python makes available by default.
+
+Some examples:
+
+| Name | What it does |
+|---|---|
+| `print()` | Displays something |
+| `sum()` | Calculates the total |
+| `len()` | Returns the length |
+| `max()` | Finds the largest value |
+| `min()` | Finds the smallest value |
+| `type()` | Tells us an object's type |
+
+### How do we access this module explicitly?
+
+```python
+import builtins
+```
+
+Now we can access its functions using:
+
+```python
+builtins.print("Hello")
+builtins.sum([10, 20, 30])
+builtins.len("Python")
+```
+
+Output:
+
+```text
+Hello
+60
+6
+```
+
+Notice that we use:
+
+```python
+builtins.sum()
+```
+
+instead of simply:
+
+```python
+sum()
+```
+
+Both refer to the built-in `sum` function, provided we haven't replaced the name `sum` in our current scope.
+
+---
+
+## 3. What Is `hasattr()`?
+
+`hasattr()` is a built-in Python function.
+
+Its job is simple:
+
+**It checks whether an object has a particular attribute.**
+
+Syntax:
+
+```python
+hasattr(object, "attribute_name")
+```
+
+It returns:
+
+- `True` if the attribute exists.
+- `False` if the attribute does not exist.
+
+For example:
+
+```python
+class Student:
+    name = "Sam"
+    age = 20
+
+s = Student()
+
+print(hasattr(s, "name"))
+print(hasattr(s, "age"))
+print(hasattr(s, "marks"))
+```
+
+Output:
+
+```text
+True
+True
+False
+```
+
+Why?
+
+- `name` exists in the `Student` class.
+- `age` exists in the `Student` class.
+- `marks` does not exist.
+
+---
+
+## 4. Now Let's Understand Our Original Example
+
+```python
+import builtins
+
+print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
+```
+
+We are checking two things.
+
+### First check
+
+```python
+hasattr(builtins, "sum")
+```
+
+Python asks:
+
+"Does the `builtins` module have an attribute called `sum`?"
+
+Yes!
+
+Because `sum` is a standard built-in function.
+
+Therefore:
+
+```python
+True
+```
+
+### Second check
+
+```python
+hasattr(builtins, "total")
+```
+
+Python asks:
+
+"Does the `builtins` module have an attribute called `total`?"
+
+No!
+
+There is no standard built-in function named `total`.
+
+Therefore:
+
+```python
+False
+```
+
+### Visual representation
+
+```text
+                 builtins MODULE
+              ______________________
+             |                      |
+             |  print               |
+             |  sum          ✓      |
+             |  len                 |
+             |  max                 |
+             |  min                 |
+             |  type                |
+             |  ...                 |
+             |                      |
+             |  total        ✗      |
+             |______________________|
+
+             hasattr(builtins, "sum")
+                       |
+                       v
+                      True
+
+             hasattr(builtins, "total")
+                       |
+                       v
+                      False
+```
+
+So the final output is:
+
+```text
+True False
+```
+
+---
+
+## 5. Why Is This Called a Safe Check?
+
+Suppose you want to check whether an object contains a particular attribute before trying to use it.
+
+You can do this:
+
+```python
+if hasattr(builtins, "sum"):
+    print("sum exists!")
+else:
+    print("sum does not exist!")
+```
+
+Output:
+
+```text
+sum exists!
+```
+
+This allows you to check first instead of immediately trying to access an attribute that might not exist.
+
+---
+
+## 6. Important: `hasattr()` Checks Attributes, Not Just Functions
+
+Consider:
+
+```python
+class Student:
+    name = "Sam"
+
+s = Student()
+
+print(hasattr(s, "name"))
+print(hasattr(s, "age"))
+```
+
+Output:
+
+```text
+True
+False
+```
+
+Here, `name` is an attribute, but it isn't a function.
+
+So remember:
+
+**An attribute can be a variable, a function, or another object associated with an object.**
+
+`hasattr()` checks whether the requested attribute is available. It does not check whether that attribute is specifically a function.
+
+---
+
+## 7. Quick Experiment
+
+Try these yourself:
+
+```python
+import builtins
+
+print(hasattr(builtins, "print"))
+print(hasattr(builtins, "len"))
+print(hasattr(builtins, "average"))
+print(hasattr(builtins, "max"))
+print(hasattr(builtins, "total"))
+```
+
+Expected output:
+
+```text
+True
+True
+False
+True
+False
+```
+
+Why?
+
+Because `print`, `len`, and `max` are standard built-in names, while `average` and `total` are not.
+
+---
+
+## 8. Final Takeaway
+
+| Concept | Meaning |
+|---|---|
+| `builtins` | Module containing Python's built-in names |
+| `import builtins` | Gives us explicit access to that module |
+| `hasattr()` | Checks whether an object has an attribute |
+| `hasattr(obj, "x")` | Returns `True` or `False` |
+| `builtins.sum` | Accesses the built-in `sum` function |
+
+**The entire example in one sentence:**
+
+We import Python's `builtins` module and use `hasattr()` to check whether it contains `sum` and `total`; `sum` exists, but `total` does not.
+
+--- 
+
+**Remember:** `hasattr()` is a general attribute-checking tool. It is not limited to the `builtins` module or to functions.
 
 #### Practice 2.2.8
 

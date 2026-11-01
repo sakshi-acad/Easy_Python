@@ -2085,22 +2085,424 @@ print(5 .__eq__(5.0), 5 .__eq__("5"))
 
 ### 2.2.7 Private-ish naming (\_x, \_\_x, \_\_x\_\_)
 
-\_x: "internal use" hint. \_\_x inside a class: name mangling to \_ClassName\_\_x, which avoids accidental clashes in subclasses. \_\_x\_\_: reserved dunder. None of these are true privacy.
+## 2.2.7 Private-ish Naming (`_x`, `__x`, `__x__`)
 
-**Example 2.2.7.1: Mangling in action**
+Python uses underscores in variable and method names to communicate how something is intended to be used.
+
+There are three important naming styles:
+
+1. `_x` – A hint that something is intended for internal use.
+2. `__x` – Triggers name mangling when used inside a class.
+3. `__x__` – A special naming convention used by Python for special methods and attributes.
+
+**Important:** Python does not have strict private variables in the same way some other programming languages do. These naming styles are conventions and mechanisms, not complete privacy.
+
+---
+
+### 1. Single Underscore: `_x`
+
+A single underscore before a name is a signal to other programmers:
+
+"This is intended for internal use. You probably should not access it directly from outside the class or module."
+
+Example:
+
+```python
+class A:
+    _x = 10
+
+print(A._x)
+```
+
+**Output:**
+
+```text
+10
+```
+
+Notice something important:
+
+Even though `_x` starts with an underscore, Python allows us to access it.
+
+```python
+print(A._x)
+```
+
+This works perfectly.
+
+So, does `_x` make a variable private?
+
+**No!**
+
+It is simply a naming convention. It tells other programmers that the variable is intended for internal use.
+
+Think of it as a warning label, not a locked door.
+
+### 2. Double Underscore: `__x`
+
+This one is more interesting.
+
+When you write a name beginning with two underscores inside a class, Python performs something called **name mangling**.
+
+Name mangling means Python automatically changes the name internally.
+
+For example:
 
 ```python
 class A:
     def __init__(self):
+        self.__x = 10
+```
+
+Python internally changes:
+
+```text
+__x
+```
+
+Into:
+
+```text
+_A__x
+```
+
+Why?
+
+Because Python wants to reduce accidental naming conflicts, especially when a class is inherited by another class.
+
+Let's see what happens.
+
+```python
+class A:
+    def __init__(self):
+        self.__x = 10
+
+a = A()
+
+print(vars(a))
+```
+
+**Output:**
+
+```text
+{'_A__x': 10}
+```
+
+Look carefully!
+
+We wrote `self.__x`, but Python stored the attribute under the name `_A__x`.
+
+The transformation is:
+
+```text
+Original name       Name after mangling
+
+    __x       --->      _A__x
+```
+
+Here, `A` is the class name.
+
+### 3. Why Does Name Mangling Happen?
+
+Suppose we have two classes:
+
+```python
+class A:
+    def __init__(self):
+        self.__x = 10
+
+
+class B(A):
+    def __init__(self):
+        super().__init__()
+        self.__x = 20
+
+
+obj = B()
+
+print(vars(obj))
+```
+
+**Output:**
+
+```text
+{'_A__x': 10, '_B__x': 20}
+```
+
+Why are there two different attributes?
+
+Because Python mangles the names using the class in which each name is written.
+
+```text
+Class A writes:
+
+    self.__x
+         |
+         v
+      _A__x
+
+
+Class B writes:
+
+    self.__x
+         |
+         v
+      _B__x
+```
+
+Even though both classes use `__x`, Python treats them as different attribute names.
+
+This helps prevent accidental clashes between parent and child classes.
+
+**Remember:** Name mangling does not make attributes completely inaccessible. It changes their names.
+
+For example:
+
+```python
+print(obj._A__x)
+print(obj._B__x)
+```
+
+**Output:**
+
+```text
+10
+20
+```
+
+Both attributes can still be accessed.
+
+---
+
+### 4. Double Underscore at Both Ends: `__x__`
+
+Now consider names such as:
+
+```python
+__init__
+__str__
+__len__
+__add__
+__eq__
+```
+
+These are commonly called **dunder methods**.
+
+Dunder means double underscore.
+
+They have special meanings in Python.
+
+For example:
+
+```python
+class A:
+    def __init__(self):
+        print("Object created")
+
+
+a = A()
+```
+
+**Output:**
+
+```text
+Object created
+```
+
+Here, `__init__` is a special method that Python calls during object initialization.
+
+Another example:
+
+```python
+class A:
+    def __str__(self):
+        return "Hello from A"
+
+
+a = A()
+
+print(a)
+```
+
+**Output:**
+
+```text
+Hello from A
+```
+
+Python uses `__str__` when you convert the object into its string representation using `str()` or `print()`.
+
+**Important:** Do not invent your own names using the double-underscore-at-both-ends convention. These names are reserved for Python's special protocols and future use.
+
+---
+
+### 5. Difference Between All Three
+
+| Naming style | Meaning | Example |
+|---|---|---|
+| `_x` | Internal-use convention | `_salary` |
+| `__x` | Triggers name mangling inside a class | `__salary` |
+| `__x__` | Special Python naming convention | `__init__` |
+
+Remember:
+
+- `_x` does not prevent access.
+- `__x` changes the attribute name through name mangling.
+- `__x__` is used for special Python methods and attributes.
+
+---
+
+## Example 2.2.7.1: Name Mangling in Action
+
+Let's understand the original example line by line.
+
+```python
+class A:
+
+    def __init__(self):
         self.pub = 1
         self._prot = 2
         self.__priv = 3
+
+
 a = A()
+
 print(a.pub, a._prot)
+
 print([n for n in vars(a)])
+
 print(a._A__priv)
+
 try:
     print(a.__priv)
+
+except AttributeError as e:
+    print("AttributeError:", e)
+```
+
+### Step 1: Creating the class
+
+```python
+class A:
+```
+
+We create a class named `A`.
+
+### Step 2: Creating the attributes
+
+```python
+def __init__(self):
+    self.pub = 1
+    self._prot = 2
+    self.__priv = 3
+```
+
+We create three attributes:
+
+| Attribute written in code | Meaning |
+|---|---|
+| `pub` | Ordinary public attribute |
+| `_prot` | Internal-use naming convention |
+| `__priv` | Name-mangled attribute |
+
+Python transforms `self.__priv` into `self._A__priv`.
+
+### Step 3: Creating an object
+
+```python
+a = A()
+```
+
+This creates an object of class `A`.
+
+Its attributes are now:
+
+```text
+       OBJECT: a
+       |
+       |---- pub       = 1
+       |
+       |---- _prot     = 2
+       |
+       |---- _A__priv  = 3
+```
+
+### Step 4: Accessing public and single-underscore attributes
+
+```python
+print(a.pub, a._prot)
+```
+
+**Output:**
+
+```text
+1 2
+```
+
+Both work because a single underscore does not block access.
+
+### Step 5: Understanding `vars()`
+
+```python
+print([n for n in vars(a)])
+```
+
+First, understand:
+
+```python
+vars(a)
+```
+
+It returns a dictionary containing the object's attributes (for an ordinary instance with a `__dict__`).
+
+The result here is:
+
+```python
+{
+    'pub': 1,
+    '_prot': 2,
+    '_A__priv': 3
+}
+```
+
+Now:
+
+```python
+[n for n in vars(a)]
+```
+
+This is a list comprehension.
+
+It collects the dictionary's keys into a list.
+
+**Output:**
+
+```text
+['pub', '_prot', '_A__priv']
+```
+
+Notice that `__priv` has become `_A__priv`.
+
+### Step 6: Accessing the mangled attribute
+
+```python
+print(a._A__priv)
+```
+
+**Output:**
+
+```text
+3
+```
+
+This works because we are using the actual mangled name.
+
+### Step 7: Trying the original name
+
+```python
+try:
+    print(a.__priv)
+
 except AttributeError as e:
     print("AttributeError:", e)
 ```
@@ -2108,11 +2510,42 @@ except AttributeError as e:
 **Output:**
 
 ```text
-1 2
-['pub', '_prot', '_A__priv']
-3
 AttributeError: 'A' object has no attribute '__priv'
 ```
+
+Why?
+
+Because Python stored the attribute as `_A__priv`, not `__priv`.
+
+Therefore, looking for `a.__priv` does not find the attribute.
+
+---
+
+# Practice 2.2.7 — Solutions and Explanations
+
+## Q1. BASIC
+
+**Question:**
+
+```python
+class A:
+    _x = 1
+
+print(A._x)
+```
+
+**Output:**
+
+```text
+1
+```
+
+**Explanation:**
+
+1. We create a class called `A`.
+2. Inside the class, we define `_x = 1`.
+3. `_x` begins with a single underscore.
+4. A single
 
 #### Practice 2.2.7
 

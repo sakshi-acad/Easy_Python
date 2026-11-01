@@ -4202,43 +4202,8 @@ print(_)
 
 Python accepts Unicode letters in identifiers and normalises them with NFKC, so different spellings can be the same name. Lookalike characters (Latin a vs Cyrillic a) create different names, a source of bugs and attacks. Prefer ASCII.
 
-**Example 2.2.11.1: NFKC folding and lookalikes**
 
-```python
-import unicodedata
-ﬁ = 1
-print(fi)
-a1 = "latin"
-а = "cyrillic"
-print(a1, "a" == "\u0430", unicodedata.name("\u0430"))
-```
 
-**Output:**
-
-```text
-1
-latin False CYRILLIC SMALL LETTER A
-```
-
-#### Practice 2.2.11
-
-**2.2.11-Q1 BASIC**
-
-```python
-print("ñ".isidentifier())
-```
-
-**2.2.11-Q2 MID**
-
-```python
-print("ﬁ".isidentifier())
-```
-
-**2.2.11-Q3 HARD**
-
-```python
-import unicodedata; print(unicodedata.normalize("NFKC", "ﬁ"))
-```
 
 ### 2.2.12 Naming in competitive programming
 

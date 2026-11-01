@@ -3273,6 +3273,241 @@ print(type(id).__name__)
 del id
 print(type(id).__name__)
 ```
+# Understanding `del`, `type()` and `__name__` in Python
+
+## 1. The Code
+
+```python
+id = 5
+
+print(type(id).__name__)
+
+del id
+
+print(type(id).__name__)
+```
+
+## 2. Output
+
+```text
+int
+
+NameError: name 'id' is not defined
+```
+
+**Important:** The program stops at the last line because the variable `id` has been deleted.
+
+---
+
+## 3. Step-by-Step Explanation
+
+### Step 1: Creating a Variable
+
+```python
+id = 5
+```
+
+We create a variable named `id` and assign the integer value `5` to it.
+
+Visual representation:
+
+```text
+       VARIABLE
+      __________
+     |          |
+     |    id    | ---------> 5
+     |__________|             |
+                              |
+                         INTEGER OBJECT
+```
+
+At this point, `id` refers to an integer object.
+
+### Step 2: Understanding `type()`
+
+```python
+print(type(id).__name__)
+```
+
+Let's divide this expression into smaller parts.
+
+**First:**
+
+```python
+type(id)
+```
+
+The `type()` function tells us the type of an object.
+
+Since `id` refers to the integer `5`:
+
+```python
+type(id)
+```
+
+Returns:
+
+```text
+<class 'int'>
+```
+
+**Second:**
+
+```python
+type(id).__name__
+```
+
+Here, `__name__` retrieves the name of the type.
+
+Instead of getting:
+
+```text
+<class 'int'>
+```
+
+We get:
+
+```text
+int
+```
+
+Therefore:
+
+```python
+print(type(id).__name__)
+```
+
+Output:
+
+```text
+int
+```
+
+### Step 3: Understanding `del`
+
+```python
+del id
+```
+
+The `del` statement deletes the variable name `id` from the current namespace.
+
+Before deletion:
+
+```text
+id  ----------------->  5
+```
+
+After deletion:
+
+```text
+id  ----X
+
+The name `id` no longer exists.
+```
+
+**Important:** `del id` removes the name `id`. It does not necessarily destroy the object itself.
+
+The object may continue to exist if something else still refers to it.
+
+### Step 4: Accessing the Deleted Variable
+
+```python
+print(type(id).__name__)
+```
+
+Python tries to find the variable `id`.
+
+But we already deleted that name!
+
+Therefore, Python raises:
+
+```text
+NameError: name 'id' is not defined
+```
+
+The program cannot complete this statement.
+
+---
+
+## 4. Understanding All the Concepts Together
+
+| Expression | Meaning |
+|---|---|
+| `type(id)` | Returns the type of the object referenced by `id` |
+| `type(id).__name__` | Returns the name of that type |
+| `del id` | Deletes the variable name `id` |
+| `NameError` | Raised when Python cannot find the requested name |
+
+---
+
+## 5. An Interesting Detail: `id` Is Already a Built-in Function!
+
+Python already has a built-in function called `id()`.
+
+For example:
+
+```python
+print(id(100))
+```
+
+It returns the identity value of the object.
+
+But when we write:
+
+```python
+id = 5
+```
+
+We create a variable named `id` that shadows the built-in function.
+
+This means Python now finds our variable instead of the built-in function when we use the name `id`.
+
+### What happens after `del id`?
+
+```python
+id = 5
+
+print(type(id).__name__)
+
+del id
+
+print(type(id).__name__)
+print(id(100))
+```
+
+Output:
+
+```text
+int
+builtin_function_or_method
+<some integer value>
+```
+
+Why does this work?
+
+1. Initially, `id` refers to our integer variable.
+2. `del id` removes our variable name.
+3. Python can now find the original built-in function named `id`.
+4. `id(100)` calls that built-in function.
+
+The exact identity value can vary between executions.
+
+---
+
+## 6. Important Takeaways
+
+- `type()` tells us the type of an object.
+- `.__name__` retrieves the name of a type.
+- `del` removes a variable name from its namespace.
+- Accessing a deleted name generally raises `NameError`, unless another name with that spelling is available.
+- Deleting a variable name does not necessarily destroy the object.
+- A variable can shadow a built-in Python name.
+
+**The main lesson:**
+
+`del id` deletes the variable named `id`, not necessarily the integer object `5`. Once that variable name is removed, Python can no longer use it to access the integer.
+
+
 
 ### 2.2.9 Naming for readability
 

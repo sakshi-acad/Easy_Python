@@ -245,9 +245,13 @@ a = "hi"; b = a; b += "!"; print(a, b)
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
 
 Draw it: after a = [1, 2]; b = a there is ONE list object and TWO arrows into it. After b = [1, 2] there are TWO list objects, each with one arrow.
-![Uploading unnested_lists_whiteboard.jpg…]()
-![Uploading nested_lists_level1_whiteboard.jpg…]()
-![Uploading nested_lists_level2_whiteboard.jpg…]()
+<img width="1600" height="2000" alt="unnested_lists_whiteboard" src="https://github.com/user-attachments/assets/c79bd308-81dd-4caf-9bb5-9f7721fa7ca2" />
+
+<img width="1600" height="2000" alt="nested_lists_level1_whiteboard" src="https://github.com/user-attachments/assets/4d2ded70-d545-4635-9fc8-5d3ba8250c08" />
+<img width="1600" height="2000" alt="nested_lists_level2_whiteboard" src="https://github.com/user-attachments/assets/c292ccbd-929c-43b5-8f3f-58ee4d679b24" />
+
+
+
 
 
 

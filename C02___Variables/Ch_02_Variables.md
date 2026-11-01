@@ -4623,487 +4623,530 @@ x <<= 2; x >>= 1; print(x)
 14
 28
 ```
-Python Bitwise Operators and Bitwise Shift Operators
+# Python Bitwise Operators and Bitwise Shift Operators
 
-1. Understanding the Starting Value
+## 1. Understanding the Starting Value
 
-Before understanding the last operators, we need to know the current value of "x".
+Before understanding the last operators, we need to know the current value of `x`.
 
+```python
 x = 121
 x %= 7
 
 print(x)
+```
 
-Output:
+**Output:**
 
+```
 2
+```
 
-Why?
+### Why?
 
-"%" gives us the remainder after division.
+`%` gives us the remainder after division.
 
+```
 121 ÷ 7
 
 7 × 17 = 119
 121 - 119 = 2
+```
 
 Therefore:
 
+```
 x = 2
+```
 
-Important: All the following operations happen one after another. Each operation uses the updated value of "x".
+> **Important:** All the following operations happen one after another. Each operation uses the updated value of `x`.
 
 ---
 
-2. First Group: Bitwise Assignment Operators
+## 2. First Group: Bitwise Assignment Operators
 
 The operators are:
 
-- "&=" : Bitwise AND assignment
-- "|=" : Bitwise OR assignment
-- "^=" : Bitwise XOR assignment
+- `&=` : Bitwise AND assignment
+- `|=` : Bitwise OR assignment
+- `^=` : Bitwise XOR assignment
 
 Before understanding these, we must understand binary numbers.
 
-2.1 What is Binary?
+### 2.1 What is Binary?
 
 Decimal numbers use ten digits:
 
+```
 0 1 2 3 4 5 6 7 8 9
+```
 
 Binary numbers use only two digits:
 
+```
 0 and 1
+```
 
-Binary place values
+#### Binary place values
 
 In decimal, place values are:
 
+```
 1000    100    10    1
+```
 
 In binary, place values are:
 
+```
 8    4    2    1
+```
 
 These come from powers of 2:
 
-Position| Calculation| Value
-First from left| 2³| 8
-Second from left| 2²| 4
-Third from left| 2¹| 2
-Fourth from left| 2⁰| 1
+| Position | Calculation | Value |
+|---|---|---|
+| First from left | 2³ | 8 |
+| Second from left | 2² | 4 |
+| Third from left | 2¹ | 2 |
+| Fourth from left | 2⁰ | 1 |
 
 A binary digit tells us whether that place value is included.
 
-- "1" means include that value.
-- "0" means do not include that value.
+- `1` means include that value.
+- `0` means do not include that value.
 
-2.2 Converting Decimal 2 into Binary
+### 2.2 Converting Decimal 2 into Binary
 
 Available place values:
 
+```
 8    4    2    1
+```
 
 We need to represent decimal 2.
 
-Place value| Do we need it?| Binary digit
-8| No| 0
-4| No| 0
-2| Yes| 1
-1| No| 0
+| Place value | Do we need it? | Binary digit |
+|---|---|---|
+| 8 | No | 0 |
+| 4 | No | 0 |
+| 2 | Yes | 1 |
+| 1 | No | 0 |
 
 Therefore:
 
+```
 Decimal:  2
 
 Binary:   0010
+```
 
 Check:
 
+```
 0 × 8 = 0
 0 × 4 = 0
 1 × 2 = 2
 0 × 1 = 0
 
 Total = 2
+```
 
-Therefore:
+Therefore: **2 = 0010 in binary.**
 
-2 = 0010 in binary.
-
-2.3 Converting Decimal 6 into Binary
+### 2.3 Converting Decimal 6 into Binary
 
 Available place values:
 
+```
 8    4    2    1
+```
 
 We need to represent decimal 6.
 
-Place value| Do we need it?| Binary digit
-8| No| 0
-4| Yes| 1
-2| Yes| 1
-1| No| 0
+| Place value | Do we need it? | Binary digit |
+|---|---|---|
+| 8 | No | 0 |
+| 4 | Yes | 1 |
+| 2 | Yes | 1 |
+| 1 | No | 0 |
 
 Therefore:
 
+```
 Decimal:  6
 
 Binary:   0110
+```
 
 Check:
 
+```
 0 × 8 = 0
 1 × 4 = 4
 1 × 2 = 2
 0 × 1 = 0
 
 Total = 6
+```
 
-Therefore:
-
-6 = 0110 in binary.
+Therefore: **6 = 0110 in binary.**
 
 ---
 
-3. Bitwise AND (&)
+## 3. Bitwise AND (`&`)
 
-3.1 What does AND mean?
+### 3.1 What does AND mean?
 
 AND compares two binary digits.
 
 Its rule:
 
-Both digits must be 1 to produce 1. Otherwise, the result is 0.
+> **Both digits must be 1 to produce 1. Otherwise, the result is 0.**
 
-AND truth table
+#### AND truth table
 
-First bit| Second bit| Result
-0| 0| 0
-0| 1| 0
-1| 0| 0
-1| 1| 1
+| First bit | Second bit | Result |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 0 | 0 |
+| 1 | 1 | 1 |
 
-3.2 Understanding the operation
+### 3.2 Understanding the operation
 
+```python
 x = 2
 x &= 6
+```
 
-Remember:
+Remember that `x &= 6` is equivalent to `x = x & 6`.
 
-x &= 6
-
-is equivalent to:
-
-x = x & 6
-
-We already know:
-
-x = 2
+We already know `x = 2`.
 
 Convert both numbers into binary:
 
+```
 2 = 0010
 6 = 0110
+```
 
 Now compare each column separately:
 
+```
        0 0 1 0
        0 1 1 0
        --------
        ? ? ? ?
+```
 
 Column-by-column calculation:
 
-Column 1:
-
-0 AND 0 = 0
-
-Column 2:
-
-0 AND 1 = 0
-
-Column 3:
-
-1 AND 1 = 1
-
-Column 4:
-
-0 AND 0 = 0
+```
+Column 1:  0 AND 0 = 0
+Column 2:  0 AND 1 = 0
+Column 3:  1 AND 1 = 1
+Column 4:  0 AND 0 = 0
+```
 
 Final calculation:
 
+```
        0010
    AND 0110
    --------
        0010
+```
 
 Convert the answer into decimal:
 
+```
 0010 = 0 + 0 + 2 + 0
 
 Answer = 2
+```
 
 Therefore:
 
+```
 x = 2
+```
 
-3.3 Important point
+### 3.3 Important point
 
-x &= 6
+`x &= 6` means `x = x & 6`.
 
-means:
-
-x = x & 6
-
-It performs the AND operation and assigns the result back to "x".
+It performs the AND operation and assigns the result back to `x`.
 
 ---
 
-4. Bitwise OR (|)
+## 4. Bitwise OR (`|`)
 
-4.1 What does OR mean?
+### 4.1 What does OR mean?
 
 OR also compares two binary digits.
 
 Its rule:
 
-If AT LEAST ONE digit is 1, the result is 1.
+> **If AT LEAST ONE digit is 1, the result is 1.**
 
-OR truth table
+#### OR truth table
 
-First bit| Second bit| Result
-0| 0| 0
-0| 1| 1
-1| 0| 1
-1| 1| 1
+| First bit | Second bit | Result |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 1 |
 
-4.2 Understanding the operation
+### 4.2 Understanding the operation
 
+```python
 x |= 9
+```
 
-Equivalent to:
+Equivalent to `x = x | 9`.
 
-x = x | 9
-
-Our current value is:
-
-x = 2
+Our current value is `x = 2`.
 
 Convert both numbers into binary:
 
+```
 2 = 0010
 9 = 1001
+```
 
 Now compare:
 
+```
        0010
     OR 1001
     --------
        1011
+```
 
 Let's understand each column:
 
+```
 0 OR 1 = 1
 0 OR 0 = 0
 1 OR 0 = 1
 0 OR 1 = 1
+```
 
-Therefore:
+Therefore the result is `1011`.
 
-1011
+Convert binary `1011` into decimal:
 
-Convert binary 1011 into decimal:
+| Binary digit | Place value |
+|---|---|
+| 1 | 8 |
+| 0 | 0 |
+| 1 | 2 |
+| 1 | 1 |
 
-Binary position| Value
-1| 8
-0| 0
-1| 2
-1| 1
-
+```
 8 + 0 + 2 + 1 = 11
+```
 
 Therefore:
 
+```
 x = 11
+```
 
-4.3 Important point
+### 4.3 Important point
 
-x |= 9
-
-means:
-
-x = x | 9
+`x |= 9` means `x = x | 9`.
 
 ---
 
-5. Bitwise XOR (^)
+## 5. Bitwise XOR (`^`)
 
-5.1 What does XOR mean?
+### 5.1 What does XOR mean?
 
-XOR stands for Exclusive OR.
+XOR stands for **Exclusive OR**.
 
 Its rule:
 
-If the two bits are DIFFERENT, the result is 1. If they are SAME, the result is 0.
+> **If the two bits are DIFFERENT, the result is 1. If they are SAME, the result is 0.**
 
-XOR truth table
+#### XOR truth table
 
-First bit| Second bit| Result
-0| 0| 0
-0| 1| 1
-1| 0| 1
-1| 1| 0
+| First bit | Second bit | Result |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 0 |
 
 Remember:
 
-- Same digits = 0
-- Different digits = 1
+- Same digits = `0`
+- Different digits = `1`
 
-5.2 Understanding the operation
+### 5.2 Understanding the operation
 
+```python
 x ^= 5
+```
 
-Equivalent to:
+Equivalent to `x = x ^ 5`.
 
-x = x ^ 5
-
-Our current value is:
-
-x = 11
+Our current value is `x = 11`.
 
 Convert both numbers into binary:
 
+```
 11 = 1011
  5 = 0101
+```
 
 Now compare:
 
+```
         1011
     XOR 0101
     --------
         1110
+```
 
 Column-by-column:
 
+```
 1 XOR 0 = 1
 0 XOR 1 = 1
 1 XOR 0 = 1
 1 XOR 1 = 0
+```
 
-Therefore:
+Therefore the result is `1110`.
 
-1110
+Convert binary `1110` into decimal:
 
-Convert binary 1110 into decimal:
-
+```
 8 + 4 + 2 + 0 = 14
+```
 
 Therefore:
 
+```
 x = 14
+```
 
-5.3 Important point
+### 5.3 Important point
 
-x ^= 5
-
-means:
-
-x = x ^ 5
+`x ^= 5` means `x = x ^ 5`.
 
 ---
 
-6. Tracking All Three Operators Together
+## 6. Tracking All Three Operators Together
 
-Remember that the value of "x" changes after every operation.
+Remember that the value of `x` changes after every operation.
 
-Operation| Calculation| New value of x
-Starting value| —| 2
-"x &= 6"| 2 AND 6| 2
-`x| = 9`| 2 OR 9
-"x ^= 5"| 11 XOR 5| 14
+| Operation | Calculation | New value of x |
+|---|---|---|
+| Starting value | — | 2 |
+| `x &= 6` | 2 AND 6 | 2 |
+| `x \|= 9` | 2 OR 9 | 11 |
+| `x ^= 5` | 11 XOR 5 | 14 |
 
-Final result:
-
-14
+**Final result after these three operators: `14`**
 
 ---
 
-7. Second Group: Bitwise Shift Assignment Operators
+## 7. Second Group: Bitwise Shift Assignment Operators
 
 Now we move to:
 
+```python
 x <<= 2
 x >>= 1
+```
 
-These are called bitwise shift operators.
+These are called **bitwise shift operators**.
 
 There are two directions:
 
-- "<<" shifts binary digits to the LEFT.
-- ">>" shifts binary digits to the RIGHT.
+- `<<` shifts binary digits to the **LEFT**.
+- `>>` shifts binary digits to the **RIGHT**.
 
 Let's understand them separately.
 
-8. Left Shift (<<)
+---
 
-8.1 What does left shift mean?
+## 8. Left Shift (`<<`)
+
+### 8.1 What does left shift mean?
 
 Left shift moves binary digits towards the left.
 
 Example:
 
+```
 Original:  1110
+```
 
 Shift left by two positions:
 
+```
 Original:  1110
 Shifted:   111000
+```
 
 Two zeroes are added on the right.
 
-8.2 Understanding the actual operation
+### 8.2 Understanding the actual operation
 
+```python
 x <<= 2
+```
 
-Equivalent to:
+Equivalent to `x = x << 2`.
 
-x = x << 2
-
-Our current value is:
-
-x = 14
+Our current value is `x = 14`.
 
 Convert 14 into binary:
 
+```
 14 = 1110
+```
 
 Shift left by two positions:
 
+```
 Original:  1110
 Shifted:   111000
+```
 
-Now convert 111000 into decimal.
+Now convert `111000` into decimal.
 
 Binary place values:
 
+```
 32    16    8    4    2    1
+```
 
 Binary digits:
 
+```
  1     1    1    0    0    0
+```
 
 Calculation:
 
+```
 32 + 16 + 8 + 0 + 0 + 0
 
 = 56
+```
 
 Therefore:
 
+```
 x = 56
+```
 
-8.3 Shortcut for positive integers
+### 8.3 Shortcut for positive integers
 
 Shifting left by one position multiplies by 2.
 
@@ -5111,116 +5154,144 @@ Shifting left by two positions multiplies by 4.
 
 In general:
 
+```
 x << n  =  x × 2ⁿ
+```
 
 For our example:
 
+```
 14 << 2
 
 = 14 × 2²
 = 14 × 4
 = 56
+```
 
 ---
 
-9. Right Shift (>>)
+## 9. Right Shift (`>>`)
 
-9.1 What does right shift mean?
+### 9.1 What does right shift mean?
 
 Right shift moves binary digits towards the right.
 
 Example:
 
+```
 Original:  111000
+```
 
 Shift right by one position:
 
+```
 Original:  111000
 Shifted:    11100
+```
 
 The rightmost digit is discarded.
 
-9.2 Understanding the actual operation
+### 9.2 Understanding the actual operation
 
+```python
 x >>= 1
+```
 
-Equivalent to:
+Equivalent to `x = x >> 1`.
 
-x = x >> 1
-
-Our current value is:
-
-x = 56
+Our current value is `x = 56`.
 
 Convert 56 into binary:
 
+```
 56 = 111000
+```
 
 Shift right by one position:
 
+```
 Original:  111000
 Shifted:    11100
+```
 
-Now convert 11100 into decimal.
+Now convert `11100` into decimal.
 
 Binary place values:
 
+```
 16    8    4    2    1
+```
 
 Binary digits:
 
+```
  1    1    1    0    0
+```
 
 Calculation:
 
+```
 16 + 8 + 4 + 0 + 0
 
 = 28
+```
 
 Therefore:
 
+```
 x = 28
+```
 
-9.3 Shortcut for positive integers
+### 9.3 Shortcut for positive integers
 
 Shifting right by one position divides by 2, rounding down.
 
 In general:
 
+```
 x >> n  =  x // 2ⁿ
+```
 
 For our example:
 
+```
 56 >> 1
 
 = 56 // 2
 = 28
+```
 
 ---
 
-10. Complete Value Tracking
+## 10. Complete Value Tracking
 
 This is the entire sequence from the original example.
 
-Step| Operation| Value of x
-1| Starting value| 2
-2| "x &= 6"| 2
-3| `x| = 9`
-4| "x ^= 5"| 14
-5| "x <<= 2"| 56
-6| "x >>= 1"| 28
+| Step | Operation | Value of x |
+|---|---|---|
+| 1 | Starting value | 2 |
+| 2 | `x &= 6` | 2 |
+| 3 | `x \|= 9` | 11 |
+| 4 | `x ^= 5` | 14 |
+| 5 | `x <<= 2` | 56 |
+| 6 | `x >>= 1` | 28 |
 
-Final output:
+**Final output:**
 
+```
 14
 28
+```
+
+(`14` is the value after the XOR step, and `28` is the final value after the last shift.)
 
 ---
 
-11. Complete Python Code to Run in Your Console
+## 11. Complete Python Code to Run in Your Console
 
 Copy this entire code into your Python console.
 
+```python
 x = 2
 
 # BITWISE AND
@@ -5242,108 +5313,117 @@ print("After LEFT SHIFT:", x)
 # RIGHT SHIFT
 x >>= 1
 print("After RIGHT SHIFT:", x)
+```
 
-Expected output:
+**Expected output:**
 
+```
 After AND: 2
 After OR: 11
 After XOR: 14
 After LEFT SHIFT: 56
 After RIGHT SHIFT: 28
+```
 
 ---
 
-12. Quick Revision Table
+## 12. Quick Revision Table
 
-Operator| Name| Main rule
-"&"| AND| Both bits must be 1
-`| `| OR
-"^"| XOR| Bits must be different
-"<<"| Left shift| Move bits left
-">>"| Right shift| Move bits right
-"&="| AND assignment| Perform AND and assign
-`| =`| OR assignment
-"^="| XOR assignment| Perform XOR and assign
-"<<="| Left shift assignment| Shift left and assign
-">>="| Right shift assignment| Shift right and assign
+| Operator | Name | Main rule |
+|---|---|---|
+| `&` | AND | Both bits must be 1 |
+| `\|` | OR | At least one bit must be 1 |
+| `^` | XOR | Bits must be different |
+| `<<` | Left shift | Move bits left |
+| `>>` | Right shift | Move bits right |
+| `&=` | AND assignment | Perform AND and assign |
+| `\|=` | OR assignment | Perform OR and assign |
+| `^=` | XOR assignment | Perform XOR and assign |
+| `<<=` | Left shift assignment | Shift left and assign |
+| `>>=` | Right shift assignment | Shift right and assign |
 
-13. Practice Questions
+---
+
+## 13. Practice Questions
 
 Try these without looking at the answers first.
 
-Q1 — BASIC
+### Q1 — BASIC
 
 What is the result of:
 
+```
   1010
 & 1100
 ------
+```
 
 Options:
 
-A. "1000"
+- A. `1000`
+- B. `1110`
+- C. `0110`
 
-B. "1110"
-
-C. "0110"
-
-Q2 — BASIC
+### Q2 — BASIC
 
 What is:
 
+```python
 5 | 3
+```
 
 Options:
 
-A. 1
+- A. `1`
+- B. `6`
+- C. `7`
 
-B. 6
-
-C. 7
-
-Q3 — MEDIUM
+### Q3 — MEDIUM
 
 What is:
 
+```python
 12 << 1
+```
 
 Options:
 
-A. 6
+- A. `6`
+- B. `24`
+- C. `48`
 
-B. 24
-
-C. 48
-
-Q4 — MEDIUM
+### Q4 — MEDIUM
 
 What is:
 
+```python
 20 >> 2
+```
 
 Options:
 
-A. 5
-
-B. 10
-
-C. 40
+- A. `5`
+- B. `10`
+- C. `40`
 
 ---
 
-14. Answers with Explanations
+## 14. Answers with Explanations
 
-Q1. Answer: A — 1000
+### Q1. Answer: A — `1000`
 
+```
     1010
 AND 1100
 --------
     1000
+```
 
 Only the first position from the left has two 1s.
 
-Q2. Answer: C — 7
+### Q2. Answer: C — `7`
 
+```
 5 = 0101
 3 = 0011
 
@@ -5351,38 +5431,44 @@ Q2. Answer: C — 7
 OR  0011
 --------
     0111
+```
 
-0111 = 4 + 2 + 1 = 7
+`0111` = 4 + 2 + 1 = **7**
 
-Q3. Answer: B — 24
+### Q3. Answer: B — `24`
 
+```
 12 << 1
 
 = 12 × 2
 = 24
+```
 
-Q4. Answer: A — 5
+### Q4. Answer: A — `5`
 
+```
 20 >> 2
 
 = 20 // 4
 = 5
+```
 
 ---
 
-15. Final Things to Remember
+## 15. Final Things to Remember
 
-1. Binary uses only 0 and 1.
+1. Binary uses only `0` and `1`.
 2. Binary place values are powers of 2.
 3. Convert decimal numbers into binary before performing bitwise operations.
-4. AND: Both bits must be 1.
-5. OR: At least one bit must be 1.
-6. XOR: Different bits produce 1; same bits produce 0.
+4. **AND:** Both bits must be 1.
+5. **OR:** At least one bit must be 1.
+6. **XOR:** Different bits produce 1; same bits produce 0.
 7. Left shift moves bits to the left.
 8. Right shift moves bits to the right.
 9. Augmented assignment operators perform an operation and assign the result back to the variable.
-10. Always track the updated value of "x" before performing the next operation.
+10. Always track the updated value of `x` before performing the next operation.
 
+> **Learning advice:** First become comfortable with binary conversion and the AND, OR, and XOR truth tables. Then practise left and right shifts. Do not rush to memorise everything at once.
 
 
 **Example 2.3.6.2: In place vs rebind**

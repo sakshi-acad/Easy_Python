@@ -154,7 +154,7 @@ Step 1: Python evaluates the right-hand side and produces (or finds) an object. 
 > **Key rule:** Rule: "x = expr" means "make the name x refer to the object that expr produced".
 
 **Example 2.1.1.1: Binding a name, then rebinding it to an object of another type**
-<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
+<!-- <img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" /> -->
 
 ```python
 x = 10
@@ -237,7 +237,8 @@ a = [1]; b = a; b += [2]; print(a, b)
 ```python
 a = "hi"; b = a; b += "!"; print(a, b)
 ```
-<img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" />
+<!-- <img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" /> -->
+
 
 
 ### 2.1.2 Variable as reference to an object
@@ -245,9 +246,17 @@ a = "hi"; b = a; b += "!"; print(a, b)
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
 
 Draw it: after a = [1, 2]; b = a there is ONE list object and TWO arrows into it. After b = [1, 2] there are TWO list objects, each with one arrow.
-<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/34461afa-e893-4c97-b99f-fa3c1325063e" />
-<img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/aadc2582-e19d-49cf-b379-673592dc7396" />
-<img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/4d26a274-fe16-4a34-8175-800afaa7c2c0" />
+<img width="1600" height="2000" alt="unnested_lists_whiteboard" src="https://github.com/user-attachments/assets/c79bd308-81dd-4caf-9bb5-9f7721fa7ca2" />
+
+<img width="1600" height="2000" alt="nested_lists_level1_whiteboard" src="https://github.com/user-attachments/assets/4d2ded70-d545-4635-9fc8-5d3ba8250c08" />
+<img width="1600" height="2000" alt="nested_lists_level2_whiteboard" src="https://github.com/user-attachments/assets/c292ccbd-929c-43b5-8f3f-58ee4d679b24" />
+
+
+
+
+
+
+
 
 
 
@@ -274,7 +283,7 @@ True False
 ```
 
 **Example 2.1.2.2: A list holds references, not copies**
-<img width="1280" height="964" alt="6282615415871574875" src="https://github.com/user-attachments/assets/38e76579-5622-4c5e-83ab-bd154bfb6be6" />
+<img width="1600" height="1080" alt="example_2_1_2_2_whiteboard" src="https://github.com/user-attachments/assets/e49114b7-8d40-4fb0-a814-d376ff1cc59f" />
 
 
 ```python
@@ -291,7 +300,8 @@ print(row)
 ```
 
 **Example 2.1.2.3: The same arrow idea for strings and ints (immutable, but still references)**
-<img width="3072" height="4080" alt="IMG_20261031_175152797" src="https://github.com/user-attachments/assets/33270394-88c0-4178-9da8-c7c127c28a58" />
+<img width="1600" height="2260" alt="immutable_string_integers_whiteboard" src="https://github.com/user-attachments/assets/a8e94e3d-9e07-4f25-8eff-47315bbbad90" />
+
 
 
 
@@ -335,7 +345,8 @@ x = [0]; row = [x[:], x[:]]; row[0].append(9); print(row)
 ```python
 a = [1]; b = [a, a]; a = [2]; print(b)
 ```
-<img width="241" height="320" alt="IMG_20261031_180520551" src="https://github.com/user-attachments/assets/a5759bc5-b0e0-49ca-8023-509a0227218f" />
+<img width="966" height="1280" alt="6284835231063807639" src="https://github.com/user-attachments/assets/ca451447-5863-4bdf-9a3a-6365f6deff7c" />
+
 
 
 ### 2.1.3 id() and type(): first tools
@@ -405,7 +416,7 @@ a = [1]; b = list(a); print(a == b, id(a) == id(b))
 ```python
 print(type(type(5)))
 ```
-<img width="241" height="320" alt="IMG_20261031_182003091" src="https://github.com/user-attachments/assets/38294a74-d65c-4b98-83bb-8e303ef3625e" />
+
 
 
 ### 2.1.4 Names vs values
@@ -490,7 +501,7 @@ x = [1, 2]; f(x); print(x)
 In a statically typed language (C, Java) the variable has a declared type and the compiler rejects wrong assignments. In Python the TYPE BELONGS TO THE OBJECT; a name can be rebound to any object at any time. Type errors appear at run time, when an operation meets an unsupported object.
 
 Optional type hints (x: int) are read by tools like mypy, not enforced by the interpreter.
-<img width="1600" height="2658" alt="IMG_20261031_194846826" src="https://github.com/user-attachments/assets/e439668e-c20b-41dd-b0f2-10a38dfa07b8" />
+<!-- <img width="1600" height="2658" alt="IMG_20261031_194846826" src="https://github.com/user-attachments/assets/e439668e-c20b-41dd-b0f2-10a38dfa07b8" /> -->
 
 
 **Example 2.1.5.1: One name, three types**
@@ -1224,6 +1235,368 @@ print("CapWords".isidentifier(), "CapWords"[0].isupper())
 ### 2.2.4 Constant naming (UPPER_CASE, Final)
 
 Python has no real constants. UPPER_CASE is a promise to other programmers. typing.Final lets a type checker reject reassignment; at run time nothing stops it.
+## 2.2.4 Constant Naming (`UPPER_CASE`, `Final`)
+
+Python does not have built-in syntax that makes an ordinary variable truly constant. Instead, Python provides naming conventions and type annotations to communicate that a value should not be reassigned.
+
+There are two important concepts:
+
+1. `UPPER_CASE` — a naming convention that communicates that a variable is intended to remain unchanged.
+2. `typing.Final` — a special type annotation that allows static type checkers to detect reassignment.
+
+Let's understand both.
+
+### 1. What Is a Constant?
+
+A constant is a value that is intended to remain unchanged throughout a program.
+
+For example:
+
+```python
+PI = 3.14159
+GRAVITY = 9.8
+MAX_USERS = 100
+DATABASE_NAME = "students"
+```
+
+Notice that all variable names are written in uppercase.
+
+Why?
+
+Because uppercase naming communicates to other programmers:
+
+**"This variable is intended to remain unchanged. Please don't reassign it."**
+
+However, Python does not enforce this convention.
+
+Consider:
+
+```python
+RATE = 0.2
+
+RATE = 0.5
+
+print(RATE)
+```
+
+Output:
+
+```text
+0.5
+```
+
+Python allows this without raising an error.
+
+Why?
+
+Because `RATE` is simply an ordinary variable written in uppercase.
+
+UPPER_CASE is a naming convention, not a restriction enforced by Python.
+
+### 2. What Is `typing.Final`?
+
+Python provides something called `Final` inside its `typing` module.
+
+It allows programmers to communicate that a variable should not be reassigned.
+
+Example:
+
+```python
+from typing import Final
+
+RATE: Final = 0.2
+```
+
+Let's understand this statement.
+
+**Part A:**
+
+```python
+from typing import Final
+```
+
+We import `Final` from Python's built-in `typing` module.
+
+**Part B:**
+
+```python
+RATE: Final = 0.2
+```
+
+This is a variable annotation.
+
+It communicates:
+
+"RATE is intended to be final. Do not reassign it."
+
+The important distinction is that `Final` is primarily checked by static type-checking tools. It does not automatically prevent reassignment when Python executes the program.
+
+### 3. Understanding the Original Example
+
+**Example 2.2.4.1: Final Is Checked by Tools Only**
+
+```python
+from typing import Final
+
+RATE: Final = 0.2
+
+RATE = 0.5
+
+print(RATE)
+```
+
+Output:
+
+```text
+0.5
+```
+
+Let's execute this code conceptually, line by line.
+
+**Line 1:**
+
+```python
+from typing import Final
+```
+
+Imports `Final` from the `typing` module.
+
+**Line 2:**
+
+```python
+RATE: Final = 0.2
+```
+
+Creates a variable named `RATE` and marks it as final for static type checking.
+
+**Line 3:**
+
+```python
+RATE = 0.5
+```
+
+We attempt to reassign the variable.
+
+Python allows this at runtime!
+
+However, a static type checker should report an error because we are reassigning a variable marked as `Final`.
+
+**Line 4:**
+
+```python
+print(RATE)
+```
+
+Python prints:
+
+```text
+0.5
+```
+
+The program executes successfully, even though a static type checker would complain about the reassignment.
+
+### 4. Python Interpreter vs Static Type Checker
+
+This is the most important distinction to understand.
+
+There are two different processes involved:
+
+**A. Python Interpreter**
+
+The Python interpreter executes your code.
+
+It does not enforce `Final` as a runtime restriction.
+
+Therefore:
+
+```python
+from typing import Final
+
+RATE: Final = 0.2
+
+RATE = 0.5
+
+print(RATE)
+```
+
+Executes successfully and prints:
+
+```text
+0.5
+```
+
+**B. Static Type Checker**
+
+A static type checker examines your code to detect potential mistakes without needing to execute it.
+
+For example:
+
+- `mypy`
+- `Pyright`
+
+These tools understand the meaning of `Final` and can report an error when a variable marked as final is reassigned.
+
+Conceptually:
+
+```text
+                 YOUR PYTHON CODE
+                        |
+             -----------------------
+             |                     |
+             v                     v
+       Python Interpreter    Static Type Checker
+             |                     |
+             v                     v
+       Executes code         Examines code
+             |                     |
+             v                     v
+       Allows reassignment  Reports reassignment
+             |                     |
+             v                     v
+          Output                Warning/Error
+            0.5
+```
+
+Remember:
+
+**Python allows the reassignment at runtime, but a static type checker detects that it violates the `Final` annotation.**
+
+### 5. Difference Between UPPER_CASE and Final
+
+| Code | Meaning | Runtime Reassignment |
+|---|---|---|
+| `rate = 0.2` | Ordinary variable | Allowed |
+| `RATE = 0.2` | Constant naming convention | Allowed |
+| `RATE: Final = 0.2` | Final annotation | Allowed, but type checker reports an error |
+
+Both UPPER_CASE and `Final` communicate that a variable should remain unchanged.
+
+The difference is that `Final` provides additional information that static type-checking tools can understand.
+
+### 6. Important: Final Does Not Freeze Objects!
+
+This is another interesting aspect of Python.
+
+Consider:
+
+```python
+from typing import Final
+
+numbers: Final = [1, 2, 3]
+
+numbers.append(4)
+
+print(numbers)
+```
+
+Output:
+
+```text
+[1, 2, 3, 4]
+```
+
+Why did this work?
+
+Because `Final` prevents reassignment according to static type-checking rules. It does not make the object immutable.
+
+To understand this, we need to distinguish between two operations:
+
+**A. Reassignment**
+
+Reassignment changes what a variable refers to.
+
+```python
+from typing import Final
+
+numbers: Final = [1, 2, 3]
+
+numbers = [4, 5, 6]  # Static type checker error
+```
+
+Here, we are attempting to make `numbers` refer to an entirely different list.
+
+**B. Mutation**
+
+Mutation changes the existing object without changing what the variable refers to.
+
+```python
+from typing import Final
+
+numbers: Final = [1, 2, 3]
+
+numbers.append(4)
+
+print(numbers)
+```
+
+Output:
+
+```text
+[1, 2, 3, 4]
+```
+
+This is allowed because we are modifying the existing list rather than reassigning the variable.
+
+Compare:
+
+| Operation | What happens? | Static Type Checker |
+|---|---|---|
+| `numbers = [4, 5, 6]` | Reassigns the variable | Reports an error |
+| `numbers.append(4)` | Mutates the existing list | Allowed |
+
+This connects directly to the concepts of mutable objects, immutable objects, and references.
+
+### 7. Quick Knowledge Check
+
+**Question: What happens when we execute this code?**
+
+```python
+from typing import Final
+
+DATA: Final = [10, 20]
+
+DATA.append(30)
+
+print(DATA)
+```
+
+Options:
+
+1. Python raises an error.
+2. Static type checker raises an error.
+3. Prints `[10, 20, 30]`.
+4. Prints `[10, 20]`.
+
+**Correct Answer: Option 3**
+
+Output:
+
+```text
+[10, 20, 30]
+```
+
+Explanation:
+
+`append()` modifies the existing list. It does not reassign the variable `DATA`.
+
+Therefore, the operation is allowed.
+
+`Final` does not make the list immutable.
+
+---
+
+### Key Takeaways
+
+1. Python does not have built-in syntax that makes ordinary variables truly constant.
+2. `UPPER_CASE` is a naming convention used to communicate that a variable should not change.
+3. `typing.Final` is a type annotation that allows static type checkers to detect reassignment.
+4. Python itself does not enforce `Final` as a runtime restriction.
+5. `Final` does not make mutable objects immutable.
+6. Reassignment and mutation are two different operations.
+
+**The most important thing to remember:**
+
+UPPER_CASE tells programmers not to change something. `Final` tells static type checkers to report attempts to reassign it. Neither makes an ordinary Python variable truly constant at runtime.
 
 **Example 2.2.4.1: Final is checked by tools only**
 

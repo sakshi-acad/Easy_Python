@@ -1277,6 +1277,354 @@ import math; math.pi = 3; print(math.pi)
 ### 2.2.5 Reserved keywords as names (error)
 
 Hard keywords (class, def, if, for, None, True, ...) cannot be names. Soft keywords (match, case, type, \_) can still be names but should not. A trailing underscore (class\_) is the standard workaround.
+## Python Keywords: Hard Keywords and Soft Keywords
+
+Python has some words that have a special meaning in its syntax. These words are called **keywords**.
+
+For example:
+
+```python
+if
+else
+for
+while
+class
+return
+```
+
+Python reserves these words for specific purposes. We cannot use them freely as variable names.
+
+But there is an interesting distinction: **Hard Keywords** and **Soft Keywords**.
+
+---
+
+### 1. Hard Keywords
+
+Hard keywords are words that are always reserved by Python.
+
+You cannot use them as ordinary variable names.
+
+For example:
+
+```python
+class = 10
+```
+
+This produces a `SyntaxError` because `class` is a reserved keyword used to define classes.
+
+Other examples include:
+
+```python
+if
+else
+for
+while
+def
+return
+import
+try
+except
+True
+False
+None
+```
+
+Think of hard keywords as words that Python has permanently reserved for its grammar.
+
+### 2. Soft Keywords
+
+Soft keywords are slightly different.
+
+They have a special meaning only in particular syntactic situations. Outside those situations, Python allows us to use them as ordinary variable names.
+
+For example:
+
+```python
+match = 5
+
+print(match)
+```
+
+**Output:**
+
+```text
+5
+```
+
+This works because `match` is a soft keyword.
+
+However, Python also uses `match` in pattern matching:
+
+```python
+value = 10
+
+match value:
+    case 10:
+        print("Value is ten")
+    case _:
+        print("Something else")
+```
+
+**Output:**
+
+```text
+Value is ten
+```
+
+Here, `match` and `case` have special meanings because they appear in a pattern-matching statement.
+
+Other soft keywords include:
+
+- `match`
+- `case`
+- `_`
+
+The exact list depends on the Python version.
+
+---
+
+### 3. How to Check Python Keywords
+
+Python provides a built-in module called `keyword` that allows us to inspect keywords programmatically.
+
+```python
+import keyword
+
+print(len(keyword.kwlist))
+print(keyword.kwlist)
+
+print(keyword.softkwlist)
+```
+
+Let's understand each part.
+
+**`import keyword`**
+
+Imports Python's built-in `keyword` module.
+
+**`keyword.kwlist`**
+
+Returns a list containing all hard keywords.
+
+**`len(keyword.kwlist)`**
+
+Returns the total number of hard keywords in that Python version.
+
+**`keyword.softkwlist`**
+
+Returns a list containing all soft keywords.
+
+Remember: the number of keywords can change between Python versions.
+
+---
+
+### 4. Understanding `keyword.iskeyword()` and `keyword.issoftkeyword()`
+
+Python also provides two useful functions to check whether a particular word is a keyword.
+
+**Checking hard keywords:**
+
+```python
+import keyword
+
+print(keyword.iskeyword("class"))
+print(keyword.iskeyword("match"))
+```
+
+**Output:**
+
+```text
+True
+False
+```
+
+Why?
+
+- `"class"` is a hard keyword.
+- `"match"` is a soft keyword, not a hard keyword.
+
+**Checking soft keywords:**
+
+```python
+print(keyword.issoftkeyword("class"))
+print(keyword.issoftkeyword("match"))
+```
+
+**Output:**
+
+```text
+False
+True
+```
+
+---
+
+### 5. Understanding the `compile()` Function
+
+Now let's understand a slightly different concept.
+
+Python provides a built-in function called `compile()`.
+
+It attempts to compile Python source code and returns a code object if compilation succeeds.
+
+It does not execute the code.
+
+**Syntax:**
+
+```python
+compile(source, filename, mode)
+```
+
+| Parameter | Meaning |
+|---|---|
+| `source` | The Python code we want to compile |
+| `filename` | A name used to identify the source |
+| `mode` | Specifies the kind of code being compiled |
+
+The three commonly used modes are:
+
+- `"exec"` – For multiple statements or a complete block of code.
+- `"eval"` – For a single expression.
+- `"single"` – For a single interactive statement.
+
+Let's look at an example:
+
+```python
+compile("class = 1", "<s>", "exec")
+```
+
+This produces a `SyntaxError`.
+
+Why?
+
+Because `class` is a hard keyword and cannot be used as a variable name.
+
+### 6. Understanding `try`, `except`, and `SyntaxError`
+
+Instead of allowing the program to stop when an error occurs, we can catch the error using `try` and `except`.
+
+```python
+try:
+    compile("class = 1", "<s>", "exec")
+
+except SyntaxError as e:
+    print("SyntaxError:", e.msg)
+```
+
+**Possible output:**
+
+```text
+SyntaxError: invalid syntax
+```
+
+Let's break this down:
+
+- `try`: Python attempts to execute the statements inside this block.
+- `compile()`: Attempts to compile the given source code.
+- `except SyntaxError`: Catches the syntax error if compilation fails.
+- `as e`: Stores the caught error in a variable named `e`.
+- `e.msg`: Retrieves the error message.
+
+The exact error message can vary between Python versions.
+
+---
+
+### 7. Why Does `class_` Work?
+
+Consider this:
+
+```python
+class_ = 10
+
+print(class_)
+```
+
+**Output:**
+
+```text
+10
+```
+
+Why does this work?
+
+Because `class_` and `class` are two different identifiers.
+
+Python does not consider `class_` a reserved keyword.
+
+Adding an underscore is a common convention when a variable name would otherwise conflict with a keyword.
+
+### 8. Hard Keywords vs Soft Keywords
+
+| Feature | Hard Keywords | Soft Keywords |
+|---|---|---|
+| Reserved by Python | Always | Only in specific contexts |
+| Can be used as ordinary variable names? | No | Yes, outside their special contexts |
+| Example | `class`, `if`, `return` | `match`, `case`, `_` |
+| Checked using | `keyword.iskeyword()` | `keyword.issoftkeyword()` |
+
+---
+
+### 9. Complete Code Example
+
+Let's put everything together:
+
+```python
+import keyword
+
+# Total number of hard keywords
+print(len(keyword.kwlist))
+
+# Display all hard keywords
+print(keyword.kwlist)
+
+# Display all soft keywords
+print(keyword.softkwlist)
+
+
+# Check whether a word is a hard keyword
+print(keyword.iskeyword("class"))
+print(keyword.iskeyword("match"))
+
+
+# Check whether a word is a soft keyword
+print(keyword.issoftkeyword("class"))
+print(keyword.issoftkeyword("match"))
+
+
+# Try compiling invalid Python code
+try:
+    compile("class = 1", "<s>", "exec")
+
+except SyntaxError as e:
+    print("SyntaxError:", e.msg)
+
+
+# Using a modified identifier
+class_ = 1
+print(class_)
+
+
+# Using a soft keyword as a variable
+match = 5
+print(match)
+```
+
+---
+
+### 10. Important Things to Remember
+
+1. Keywords are reserved words that have special meanings in Python.
+2. Hard keywords cannot be used as ordinary identifiers.
+3. Soft keywords have special meanings only in particular syntactic contexts.
+4. `keyword.kwlist` gives us the list of hard keywords.
+5. `keyword.softkwlist` gives us the list of soft keywords.
+6. `keyword.iskeyword()` checks for hard keywords.
+7. `keyword.issoftkeyword()` checks for soft keywords.
+8. `compile()` checks whether source code can be compiled; it does not execute it.
+9. `SyntaxError` indicates that Python cannot understand the code's syntax.
+10. Adding an underscore, such as `class_`, gives us a different, valid identifier.
+
+**The central idea:** Not every word that Python uses specially is permanently reserved. Hard keywords are always reserved, while soft keywords are context-dependent.
 
 **Example 2.2.5.1: What happens**
 

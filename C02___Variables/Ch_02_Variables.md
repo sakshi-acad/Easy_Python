@@ -5490,6 +5490,455 @@ print(u, t)
 ```
 
 **Example 2.3.6.3: Matrix operator exists but no builtin type uses it**
+# Example 2.3.6.3: Matrix operator exists but no builtin type uses it
+
+## 1. The code
+
+```python
+try:
+    x = 1; x @= 2
+except TypeError as e:
+    print("TypeError:", e)
+```
+
+**Output:**
+
+```
+TypeError: unsupported operand type(s) for @=: 'int' and 'int'
+```
+
+> The exact wording of the error message can differ slightly between Python versions. The output above is from Python 3.12.
+
+---
+
+## 2. What is this code trying to show?
+
+Python has an operator `@` and an assignment version `@=`. They were added in **Python 3.5** (PEP 465) for **matrix multiplication**.
+
+The surprising part: **no built-in Python type actually uses it.** Not `int`, not `float`, not `str`, not `list`. So even though the operator *exists* in the language, using it on built-in types fails with a `TypeError`.
+
+The `try / except` block is only there so the error is **caught and printed** instead of crashing the program.
+
+---
+
+## 3. Line-by-line explanation
+
+### Line 1: `try:`
+
+Start of a protected block. Python runs the indented code and **watches for errors**.
+
+### Line 2: `x = 1; x @= 2`
+
+This line has **two statements** separated by a semicolon `;`.
+
+| Part | Meaning |
+|---|---|
+| `x = 1` | Create the variable `x` and store the integer `1` in it. |
+| `;` | Separator. Lets you write two statements on one line. |
+| `x @= 2` | Try to do `x = x @ 2`, i.e. matrix-multiply `x` by `2` and store the result back in `x`. |
+
+It is the same as writing:
+
+```python
+x = 1
+x @= 2
+```
+
+### Line 3: `except TypeError as e:`
+
+Runs **only if** a `TypeError` happened inside the `try` block.
+
+- `TypeError` = the kind of error we expect (an operation used on a wrong type).
+- `as e` = store the error object in the variable `e` so we can look at it.
+
+### Line 4: `print("TypeError:", e)`
+
+Prints the label `TypeError:` followed by the error message stored in `e`.
+
+---
+
+## 4. What does `@=` mean?
+
+It is an **augmented assignment operator**, just like `+=` or `*=`:
+
+| Short form | Long form |
+|---|---|
+| `x += 2` | `x = x + 2` |
+| `x *= 2` | `x = x * 2` |
+| `x @= 2` | `x = x @ 2` |
+
+So `x @= 2` means: *"matrix-multiply x by 2, then store the result back into x."*
+
+---
+
+## 5. What is matrix multiplication? (quick idea)
+
+A matrix is a grid of numbers. Matrix multiplication combines **rows of the first matrix** with **columns of the second matrix**.
+
+Example with two 2×2 matrices:
+
+```
+A = | 1  2 |        B = | 5  6 |
+    | 3  4 |            | 7  8 |
+```
+
+Each result cell = (row of A) × (column of B), multiplied pairwise and added up:
+
+```
+Row 1 × Col 1  =  1×5 + 2×7  =  5 + 14  =  19
+Row 1 × Col 2  =  1×6 + 2×8  =  6 + 16  =  22
+Row 2 × Col 1  =  3×5 + 4×7  = 15 + 28  =  43
+Row 2 × Col 2  =  3×6 + 4×8  = 18 + 32  =  50
+```
+
+Result:
+
+```
+A @ B = | 19  22 |
+        | 43  50 |
+```
+
+This is **not** the same as `*`. A plain number like `1` or `2` is not a matrix, so `1 @ 2` has no meaning, and Python's `int` type does not define it.
+
+---
+
+## 6. Why does the error happen?
+
+When Python sees `x @= 2` it looks for special methods on the objects:
+
+1. First `x.__imatmul__(2)` (the in-place version).
+2. If that does not exist, `x.__matmul__(2)` (the normal version).
+3. If that fails too, it tries the right-hand side's `__rmatmul__`.
+
+The `int` type has **none** of these, so Python raises a `TypeError`:
+
+```python
+print(hasattr(int, "__matmul__"), hasattr(int, "__imatmul__"))
+```
+
+```
+False False
+```
+
+### Reading the error message
+
+```
+TypeError: unsupported operand type(s) for @=: 'int' and 'int'
+```
+
+| Part | Meaning |
+|---|---|
+| `TypeError` | The kind of error: wrong type for this operation. |
+| `unsupported operand type(s)` | The values on both sides can't be used with this operator. |
+| `for @=` | The operator that failed. |
+| `'int' and 'int'` | The types of the left value (`x` is `1`) and right value (`2`). |
+
+---
+
+## 7. Step-by-step execution
+
+| Step | What Python does | Result |
+|---|---|---|
+| 1 | Enters the `try` block | Starts watching for errors |
+| 2 | Runs `x = 1` | `x` points to the int `1` |
+| 3 | Runs `x @= 2` | Looks for `__imatmul__` and `__matmul__` on `int`: **not found** |
+| 4 | Raises `TypeError` | The rest of the `try` block is skipped |
+| 5 | Finds `except TypeError as e` | The error matches, so it is stored in `e` |
+| 6 | Runs `print("TypeError:", e)` | Prints the message |
+| 7 | Program continues normally | No crash |
+
+Notice that `x` is **still `1`** after the failure, because the assignment never completed:
+
+```python
+x = 1
+try:
+    x @= 2
+except TypeError as e:
+    print("caught")
+print(x)
+```
+
+```
+caught
+1
+```
+
+---
+
+## 8. Compare with the other augmented operators
+
+These all work on integers:
+
+| Operator | Name | Example (`x = 7`) | Result |
+|---|---|---|---|
+| `+=` | add | `x += 2` | `9` |
+| `-=` | subtract | `x -= 2` | `5` |
+| `*=` | multiply | `x *= 2` | `14` |
+| `/=` | divide | `x /= 2` | `3.5` |
+| `//=` | floor divide | `x //= 2` | `3` |
+| `%=` | remainder | `x %= 2` | `1` |
+| `**=` | power | `x **= 2` | `49` |
+| `&=` `\|=` `^=` `<<=` `>>=` | bitwise | works on ints | |
+| `@=` | **matrix multiply** | `x @= 2` | **TypeError** |
+
+`@=` is the odd one out: it is a valid operator, but integers do not support it.
+
+---
+
+## 9. Other built-in types fail too
+
+```python
+try:
+    a = [1, 2]; a @= [3, 4]
+except TypeError as e:
+    print("TypeError:", e)
+```
+
+```
+TypeError: unsupported operand type(s) for @=: 'list' and 'list'
+```
+
+```python
+try:
+    s = "ab"; s @= "c"
+except TypeError as e:
+    print("TypeError:", e)
+```
+
+```
+TypeError: unsupported operand type(s) for @=: 'str' and 'str'
+```
+
+The plain (non-assignment) operator fails in the same way:
+
+```python
+try:
+    x = 1
+    y = x @ 2
+except TypeError as e:
+    print("TypeError:", e)
+```
+
+```
+TypeError: unsupported operand type(s) for @: 'int' and 'int'
+```
+
+---
+
+## 10. So who uses `@`?
+
+### 10.1 NumPy (the main user)
+
+NumPy arrays implement matrix multiplication:
+
+```python
+import numpy as np
+
+a = np.array([[1, 2], [3, 4]])
+b = np.array([[5, 6], [7, 8]])
+
+print(a @ b)
+```
+
+```
+[[19 22]
+ [43 50]]
+```
+
+This matches the hand calculation in section 5.
+
+The in-place form also works:
+
+```python
+a @= b
+print(a)
+```
+
+```
+[[19 22]
+ [43 50]]
+```
+
+For 1-D arrays, `@` gives the **dot product**:
+
+```python
+v = np.array([1, 2, 3])
+w = np.array([4, 5, 6])
+print(v @ w)      # 1×4 + 2×5 + 3×6
+```
+
+```
+32
+```
+
+### 10.2 Your own class
+
+You can make `@` work for your own objects by defining `__matmul__`:
+
+```python
+class M:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def __matmul__(self, other):
+        print("__matmul__ called")
+        n = len(other.rows[0])
+        return M([[sum(r[k] * other.rows[k][j] for k in range(len(other.rows)))
+                   for j in range(n)] for r in self.rows])
+
+    def __repr__(self):
+        return f"M({self.rows})"
+
+a = M([[1, 2], [3, 4]])
+b = M([[5, 6], [7, 8]])
+print(a @ b)
+a @= b
+print(a)
+```
+
+```
+__matmul__ called
+M([[19, 22], [43, 50]])
+__matmul__ called
+M([[19, 22], [43, 50]])
+```
+
+Note that `a @= b` worked even though the class only defined `__matmul__`. If `__imatmul__` is missing, Python **falls back** to `__matmul__` and rebinds the name.
+
+### 10.3 The in-place hook
+
+If you define `__imatmul__`, Python uses it for `@=`:
+
+```python
+class P:
+    def __imatmul__(self, other):
+        print("__imatmul__ called")
+        return self
+
+p = P()
+p @= 3
+```
+
+```
+__imatmul__ called
+```
+
+### Method summary
+
+| You write | Python calls first | Fallback |
+|---|---|---|
+| `a @ b` | `a.__matmul__(b)` | `b.__rmatmul__(a)` |
+| `a @= b` | `a.__imatmul__(b)` | `a.__matmul__(b)`, then `b.__rmatmul__(a)` |
+
+---
+
+## 11. Don't confuse it with the decorator `@`
+
+The same `@` symbol is also used for **decorators**:
+
+```python
+@my_decorator
+def f():
+    ...
+```
+
+Position tells them apart: a decorator `@` is at the **start of a line** above a `def` or `class`. The matrix `@` sits **between two values** as an operator.
+
+---
+
+## 12. Key takeaways
+
+1. `@` and `@=` are the **matrix multiplication** operator (Python 3.5+).
+2. `x @= 2` means `x = x @ 2`.
+3. Built-in types (`int`, `float`, `str`, `list`, ...) **do not implement it**, so you get a `TypeError`.
+4. The `try / except TypeError as e` block catches the error so the program does not crash.
+5. The message is `unsupported operand type(s) for @=: 'int' and 'int'`.
+6. `x` keeps its old value because the assignment never happened.
+7. `@` works with **NumPy arrays** and with **your own classes** that define `__matmul__` (and optionally `__imatmul__`).
+8. `@` here is not the decorator `@`.
+
+---
+
+## 13. Practice questions
+
+Try these before looking at the answers.
+
+### Q1: BASIC
+
+```python
+try:
+    x = 1; x @= 2
+except TypeError:
+    print("caught")
+else:
+    print("ok")
+```
+
+### Q2: BASIC
+
+```python
+x = 3
+try:
+    x @= 4
+except TypeError:
+    pass
+print(x)
+```
+
+### Q3: MEDIUM
+
+```python
+a = [1]
+a += [2]
+print(a)
+try:
+    a @= [3]
+except TypeError as e:
+    print("TypeError:", e)
+```
+
+### Q4: MEDIUM
+
+```python
+import numpy as np
+print(np.array([1, 2, 3]) @ np.array([4, 5, 6]))
+```
+
+### Q5: HARD
+
+```python
+class N:
+    def __matmul__(self, other):
+        return "plain @ used"
+
+n = N()
+n @= 5
+print(n)
+```
+
+---
+
+## 14. Answers
+
+**Q1:** `caught`
+`x @= 2` raises a `TypeError`, so the `except` block runs. The `else` block runs only when there is **no** error.
+
+**Q2:** `3`
+The `@=` fails, `except` swallows the error with `pass`, and `x` was never changed.
+
+**Q3:**
+```
+[1, 2]
+TypeError: unsupported operand type(s) for @=: 'list' and 'list'
+```
+`+=` works on lists (it extends the list), but `@=` does not.
+
+**Q4:** `32`
+For 1-D arrays `@` is the dot product: 1×4 + 2×5 + 3×6 = 4 + 10 + 18.
+
+**Q5:** `plain @ used`
+The class has no `__imatmul__`, so Python falls back to `__matmul__`. The returned string `"plain @ used"` is then assigned to `n`, so `print(n)` shows it.
+
 
 ```python
 try:

@@ -240,6 +240,7 @@ a = "hi"; b = a; b += "!"; print(a, b)
 <!-- <img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" /> -->
 
 
+
 ### 2.1.2 Variable as reference to an object
 
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
@@ -282,7 +283,7 @@ True False
 ```
 
 **Example 2.1.2.2: A list holds references, not copies**
-<img width="1280" height="964" alt="6282615415871574875" src="https://github.com/user-attachments/assets/38e76579-5622-4c5e-83ab-bd154bfb6be6" />
+<img width="1600" height="1080" alt="example_2_1_2_2_whiteboard" src="https://github.com/user-attachments/assets/e49114b7-8d40-4fb0-a814-d376ff1cc59f" />
 
 
 ```python
@@ -299,7 +300,8 @@ print(row)
 ```
 
 **Example 2.1.2.3: The same arrow idea for strings and ints (immutable, but still references)**
-<img width="3072" height="4080" alt="IMG_20261031_175152797" src="https://github.com/user-attachments/assets/33270394-88c0-4178-9da8-c7c127c28a58" />
+<img width="1600" height="2260" alt="immutable_string_integers_whiteboard" src="https://github.com/user-attachments/assets/a8e94e3d-9e07-4f25-8eff-47315bbbad90" />
+
 
 
 
@@ -343,7 +345,8 @@ x = [0]; row = [x[:], x[:]]; row[0].append(9); print(row)
 ```python
 a = [1]; b = [a, a]; a = [2]; print(b)
 ```
-<img width="241" height="320" alt="IMG_20261031_180520551" src="https://github.com/user-attachments/assets/a5759bc5-b0e0-49ca-8023-509a0227218f" />
+<img width="966" height="1280" alt="6284835231063807639" src="https://github.com/user-attachments/assets/ca451447-5863-4bdf-9a3a-6365f6deff7c" />
+
 
 
 ### 2.1.3 id() and type(): first tools
@@ -413,7 +416,7 @@ a = [1]; b = list(a); print(a == b, id(a) == id(b))
 ```python
 print(type(type(5)))
 ```
-<img width="241" height="320" alt="IMG_20261031_182003091" src="https://github.com/user-attachments/assets/38294a74-d65c-4b98-83bb-8e303ef3625e" />
+
 
 
 ### 2.1.4 Names vs values

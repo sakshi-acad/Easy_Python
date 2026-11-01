@@ -154,7 +154,7 @@ Step 1: Python evaluates the right-hand side and produces (or finds) an object. 
 > **Key rule:** Rule: "x = expr" means "make the name x refer to the object that expr produced".
 
 **Example 2.1.1.1: Binding a name, then rebinding it to an object of another type**
-<img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" />
+<!-- <img width="1536" height="1024" alt="dynamic_typing_in_python" src="https://github.com/user-attachments/assets/d1df406c-27d3-453e-903c-ea9bc99641ee" /> -->
 
 ```python
 x = 10
@@ -237,7 +237,7 @@ a = [1]; b = a; b += [2]; print(a, b)
 ```python
 a = "hi"; b = a; b += "!"; print(a, b)
 ```
-<img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" />
+<!-- <img width="1280" height="784" alt="exercise 2 1 1" src="https://github.com/user-attachments/assets/bf12134d-69f4-4e4e-b2e0-36acba49215f" /> -->
 
 
 ### 2.1.2 Variable as reference to an object
@@ -245,9 +245,13 @@ a = "hi"; b = a; b += "!"; print(a, b)
 Think of every name as an arrow from the name to an object. Assignment moves or creates an arrow. Objects do not know which names point at them (they only keep a count). Containers also hold arrows: a list slot is an arrow to an object.
 
 Draw it: after a = [1, 2]; b = a there is ONE list object and TWO arrows into it. After b = [1, 2] there are TWO list objects, each with one arrow.
-<img width="3072" height="4080" alt="list_unnested (1)" src="https://github.com/user-attachments/assets/34461afa-e893-4c97-b99f-fa3c1325063e" />
-<img width="1666" height="2212" alt="list_unnested (2)" src="https://github.com/user-attachments/assets/aadc2582-e19d-49cf-b379-673592dc7396" />
-<img width="1666" height="2212" alt="list_unnested (3)" src="https://github.com/user-attachments/assets/4d26a274-fe16-4a34-8175-800afaa7c2c0" />
+![Uploading unnested_lists_whiteboard.jpg…]()
+![Uploading nested_lists_level1_whiteboard.jpg…]()
+![Uploading nested_lists_level2_whiteboard.jpg…]()
+
+
+
+
 
 
 

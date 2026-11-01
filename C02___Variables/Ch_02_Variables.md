@@ -2557,6 +2557,7 @@ class A:
 print(A._x)
 ```
 
+
 **2.2.7-Q2 MID**
 
 ```python
@@ -2564,6 +2565,7 @@ class A:
     def __init__(self): self.__v = 1
 print(sorted(vars(A())))
 ```
+
 
 **2.2.7-Q3 HARD**
 
@@ -2573,7 +2575,317 @@ class A:
 class B(A): pass
 print(hasattr(B, "__v"), hasattr(B, "_A__v"))
 ```
+# Solutions – Practice 2.2.7: Private-ish Naming
 
+## Q1. BASIC
+
+**Question:**
+
+```python
+class A:
+    _x = 1
+
+print(A._x)
+```
+
+**Output:**
+
+```text
+1
+```
+
+### Explanation
+
+**Step 1:** `class A:` creates a class named `A`.
+
+**Step 2:** `_x = 1` creates a class attribute named `_x`.
+
+**Step 3:** A single underscore before a name is simply a naming convention. It indicates that the attribute is intended for internal use.
+
+However, Python does not prevent us from accessing it.
+
+**Step 4:**
+
+```python
+print(A._x)
+```
+
+We access the class attribute `_x` directly using the class name `A`.
+
+Therefore, the output is:
+
+```text
+1
+```
+
+**Remember:** A single underscore does not make an attribute inaccessible.
+
+---
+
+## Q2. MID
+
+**Question:**
+
+```python
+class A:
+    def __init__(self):
+        self.__v = 1
+
+print(sorted(vars(A())))
+```
+
+**Output:**
+
+```text
+['_A__v']
+```
+
+### Explanation
+
+Let's break this into smaller parts.
+
+**Step 1: Creating an object**
+
+```python
+A()
+```
+
+This creates an object of class `A`.
+
+During initialization, Python automatically calls the `__init__()` method.
+
+**Step 2: Understanding `self.__v = 1`**
+
+```python
+self.__v = 1
+```
+
+This creates an instance attribute named `__v` and assigns it the value `1`.
+
+But because the name starts with two underscores, Python performs name mangling.
+
+```text
+Name written in code:
+
+        __v
+
+          |
+          | Name mangling
+          v
+
+Actual attribute name:
+
+       _A__v
+```
+
+Here, `A` is the class name.
+
+**Step 3: Understanding `vars()`**
+
+```python
+vars(A())
+```
+
+`vars()` returns the object's attributes as a dictionary.
+
+The result is:
+
+```python
+{'_A__v': 1}
+```
+
+**Step 4: Understanding `sorted()`**
+
+```python
+sorted(vars(A()))
+```
+
+When `sorted()` receives a dictionary, it sorts the dictionary's keys by default.
+
+The dictionary contains one key:
+
+```text
+_A__v
+```
+
+Therefore, the result is:
+
+```python
+['_A__v']
+```
+
+**Important:** `sorted()` returns the dictionary's keys, not its values.
+
+---
+
+## Q3. HARD
+
+**Question:**
+
+```python
+class A:
+    __v = 1
+
+class B(A):
+    pass
+
+print(hasattr(B, "__v"), hasattr(B, "_A__v"))
+```
+
+**Output:**
+
+```text
+False True
+```
+
+This question combines three concepts:
+
+1. Name mangling.
+2. Inheritance.
+3. `hasattr()`.
+
+### Step 1: Understanding class A
+
+```python
+class A:
+    __v = 1
+```
+
+We create a class attribute named `__v`.
+
+Because it starts with two underscores, Python performs name mangling.
+
+```text
+Original name:     __v
+
+Mangled name:      _A__v
+```
+
+Therefore, the actual attribute name is `_A__v`.
+
+### Step 2: Understanding class B
+
+```python
+class B(A):
+    pass
+```
+
+Here:
+
+- `A` is the parent class.
+- `B` is the child class.
+- `B` inherits attributes from `A`.
+- `pass` means we are not adding any additional statements to the class body.
+
+Since `B` inherits from `A`, it can access the inherited attribute `_A__v`.
+
+### Step 3: Understanding `hasattr()`
+
+`hasattr()` is a built-in Python function used to check whether an object has a particular attribute.
+
+**Syntax:**
+
+```python
+hasattr(object, "attribute_name")
+```
+
+It returns:
+
+- `True` if the attribute exists.
+- `False` if the attribute does not exist.
+
+### Step 4: First expression
+
+```python
+hasattr(B, "__v")
+```
+
+Python checks whether class `B` has an attribute literally named `__v`.
+
+**Result:**
+
+```text
+False
+```
+
+**Why?**
+
+Because Python changed the original attribute name `__v` into `_A__v` inside class `A`.
+
+There is no attribute literally named `__v` in the inherited class attributes.
+
+### Step 5: Second expression
+
+```python
+hasattr(B, "_A__v")
+```
+
+Now Python checks whether class `B` has an attribute named `_A__v`.
+
+**Result:**
+
+```text
+True
+```
+
+**Why?**
+
+Because `B` inherits the attribute `_A__v` from its parent class `A`.
+
+### Visual Explanation
+
+```text
+                 CLASS A
+                    |
+                 __v = 1
+                    |
+                    | Name mangling
+                    v
+                 _A__v = 1
+                    |
+                    | Inheritance
+                    v
+                 CLASS B
+                    |
+                    | Inherits _A__v
+                    |
+              +-----+------+
+              |            |
+              v            v
+         hasattr(B,    hasattr(B,
+           "__v")       "_A__v")
+              |            |
+              v            v
+            False         True
+```
+
+**The most important concept:**
+
+Name mangling uses the class in which the attribute was originally defined.
+
+Even when we access the inherited attribute through class `B`, its mangled name remains `_A__v`, because it was originally defined inside class `A`.
+
+---
+
+## Final Answer Sheet
+
+| Question | Output |
+|---|---|
+| Q1 – BASIC | `1` |
+| Q2 – MID | `['_A__v']` |
+| Q3 – HARD | `False True` |
+
+## Important Concepts to Remember
+
+1. `_x` is a naming convention, not an access restriction.
+2. `__x` triggers name mangling inside a class.
+3. Name mangling changes `__x` into `_ClassName__x`.
+4. `vars()` returns an object's attribute dictionary when available.
+5. `sorted()` sorts dictionary keys by default.
+6. `hasattr()` checks whether an attribute exists.
+7. Inherited mangled attributes retain the name generated from the class in which they were originally defined.
+
+**The central idea:** Python uses name mangling to reduce accidental attribute-name clashes, especially in inheritance. It does not create truly private attributes.
 ### 2.2.8 Beginner pitfalls: shadowing built-ins (list, id, input)
 
 Assigning to a name like list, id, input, sum or max hides the built-in in that scope. Later calls fail with confusing errors. del the name to restore the built-in.

@@ -4473,25 +4473,7 @@ print(a, b)
 2 2
 ```
 
-**Example 2.3.4.3: The bytecode**
 
-```python
-import dis
-dis.dis("a, b = b, a")
-```
-
-**Output:**
-
-```text
-  0           0 RESUME                   0
-
-  1           2 LOAD_NAME                0 (b)
-              4 LOAD_NAME                1 (a)
-              6 SWAP                     2
-              8 STORE_NAME               1 (a)
-             10 STORE_NAME               0 (b)
-             12 RETURN_CONST             0 (None)
-```
 
 #### Practice 2.3.4
 

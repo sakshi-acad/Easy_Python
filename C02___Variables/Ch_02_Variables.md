@@ -6835,6 +6835,173 @@ t = (1, [2]); t[1].append(3); print(t)
 ### 2.5.2 id() behaviour
 
 id is stable for the object's whole life and unique among live objects. After an object is freed its id may be reused by a new object. In CPython id is the address, but that is an implementation detail.
+# id(), hash() and __eq__(): what is the difference?
+
+All three seem like "ways to tell objects apart", but each one answers a **different question**.
+
+## The three questions
+
+| Tool | The question it answers | Real-life version |
+|---|---|---|
+| `id(x)` | "Which exact object is this?" | A person's unique ID card number. Nobody else has it. |
+| `hash(x)` | "Which locker should I look in?" | The PIN code of their area. Many people share one. |
+| `x == y` | "Do these two count as the same thing?" | "Do these two forms describe the same person?" |
+
+`x == y` is the same as Python calling `x.__eq__(y)`, and `hash(x)` is the same as Python calling `x.__hash__()`.
+
+## One line each
+
+- **`id(x)`**: returns a number for the exact object in memory. Python decides it, and you can't change it.
+- **`hash(x)`**: runs `x.__hash__()`, which returns a number used to pick a locker in dicts and sets.
+- **`x.__eq__(y)`**: returns True or False for "do I count as equal to y?".
+
+---
+
+## Part 1: A plain class (nothing overridden)
+
+By default, Python bases everything on `id`:
+
+```python
+class Plain:
+    pass
+
+a = Plain()
+b = Plain()
+
+print(id(a) == id(b))      # False
+print(a == b)              # False  (default __eq__ compares identity)
+print(hash(a) == hash(b))  # False  (default __hash__ is derived from id)
+```
+
+So by default, "equal" means "the exact same object". Two separate objects are never equal.
+
+## Part 2: Overriding `__eq__` and `__hash__`
+
+You can change what "equal" and "hash" mean so they stop depending on `id`:
+
+```python
+class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+a = Student("Sakshi")
+c = Student("Sakshi")
+
+print(id(a) == id(c))      # False -> still two different objects
+print(a.__eq__(c))         # True  -> your rule: same name = equal
+print(hash(a) == hash(c))  # True  -> your rule: same name = same locker
+```
+
+`id` did not change, because Python controls it. Only `__eq__` and `__hash__` follow your rules.
+
+Think of `a` and `c` as two paper forms that both say "Sakshi":
+- **id says:** "These are two different forms."
+- **hash says:** "Both go to the same locker."
+- **== says:** "They describe the same person, so equal."
+
+None of these contradicts the others, because they answer different questions.
+
+## Part 3: How a set or dict uses them
+
+To check "is Sakshi already in the set?", Python does two steps:
+
+1. Use **hash** to jump to the right locker.
+2. Use **==** to check whether anyone in that locker is the same person.
+
+```python
+s = {Student("Sakshi"), Student("Rahul"), Student("Sakshi")}
+print(len(s))   # 2  (the two Sakshi students count as one)
+```
+
+`id` is not part of this. It is only used for "same exact object?" checks.
+
+## Part 4: Two things about `id()` that surprise people
+
+### 4a. Changing an object does NOT change its id
+
+`id` identifies the object itself, not what is inside it. Mutating a list keeps the same object, so the id stays the same:
+
+```python
+a = [1]
+i = id(a)
+a.append(2)
+print(a)            # [1, 2]  (the contents changed)
+print(id(a) == i)   # True    (but it is still the same object)
+```
+
+Think of a person who changes clothes: the ID card number stays the same.
+
+### 4b. Ids of temporary objects can repeat
+
+`id` is unique only among objects that are **alive at the same time**. Once an object is destroyed, its memory can be reused by a new object, and the new one may get the same id:
+
+```python
+class T: pass
+
+x = id(T())   # T() is created, its id is saved, then the object is destroyed immediately
+y = id(T())   # a new T() is created, possibly in the same freed memory
+print("ids of temporaries can repeat:", x == y)
+# usually prints: ids of temporaries can repeat: True
+```
+
+Here we saved only the **number**, not the object. So after each line the `T()` object disappears, and Python may reuse the same memory spot for the next one. (This is common in CPython but not guaranteed.)
+
+Compare with keeping both objects alive:
+
+```python
+p = T()
+q = T()
+print(id(p) == id(q))   # False -> both alive, so ids must differ
+```
+
+Think of ID cards: a card number is unique among **living** people. After someone leaves, their number may be given to a new person later.
+
+**Lesson:** never store `id(obj)` and assume it identifies that object forever. It only does while the object is alive.
+
+---
+
+## Summary table
+
+| | Who controls it | Can two objects share it? | Question |
+|---|---|---|---|
+| `id()` | Python | Never (while both are alive) | Same exact object? |
+| `__hash__()` | You (default uses id) | Yes | Which locker? |
+| `__eq__()` | You (default uses id) | Yes | Count as equal? |
+
+## The only rule linking them
+
+> If `a == b` is True, then `hash(a) == hash(b)` **must** be True.
+
+The reverse is **not** required: the same hash does **not** mean equal objects (that is a hash collision).
+
+## Quick practice
+
+1. Can two live objects have the same `id()`?
+   **A:** No. `id` is unique among objects that exist at the same time.
+
+2. Can two different objects have the same `hash()`?
+   **A:** Yes. That is a hash collision, and it is allowed.
+
+3. In a plain class with no overrides, is `a == b` true for two separate objects?
+   **A:** No. The default `__eq__` compares identity.
+
+4. If you override `__eq__` to compare names, what must you do with `__hash__`?
+   **A:** Make it consistent, for example `hash(self.name)`, so equal objects have equal hashes.
+
+5. Does overriding `__eq__` change `id()`?
+   **A:** No. `id` is controlled by Python only.
+
+6. After `a = [1]` and `a.append(2)`, is `id(a)` different from before?
+   **A:** No. The list is the same object, only its contents changed.
+
+7. Why can `id(T()) == id(T())` be `True`?
+   **A:** Each temporary object is destroyed right after its id is read, so the next one can reuse the same memory and get the same id. Ids are unique only among objects alive at the same time.
 
 **Example 2.5.2.1: Stable and reusable**
 

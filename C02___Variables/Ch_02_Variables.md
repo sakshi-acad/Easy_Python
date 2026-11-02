@@ -5120,6 +5120,1304 @@ list unhashable
 set unhashable
 dict unhashable
 ```
+# Python Hashability: Complete Beginner-to-Advanced Guide
+
+## Example 2.5.1.2 --- Hashability and Mutability
+
+Let's study this example carefully:
+
+``` python
+for obj in [1, "a", (1, 2), frozenset({1}), [1], {1}, {"a": 1}]:
+    try:
+        hash(obj)
+        h = "hashable"
+    except TypeError:
+        h = "unhashable"
+
+    print(type(obj).__name__, h)
+```
+
+Expected output:
+
+``` text
+int hashable
+str hashable
+tuple hashable
+frozenset hashable
+list unhashable
+set unhashable
+dict unhashable
+```
+
+The important question is: **Why can Python calculate a hash for some
+objects but not others?**
+
+To understand that, we need to understand hash values, hashability,
+mutability, equality, dictionaries, and sets.
+
+------------------------------------------------------------------------
+
+# 1. First: What is a hash?
+
+A hash is an integer calculated from an object by Python's hashing
+mechanism.
+
+Try:
+
+``` python
+print(hash(10))
+print(hash("hello"))
+print(hash((1, 2)))
+```
+
+You will see integer values. The exact values can vary between Python
+processes, especially for strings.
+
+For example, you might see something like:
+
+``` text
+10
+-123456789012345678
+123456789
+```
+
+These numbers are only illustrative. Your output may be different.
+
+Conceptually:
+
+``` text
+              OBJECT
+                 |
+                 v
+             hash(obj)
+                 |
+                 v
+          INTEGER HASH VALUE
+```
+
+For example:
+
+``` python
+hash("apple")
+```
+
+asks Python to calculate the hash value of the string `"apple"`.
+
+**Important:** A hash is not the object's identity, memory address, or a
+unique ID.
+
+Two different objects can have the same hash. This is called a **hash
+collision**.
+
+------------------------------------------------------------------------
+
+# 2. What does hashable mean?
+
+An object is hashable if it:
+
+1.  Has a hash value that remains stable during its lifetime.
+2.  Can be compared for equality.
+3.  Follows the rule that equal objects must have equal hash values.
+
+The important equality rule is:
+
+``` text
+If a == b is True,
+then hash(a) == hash(b) must also be True.
+```
+
+The reverse is NOT guaranteed:
+
+``` text
+hash(a) == hash(b)
+```
+
+does not prove that:
+
+``` text
+a == b
+```
+
+Two unequal objects can have the same hash.
+
+### A small example
+
+``` python
+a = 10
+b = 10
+
+print(a == b)
+print(hash(a) == hash(b))
+```
+
+Output:
+
+``` text
+True
+True
+```
+
+Both objects compare equal, so their hash values must be equal.
+
+------------------------------------------------------------------------
+
+# 3. What is mutability?
+
+Mutability means whether an object can be changed after it has been
+created.
+
+## Mutable objects
+
+A mutable object can have its contents changed.
+
+Example:
+
+``` python
+numbers = [10, 20, 30]
+
+numbers[0] = 999
+
+print(numbers)
+```
+
+Output:
+
+``` text
+[999, 20, 30]
+```
+
+The same list object now contains different data.
+
+Other common mutable built-in types:
+
+-   `list`
+-   `dict`
+-   `set`
+-   `bytearray`
+
+## Immutable objects
+
+An immutable object cannot have its value changed after creation.
+
+Example:
+
+``` python
+name = "Python"
+
+# This would fail:
+# name[0] = "J"
+```
+
+You cannot replace one character inside the existing string.
+
+Other common immutable built-in types:
+
+-   `int`
+-   `float`
+-   `bool`
+-   `str`
+-   `tuple`
+-   `bytes`
+-   `frozenset`
+
+Be careful: immutable does not mean that a variable can never refer to
+another object.
+
+``` python
+name = "Python"
+name = "Java"
+
+print(name)
+```
+
+Output:
+
+``` text
+Java
+```
+
+This is allowed because the variable `name` is now referring to a
+different string. The original string was not modified.
+
+------------------------------------------------------------------------
+
+# 4. The connection between mutability and hashability
+
+Why are mutable built-in containers such as lists, dictionaries, and
+sets unhashable?
+
+Imagine that Python allowed a list to be used as a dictionary key.
+
+``` python
+my_list = [10, 20]
+
+data = {
+    my_list: "student"
+}
+```
+
+This is not allowed:
+
+``` text
+TypeError: unhashable type: 'list'
+```
+
+Why?
+
+A dictionary uses hashes to help locate keys. If a key's hash changed
+after insertion, Python could look in the wrong place when trying to
+find that key.
+
+Consider this hypothetical situation:
+
+``` text
+STEP 1: Insert a mutable list as a dictionary key
+        List = [10, 20]
+        Hash = H1
+
+STEP 2: Change the list
+        List = [99, 20]
+        Hash might now be H2
+
+STEP 3: Search for the key
+        Dictionary may look in the location associated
+        with H2, although the entry was stored using H1.
+```
+
+That would break the dictionary's lookup behavior.
+
+Therefore, Python's built-in `list`, `dict`, and `set` types are
+unhashable.
+
+**Important correction to the shortcut:** Hashability does not simply
+mean "immutable = hashable and mutable = unhashable." It is a little
+more nuanced. The hash must remain stable, and equality and hashing must
+agree.
+
+------------------------------------------------------------------------
+
+# 5. Understand every object in Example 2.5.1.2
+
+Let's inspect the original list one item at a time.
+
+``` python
+[
+    1,
+    "a",
+    (1, 2),
+    frozenset({1}),
+    [1],
+    {1},
+    {"a": 1}
+]
+```
+
+## Object 1: `1` --- integer
+
+``` python
+obj = 1
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+-   Type: `int`
+-   Mutable or immutable: immutable
+-   Hashable: yes
+
+An integer's value cannot be changed in place.
+
+``` python
+x = 10
+# x is not an object whose numeric value can be edited in place.
+```
+
+Therefore, Python supports hashing integers.
+
+## Object 2: `"a"` --- string
+
+``` python
+obj = "a"
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+-   Type: `str`
+-   Mutable or immutable: immutable
+-   Hashable: yes
+
+Strings cannot be modified in place.
+
+``` python
+word = "cat"
+
+# This fails:
+# word[0] = "b"
+```
+
+This makes strings suitable as dictionary keys:
+
+``` python
+student = {
+    "name": "Sakshi",
+    "course": "Python",
+    "marks": 95
+}
+```
+
+Here, `"name"`, `"course"`, and `"marks"` are string keys.
+
+## Object 3: `(1, 2)` --- tuple
+
+``` python
+obj = (1, 2)
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+-   Type: `tuple`
+-   Mutable or immutable: immutable
+-   Hashable: yes, in this example
+
+A tuple cannot have its elements replaced:
+
+``` python
+numbers = (1, 2)
+
+# This fails:
+# numbers[0] = 100
+```
+
+However, there is an important rule:
+
+**A tuple is hashable only if all of its elements are hashable.**
+
+Compare:
+
+``` python
+print(hash((1, 2)))       # Works
+print(hash((1, "abc")))   # Works
+```
+
+But:
+
+``` python
+hash((1, [2, 3]))         # TypeError
+```
+
+Why?
+
+The tuple contains a list, and lists are unhashable.
+
+Visualize it:
+
+``` text
+Tuple: (1, 2)
+       |  |
+       |  +---- int  -> hashable
+       +------- int  -> hashable
+
+All elements are hashable
+          |
+          v
+    Tuple is hashable
+```
+
+Now:
+
+``` text
+Tuple: (1, [2, 3])
+       |    |
+       |    +---- list -> unhashable
+       +--------- int  -> hashable
+
+One element is unhashable
+          |
+          v
+    Tuple is unhashable
+```
+
+This is a very important interview and practical-programming concept.
+
+## Object 4: `frozenset({1})` --- frozen set
+
+``` python
+obj = frozenset({1})
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+-   Type: `frozenset`
+-   Mutable or immutable: immutable
+-   Hashable: yes, in this example
+
+A normal set is mutable:
+
+``` python
+numbers = {1, 2, 3}
+numbers.add(4)
+
+print(numbers)
+```
+
+A `frozenset` is an immutable version of a set:
+
+``` python
+numbers = frozenset({1, 2, 3})
+
+# This fails:
+# numbers.add(4)
+```
+
+It can be used as a dictionary key or as an element inside another set:
+
+``` python
+data = {
+    frozenset({1, 2}): "pair"
+}
+
+print(data[frozenset({1, 2})])
+```
+
+Output:
+
+``` text
+pair
+```
+
+Like tuples, a `frozenset` is hashable only when all its elements are
+hashable.
+
+``` python
+hash(frozenset({1, 2, 3}))  # Works
+```
+
+A `frozenset` cannot contain a list in the first place because a list is
+unhashable.
+
+## Object 5: `[1]` --- list
+
+``` python
+obj = [1]
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+This raises:
+
+``` text
+TypeError: unhashable type: 'list'
+```
+
+-   Type: `list`
+-   Mutable or immutable: mutable
+-   Hashable: no
+
+A list can change:
+
+``` python
+numbers = [1, 2, 3]
+numbers.append(4)
+
+print(numbers)
+```
+
+Output:
+
+``` text
+[1, 2, 3, 4]
+```
+
+Since a list is mutable, Python does not give the built-in list type a
+hash.
+
+Lists are therefore not allowed as dictionary keys or set elements.
+
+## Object 6: `{1}` --- set
+
+``` python
+obj = {1}
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+This raises:
+
+``` text
+TypeError: unhashable type: 'set'
+```
+
+-   Type: `set`
+-   Mutable or immutable: mutable
+-   Hashable: no
+
+A set can be modified:
+
+``` python
+numbers = {1, 2, 3}
+numbers.add(4)
+
+print(numbers)
+```
+
+Output:
+
+``` text
+{1, 2, 3, 4}
+```
+
+A normal set cannot be used as a dictionary key or as an element of
+another set.
+
+But a `frozenset` can.
+
+## Object 7: `{"a": 1}` --- dictionary
+
+``` python
+obj = {"a": 1}
+
+print(type(obj).__name__)
+print(hash(obj))
+```
+
+This raises:
+
+``` text
+TypeError: unhashable type: 'dict'
+```
+
+-   Type: `dict`
+-   Mutable or immutable: mutable
+-   Hashable: no
+
+A dictionary can be changed:
+
+``` python
+student = {"name": "Sakshi"}
+
+student["marks"] = 95
+
+print(student)
+```
+
+Output:
+
+``` text
+{'name': 'Sakshi', 'marks': 95}
+```
+
+A dictionary itself cannot be a key in another dictionary or an element
+of a set.
+
+However, its keys must be hashable.
+
+------------------------------------------------------------------------
+
+# 6. Complete comparison table
+
+  Object             Type            Mutable?   Hashable?
+  ------------------ ------------- ---------- -----------
+  `1`                `int`                 No         Yes
+  `"a"`              `str`                 No         Yes
+  `(1, 2)`           `tuple`               No         Yes
+  `frozenset({1})`   `frozenset`           No         Yes
+  `[1]`              `list`               Yes          No
+  `{1}`              `set`                Yes          No
+  `{"a": 1}`         `dict`               Yes          No
+
+Remember the important exception:
+
+  Object                  Hashable? Reason
+  --------------------- ----------- -----------------------------
+  `(1, 2)`                      Yes Both elements are hashable
+  `(1, [2, 3])`                  No Contains an unhashable list
+  `frozenset({1, 2})`           Yes Its elements are hashable
+
+------------------------------------------------------------------------
+
+# 7. Why do dictionaries need hashable keys?
+
+This is one of the most important practical applications of hashability.
+
+Consider:
+
+``` python
+student = {
+    "name": "Sakshi",
+    "age": 20,
+    "marks": 95
+}
+```
+
+The dictionary stores key-value pairs.
+
+``` text
+DICTIONARY
+    |
+    +---- "name"  -> "Sakshi"
+    |
+    +---- "age"   -> 20
+    |
+    +---- "marks" -> 95
+```
+
+When Python handles a key, it uses the key's hash as part of the lookup
+process.
+
+For example:
+
+``` python
+student["name"]
+```
+
+Python uses the hash of `"name"` to help find the corresponding entry.
+
+Try:
+
+``` python
+print(hash("name"))
+```
+
+A dictionary key must be hashable so that its hash remains stable while
+it is being used as a key.
+
+### Valid dictionary keys
+
+``` python
+data = {
+    1: "integer key",
+    "name": "string key",
+    (1, 2): "tuple key",
+    frozenset({3, 4}): "frozenset key"
+}
+```
+
+### Invalid dictionary keys
+
+``` python
+# Each of these would raise TypeError:
+
+# {[1, 2]: "list key"}
+# {{1, 2}: "set key"}
+# {{"name": "Sakshi"}: "dictionary key"}
+```
+
+------------------------------------------------------------------------
+
+# 8. Why do sets need hashable elements?
+
+A set stores unique elements.
+
+``` python
+numbers = {10, 20, 30}
+
+numbers.add(40)
+
+print(numbers)
+```
+
+Sets use hashing to help organize and check their elements.
+
+Therefore, set elements must be hashable.
+
+Valid:
+
+``` python
+items = {
+    10,
+    "Python",
+    (1, 2),
+    frozenset({3, 4})
+}
+```
+
+Invalid:
+
+``` python
+# This raises TypeError:
+# items = {[1, 2], [3, 4]}
+```
+
+### Want to store a group of values inside a set?
+
+Use a tuple if the values should be an ordered, immutable group:
+
+``` python
+points = {
+    (2, 5),
+    (4, 8),
+    (7, 9)
+}
+```
+
+Or use `frozenset` if you need an immutable set:
+
+``` python
+groups = {
+    frozenset({1, 2}),
+    frozenset({3, 4})
+}
+```
+
+------------------------------------------------------------------------
+
+# 9. Hash collisions: hashes are not unique
+
+A common misunderstanding is:
+
+"If two objects have the same hash, they must be the same object."
+
+That is incorrect.
+
+A hash collision happens when two unequal objects produce the same hash
+value.
+
+``` text
+Object A -----> Hash value 123
+Object B -----> Hash value 123
+
+A and B may still be unequal.
+```
+
+Python dictionaries handle collisions by checking equality as well as
+using hashes.
+
+The required rule is:
+
+``` python
+a == b  # True
+```
+
+must imply:
+
+``` python
+hash(a) == hash(b)
+```
+
+But equal hash values do not imply equal objects.
+
+Never use a hash value as a unique identifier for an object.
+
+------------------------------------------------------------------------
+
+# 10. A practical application: finding duplicate values
+
+Hashable values can be stored in a set, which is useful for removing
+duplicates.
+
+``` python
+names = ["Asha", "Ravi", "Asha", "Neha", "Ravi"]
+
+unique_names = set(names)
+
+print(unique_names)
+```
+
+Possible output:
+
+``` text
+{'Asha', 'Ravi', 'Neha'}
+```
+
+The order may vary because sets are unordered collections.
+
+Why does this work?
+
+-   Strings are hashable.
+-   A set can store hashable elements.
+-   Adding an already-present equal element does not create a second
+    copy.
+
+For a list of hashable values, a set is a convenient way to obtain
+unique values.
+
+------------------------------------------------------------------------
+
+# 11. A practical application: counting values with a dictionary
+
+A dictionary can count how often each item appears.
+
+``` python
+words = ["python", "java", "python", "c", "java", "python"]
+
+counts = {}
+
+for word in words:
+    if word in counts:
+        counts[word] += 1
+    else:
+        counts[word] = 1
+
+print(counts)
+```
+
+Output:
+
+``` text
+{'python': 3, 'java': 2, 'c': 1}
+```
+
+The words are strings, so they are hashable and can be used as
+dictionary keys.
+
+This pattern is useful in:
+
+-   Counting words in text
+-   Counting categories in a dataset
+-   Frequency analysis
+-   Data cleaning
+-   Summarizing repeated values
+
+------------------------------------------------------------------------
+
+# 12. A practical application: using tuples as dictionary keys
+
+Suppose you want to store a value for each grid coordinate.
+
+A coordinate contains two values: row and column.
+
+``` python
+grid_values = {
+    (0, 0): "Start",
+    (0, 1): "Empty",
+    (1, 0): "Obstacle",
+    (1, 1): "Goal"
+}
+
+print(grid_values[(1, 1)])
+```
+
+Output:
+
+``` text
+Goal
+```
+
+Why can `(1, 1)` be a key?
+
+Because it is a tuple containing two hashable integers.
+
+This is useful in:
+
+-   Grid-based programs
+-   Game development
+-   Graph algorithms
+-   Caching results based on multiple inputs
+-   Storing coordinate-based information
+
+A list such as `[1, 1]` cannot be used as the key. A tuple `(1, 1)` can.
+
+------------------------------------------------------------------------
+
+# 13. Important advanced exception: a mutable object can be hashable
+
+Do not memorize this incorrect rule:
+
+``` text
+Mutable   = always unhashable
+Immutable = always hashable
+```
+
+That is not universally true for every Python object.
+
+A programmer can create a custom mutable class that is hashable. But
+doing so carelessly can cause serious dictionary and set lookup
+problems.
+
+For example:
+
+``` python
+class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def __hash__(self):
+        return 100
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+        return self.name == other.name
+
+
+s = Student("Sakshi")
+
+print(hash(s))
+```
+
+This class defines its own hash and equality behavior.
+
+But notice the danger: the `name` attribute can be changed.
+
+``` python
+students = {s}
+
+s.name = "Aditi"
+```
+
+Now the object's equality behavior has changed while it is stored in the
+set. This can make lookup behavior surprising or unreliable.
+
+**Best practice:** If an object's hash is based on data, do not change
+that data while the object is being used as a dictionary key or set
+element.
+
+For ordinary beginner-level Python, remember that built-in lists,
+dictionaries, and sets are unhashable, while common immutable built-ins
+such as integers and strings are hashable.
+
+------------------------------------------------------------------------
+
+# 14. How to check hashability yourself
+
+You can write a reusable function:
+
+``` python
+def check_hashability(obj):
+    try:
+        hash(obj)
+        return True
+    except TypeError:
+        return False
+
+
+print(check_hashability(10))
+print(check_hashability("Python"))
+print(check_hashability((1, 2)))
+print(check_hashability([1, 2]))
+```
+
+Output:
+
+``` text
+True
+True
+True
+False
+```
+
+Why catch `TypeError`?
+
+Python raises `TypeError` when an object does not support hashing. The
+`try` block tests it, and the `except` block handles that expected
+failure.
+
+------------------------------------------------------------------------
+
+# 15. Understand the original code line by line
+
+Here is the original example with clearer formatting:
+
+``` python
+objects = [
+    1,
+    "a",
+    (1, 2),
+    frozenset({1}),
+    [1],
+    {1},
+    {"a": 1}
+]
+
+for obj in objects:
+
+    try:
+        hash(obj)
+        h = "hashable"
+
+    except TypeError:
+        h = "unhashable"
+
+    print(type(obj).__name__, h)
+```
+
+Let's understand each line.
+
+### Line 1: Create the collection
+
+``` python
+objects = [1, "a", (1, 2), frozenset({1}), [1], {1}, {"a": 1}]
+```
+
+This is a list containing objects of different types.
+
+### Line 2: Loop through the objects
+
+``` python
+for obj in objects:
+```
+
+Python takes one object at a time and assigns it to `obj`.
+
+### Line 3: Try to calculate a hash
+
+``` python
+hash(obj)
+```
+
+Python attempts to calculate the object's hash.
+
+### Line 4: If hashing succeeds
+
+``` python
+h = "hashable"
+```
+
+The object supports hashing, so we store the text `"hashable"` in `h`.
+
+### Line 5: If hashing raises `TypeError`
+
+``` python
+except TypeError:
+    h = "unhashable"
+```
+
+Python jumps to this block when hashing is unsupported.
+
+### Line 6: Print the type name and result
+
+``` python
+print(type(obj).__name__, h)
+```
+
+Break it down:
+
+``` python
+type(obj)
+```
+
+Gets the object's type.
+
+``` python
+type(obj).__name__
+```
+
+Gets the type's name as a string.
+
+For example:
+
+``` python
+print(type(10).__name__)       # int
+print(type("hi").__name__)     # str
+print(type([1, 2]).__name__)   # list
+```
+
+Finally, `print()` displays the type name and the hashability result.
+
+------------------------------------------------------------------------
+
+# 16. Common mistakes and misunderstandings
+
+### Mistake 1: Thinking every tuple is hashable
+
+Incorrect:
+
+``` python
+hash((1, [2, 3]))
+```
+
+A tuple containing an unhashable list is itself unhashable.
+
+### Mistake 2: Thinking every immutable object must be hashable
+
+Immutability alone does not guarantee hashability. A custom class can
+define equality without providing a compatible hash method, for example.
+
+### Mistake 3: Thinking equal hashes mean equal objects
+
+Incorrect. Hash collisions are possible.
+
+### Mistake 4: Thinking a dictionary's values must be hashable
+
+No. Dictionary keys must be hashable. Values can be mutable or
+unhashable.
+
+This is valid:
+
+``` python
+data = {
+    "scores": [80, 90, 95],
+    "profile": {"city": "Patna"}
+}
+```
+
+The keys are strings. The values are a list and a dictionary.
+
+### Mistake 5: Thinking a set can contain a list
+
+This fails:
+
+``` python
+# { [1, 2] }
+```
+
+But a set can contain a tuple of hashable values:
+
+``` python
+{(1, 2)}
+```
+
+------------------------------------------------------------------------
+
+# 17. Quick revision sheet
+
+``` text
+HASHABILITY
+    |
+    +-- An object supports hash(obj)
+    |
+    +-- Its hash remains stable during its lifetime
+    |
+    +-- Equal objects must have equal hashes
+    |
+    +-- Needed for dictionary keys and set elements
+
+
+COMMON HASHABLE TYPES
+    int
+    float
+    bool
+    str
+    bytes
+    tuple* 
+    frozenset*
+
+
+COMMON UNHASHABLE BUILT-IN TYPES
+    list
+    dict
+    set
+    bytearray
+
+* A tuple is hashable only if all its elements are hashable.
+* A frozenset is hashable only if all its elements are hashable.
+```
+
+## The three rules worth remembering
+
+1.  Dictionary keys must be hashable.
+2.  Set elements must be hashable.
+3.  A tuple or frozenset is hashable only when all of its elements are
+    hashable.
+
+------------------------------------------------------------------------
+
+# 18. Practice questions
+
+Try these yourself before checking the answers.
+
+### Question 1
+
+Which of these are hashable?
+
+``` python
+items = [
+    (1, 2, 3),
+    (1, [2, 3]),
+    frozenset({1, 2}),
+    "hello",
+    {"x": 10}
+]
+```
+
+### Question 2
+
+What happens here?
+
+``` python
+data = {}
+data[[1, 2]] = "hello"
+```
+
+### Question 3
+
+Why does this work?
+
+``` python
+data = {}
+data[(1, 2)] = "hello"
+```
+
+### Question 4
+
+What is the difference between these two?
+
+``` python
+set()
+frozenset()
+```
+
+### Question 5
+
+Is this statement true or false?
+
+"If two objects have the same hash, they must be equal."
+
+### Question 6
+
+Can a dictionary contain a list as a value?
+
+``` python
+data = {
+    "marks": [80, 90, 95]
+}
+```
+
+------------------------------------------------------------------------
+
+# 19. Answers to practice questions
+
+**Answer 1**
+
+-   `(1, 2, 3)` --- hashable
+-   `(1, [2, 3])` --- unhashable
+-   `frozenset({1, 2})` --- hashable
+-   `"hello"` --- hashable
+-   `{"x": 10}` --- unhashable
+
+**Answer 2**
+
+It raises `TypeError` because a list is unhashable and cannot be a
+dictionary key.
+
+**Answer 3**
+
+It works because the tuple contains two hashable integers.
+
+**Answer 4**
+
+-   `set()` creates a mutable set.
+-   `frozenset()` creates an immutable set.
+
+**Answer 5**
+
+False. Different objects can have the same hash due to hash collisions.
+
+**Answer 6**
+
+Yes. Dictionary values do not have to be hashable. Only dictionary keys
+must be hashable.
+
+------------------------------------------------------------------------
+
+## Final takeaway
+
+Hashability is the property that allows an object to participate safely
+in hash-based collections such as dictionaries and sets.
+
+Mutability is closely related to hashability because changing an
+object's hash while it is being used as a key or set element would cause
+problems.
+
+But remember: **hashability is not simply another word for
+immutability.** The real requirements are a stable hash and consistent
+equality behavior.
+
 
 #### Practice 2.5.1
 

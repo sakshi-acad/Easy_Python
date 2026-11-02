@@ -5259,6 +5259,7 @@ True
 
 Both objects compare equal, so their hash values must be equal.
 
+
 ------------------------------------------------------------------------
 
 # 3. What is mutability?
@@ -5542,6 +5543,227 @@ One element is unhashable
 This is a very important interview and practical-programming concept.
 
 ## Object 4: `frozenset({1})` --- frozen set
+# frozenset, explained from zero
+
+I'll go one small step at a time, and I won't use a word until I've explained it.
+
+## Step 1: What is a set?
+
+A **set** is a bag of items where:
+- each item appears only once (no duplicates)
+- the order doesn't matter
+
+```python
+fruits = {"apple", "banana", "apple"}
+print(fruits)    # {'apple', 'banana'}  (the second apple vanished)
+```
+
+## Step 2: Mutable and immutable
+
+- **Mutable** means you can change it after creating it.
+- **Immutable** means you cannot. To "change" it, you must make a new one.
+
+Think of a **whiteboard** (mutable: erase and rewrite) and a **printed photo** (immutable: you can't change it, only print a new one).
+
+A normal set is a whiteboard:
+
+```python
+numbers = {1, 2, 3}
+numbers.add(4)
+print(numbers)    # {1, 2, 3, 4}
+```
+
+## Step 3: What is a frozenset?
+
+A **frozenset** is a set that has been frozen. You create it once, and then it can never change.
+
+```python
+numbers = frozenset({1, 2, 3})
+print(numbers)    # frozenset({1, 2, 3})
+numbers.add(4)    # ERROR: AttributeError
+```
+
+It fails because a frozenset simply doesn't have an `add` method. It has no `remove` or `clear` either.
+
+What a frozenset **can** do is everything that only *looks* at it, or that makes a *new* one:
+
+```python
+a = frozenset({1, 2, 3})
+print(2 in a)                # True
+print(len(a))                # 3
+print(a | frozenset({9}))    # frozenset({1, 2, 3, 9})  <- a NEW frozenset
+print(a)                     # frozenset({1, 2, 3})     <- the original is untouched
+```
+
+Like a set, order and duplicates don't matter:
+
+```python
+print(frozenset({1, 2}) == frozenset({2, 1}))   # True
+print(frozenset([5, 5, 5]))                     # frozenset({5})
+```
+
+## Step 4: Why would anyone want that?
+
+Because Python has two places where changeable things are **not allowed**:
+
+1. as a **dictionary key**
+2. as an **item inside a set**
+
+A normal set can't go there, but a frozenset can:
+
+```python
+data = {frozenset({1, 2}): "pair"}
+print(data[frozenset({1, 2})])      # pair
+print(data[frozenset({2, 1})])      # pair  (order doesn't matter)
+```
+
+Compare with a normal set:
+
+```python
+data = {{1, 2}: "pair"}   # ERROR: TypeError: unhashable type: 'set'
+```
+
+## Step 5: What does "hashable" mean?
+
+This is the word that caused the confusion, so here it is slowly.
+
+Python stores dictionary keys and set items using a number made from the item, called its **hash**. Think of it as a **locker number** made from the item's contents. To find an item later, Python recomputes the locker number and goes straight to that locker.
+
+Now imagine the item could **change** after being stored. Its contents change, so its locker number changes, and Python looks in the wrong locker and can't find it. So Python only allows items whose contents can never change. Those are called **hashable**.
+
+- `hash(...)` is the function that gives the locker number.
+- A frozenset is frozen, so its number never changes, and it is hashable.
+- A normal set can change, so it is **unhashable**.
+
+```python
+obj = frozenset({1})
+print(type(obj).__name__)    # frozenset
+print(hash(obj))             # some big number; it is the same every time for this value
+```
+
+That is what the first example in your text shows: type `frozenset`, immutable, hashable.
+
+## Step 6: "Hashable only when all its elements are hashable"
+
+A frozenset is frozen, but what is *inside* it must also be unchangeable, or the locker number could still shift.
+
+A **list** can change (`append`, etc.), so a list is unhashable. That is why you can't put a list inside a frozenset:
+
+```python
+frozenset({[1, 2]})       # ERROR: TypeError: unhashable type: 'list'
+frozenset({(1, 2)})       # works: a tuple is immutable
+frozenset({1, "a", 2.5})  # works: numbers and strings are immutable
+```
+
+## Step 7: Similar pairs (changeable twin and frozen twin)
+
+| Changeable (mutable) | Frozen (immutable) | What it is |
+|---|---|---|
+| `set` | `frozenset` | bag of unique items |
+| `list` | `tuple` | ordered row of items |
+| `bytearray` | `bytes` | row of raw bytes |
+
+`str` (text) and numbers are immutable too. The same reasoning applies to all of them: **immutable usually means hashable, mutable means unhashable**.
+
+One catch, which is the tuple example from your text: a tuple is only hashable if everything inside it is hashable.
+
+```python
+hash((1, 2))        # works
+hash((1, [2, 3]))   # ERROR: the list inside is unhashable
+```
+
+## Practice questions (with solutions)
+
+**Warm-up**
+
+1. What does this print?
+   ```python
+   print(frozenset([1, 1, 2]))
+   ```
+   **A:** `frozenset({1, 2})` (duplicates removed).
+
+2. Which line fails?
+   ```python
+   a = frozenset({1, 2})
+   a.add(3)
+   ```
+   **A:** `a.add(3)`. A frozenset has no `add`.
+
+3. Is `{1, 2}` mutable or immutable? What about `frozenset({1, 2})`? **A:** The first is mutable, the second immutable.
+
+**Medium**
+
+4. What does this print?
+   ```python
+   a = frozenset({1, 2})
+   b = a | {3}
+   print(a, b)
+   ```
+   **A:** `frozenset({1, 2}) frozenset({1, 2, 3})`. The original is unchanged, and the result is a new frozenset.
+
+5. True or False?
+   ```python
+   print(frozenset({1, 2}) == frozenset({2, 1}))
+   ```
+   **A:** `True`. Order doesn't matter.
+
+6. What does this print?
+   ```python
+   d = {frozenset({"a", "b"}): 10}
+   print(d[frozenset({"b", "a"})])
+   ```
+   **A:** `10`.
+
+7. Which of these work?
+   ```python
+   frozenset({1, 2})
+   frozenset({(1, 2)})
+   frozenset({[1, 2]})
+   ```
+   **A:** The first two work. The third fails because a list is unhashable.
+
+**Harder**
+
+8. What does this print?
+   ```python
+   print(len(frozenset("hello")))
+   ```
+   **A:** `4`. The letters are h, e, l, o (the repeated `l` counts once).
+
+9. Does this work? Explain.
+   ```python
+   s = {frozenset({1}), frozenset({1}), frozenset({2})}
+   print(len(s))
+   ```
+   **A:** It works and prints `2`. A frozenset is allowed inside a set, and the two identical ones collapse into one.
+
+10. Does this work?
+    ```python
+    s = {{1}, {2}}
+    ```
+    **A:** No: `TypeError: unhashable type: 'set'`. A normal set can't be an item of a set. Use `{frozenset({1}), frozenset({2})}` instead.
+
+**Tricky**
+
+11. Does this work?
+    ```python
+    hash(frozenset({(1, 2), (3, 4)}))
+    ```
+    **A:** Yes. Both items are tuples of numbers, so everything inside is hashable.
+
+12. Does this work?
+    ```python
+    hash(frozenset({(1, [2])}))
+    ```
+    **A:** No. The tuple contains a list, so the tuple is unhashable, so the frozenset can't be built.
+
+13. Is this `True` or `False`?
+    ```python
+    print({1, 2} == frozenset({1, 2}))
+    ```
+    **A:** `True`. A set and a frozenset with the same items are equal. They are different types but hold the same things.
+
+14. In one sentence: why does Python not allow a normal set as a dictionary key? **A:** Because it can change, its locker number (hash) could change, and Python could never find it again.
 
 ``` python
 obj = frozenset({1})

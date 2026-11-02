@@ -7209,6 +7209,320 @@ print(int("-5") is int("-5"), int("-6") is int("-6"))
 ### 2.5.5 String interning
 
 CPython interns strings that look like identifiers (letters, digits, underscore) when they are compile-time constants, and you can intern any string with sys.intern. Equal strings built at run time are often different objects. Interning makes == faster (pointer check first) and saves memory when millions of equal strings occur.
+# 2.5.5 String interning, explained for beginners
+
+I'll go one small step at a time, and I won't use a word until I've explained it.
+
+---
+
+## Step 1: Two words you need first
+
+**Compile time** = Python reads your whole file and prepares it *before* running anything. Think of it as a chef reading the recipe and prepping ingredients before cooking.
+
+**Run time** = Python is actually executing your lines, one by one. This is the cooking.
+
+Why this matters: Python can do some work early, at compile time, but only with things it can already see written in the code, like `"hel" + "lo"`. Things that need actual running, like `"".join([...])`, wait until run time.
+
+---
+
+## Step 2: Remember `is` vs `==`
+
+You already know these two:
+
+| | Question |
+|---|---|
+| `a == b` | Do they contain the **same text**? |
+| `a is b` | Are they the **exact same object** in memory? |
+
+Two strings can be **equal** (`==` is True) but still be **two separate objects** (`is` is False), like two photocopies of the same page.
+
+---
+
+## Step 3: What is "interning"?
+
+**Interning** means: Python keeps **one single master copy** of a string, and everyone who needs that text points to the same master copy.
+
+Real-life picture:
+
+```
+WITHOUT interning                    WITH interning
+
+ a -> "hello"  (copy 1)               a ----\
+ b -> "hello"  (copy 2)               b -----+--> "hello"  (one master copy)
+ c -> "hello"  (copy 3)               c ----/
+```
+
+Why bother? Two reasons:
+
+1. **Speed.** To check `a == b`, Python first checks "are these the same object?" (a quick pointer check). If yes, it says True immediately, without reading every letter.
+2. **Memory.** If a million rows all contain `"India"`, you store one copy instead of a million.
+
+Python keeps the master copies in a special lookup table (think of it as a notice board of "master strings"). When a string is *interned*, Python looks on the board: "Is there already a master copy of this text? Use that one. If not, put this one on the board."
+
+---
+
+## Step 4: When does Python intern automatically?
+
+The rule from your text:
+
+> CPython interns strings that **look like identifiers** (letters, digits, underscore) when they are **compile-time constants**.
+
+Break that sentence into two conditions. Both must be true:
+
+| Condition | Meaning | Example that passes | Example that fails |
+|---|---|---|---|
+| Looks like an identifier | only letters, digits, `_` | `"hello"`, `"var_1"` | `"hello world"` (has a space) |
+| Compile-time constant | written directly in the code | `"hello"` | `"".join([...])` (built while running) |
+
+So `"hello"` typed directly in code gets interned. But a string created by `join`, `input()`, reading a file, etc. is **not** interned automatically. That is why your text says: *"Equal strings built at run time are often different objects."*
+
+> **CPython** is simply the standard, most common version of Python (the one you download from python.org). These behaviors are about CPython.
+
+---
+
+## Step 5: Example 2.5.5.1 (compile-time vs run-time)
+
+```python
+a = "hello"
+b = "hel" + "lo"
+c = "".join(["hel", "lo"])
+print(a is b, a is c, a == c)
+```
+
+Output:
+
+```
+True False True
+```
+
+Trace it line by line:
+
+**`a = "hello"`**
+Written directly, and it looks like an identifier. Python interns it. `a` points to the master copy.
+
+**`b = "hel" + "lo"`**
+Both pieces are written directly in the code. Python is smart: at compile time it pre-computes `"hel" + "lo"` into `"hello"` (this is called **constant folding**). The result is again the constant `"hello"`, so it points to the **same master copy**.
+So `a is b` -> **True**.
+
+**`c = "".join(["hel", "lo"])`**
+`join` is a function call. Python can't know its result until it actually runs. At run time it builds a **brand-new string** `"hello"`. Nobody put it on the master board.
+So `a is c` -> **False**.
+
+**`a == c`**
+Same letters, so -> **True**.
+
+Picture:
+
+```
+a ----\
+b -----+--> "hello"  (master copy)
+
+c ------->  "hello"  (a separate new object, same letters)
+```
+
+---
+
+## Step 6: Example 2.5.5.2 (the one with the space, a little tricky)
+
+```python
+x = "hello world"; y = "hello world"
+print(x is y)
+```
+
+Output:
+
+```
+True
+```
+
+Wait. `"hello world"` has a space, so it does **not** look like an identifier, so the interning rule from Step 4 does not apply. Yet `x is y` is True. Why?
+
+Because there is a **second, separate mechanism** at work:
+
+> Inside one block of code, Python's compiler notices that the same constant appears twice and stores it **only once** (it merges duplicate constants).
+
+So:
+
+| Mechanism | What it does | Applies to |
+|---|---|---|
+| **Interning** | one master copy shared everywhere via the notice board | identifier-looking constants |
+| **Constant merging** | the same constant used twice in one code block is stored once | any constant in the same code block |
+
+`x` and `y` are both the constant `"hello world"` in the same code block, so they share one object.
+
+Two cautions:
+- This sharing is guaranteed only **within one code block**. In a different function or file, `"hello world"` may be a separate object.
+- The title says "even with spaces" to warn you not to think spaces always break sharing. They only stop the *interning* mechanism, not the *merging* mechanism.
+
+---
+
+## Step 7: Example 2.5.5.3 (`sys.intern` forces sharing)
+
+You can intern any string yourself using `sys.intern(...)`. It means: "Look at the notice board. If a master copy of this text exists, give me that one. Otherwise put mine there and give me mine."
+
+```python
+import sys
+c = "".join(["he", "llo wor", "ld"])
+d = "".join(["hello", " ", "world"])
+print(c is d)
+print(sys.intern(c) is sys.intern(d))
+```
+
+Output:
+
+```
+False
+True
+```
+
+Trace:
+
+**`c = "".join([...])`** -> built at run time, a new object `"hello world"`.
+**`d = "".join([...])`** -> built at run time, another new object `"hello world"`.
+Both have the same text but are two separate objects.
+
+`c is d` -> **False**.
+
+Now the interning:
+
+1. `sys.intern(c)`: board has no `"hello world"` yet, so `c` becomes the master copy. Returns `c`.
+2. `sys.intern(d)`: board already has `"hello world"` (that's `c`). Returns the master copy, which is `c`.
+
+Both calls return the **same object**, so `sys.intern(c) is sys.intern(d)` -> **True**.
+
+Picture:
+
+```
+c ------> "hello world"   <--- master copy on the board
+d ------> "hello world"   (separate object, same text)
+
+sys.intern(c) -----> master copy
+sys.intern(d) -----> master copy   (same one!)
+```
+
+Important: `sys.intern` does **not** change `c` or `d` themselves. It only **returns** the master copy. `d` still points to its own object unless you reassign (`d = sys.intern(d)`).
+
+---
+
+## Step 8: Practice questions with full solutions
+
+### Q1 (BASIC)
+
+```python
+import sys; a = sys.intern("x y"); b = sys.intern("x " + "y"); print(a is b)
+```
+
+**Step by step:**
+
+1. `"x " + "y"` are two constants written in the code. At compile time Python folds them into `"x y"`.
+2. `sys.intern("x y")` -> puts/gets the master copy of `"x y"`.
+3. `sys.intern("x " + "y")` -> the text is `"x y"` too, so it fetches the **same master copy**.
+4. Same object -> `a is b` is **True**.
+
+**Answer: `True`**
+
+**Why this is a good question:** even if the strings were built in different ways, `sys.intern` makes equal text share one object.
+
+---
+
+### Q2 (MID)
+
+```python
+a = "".join(["a", "b"]); b = "ab"; print(a == b, a is b)
+```
+
+**Step by step:**
+
+1. `a = "".join(["a", "b"])` -> built **at run time**. A new string object `"ab"`.
+2. `b = "ab"` -> a constant written in the code, looks like an identifier, so it's **interned** (master copy).
+3. `a == b` -> same text `"ab"` -> **True**.
+4. `a is b` -> `a` is a new run-time object, `b` is the master copy -> different objects -> **False**.
+
+**Answer: `True False`**
+
+Picture:
+
+```
+b -----> "ab"   (master copy)
+a -----> "ab"   (new run-time object)
+```
+
+Note: this `False` is what CPython normally gives. The rule is "often different objects", not "guaranteed different", which is why you should never rely on `is` for comparing strings.
+
+---
+
+### Q3 (HARD)
+
+```python
+import sys; a = "".join(["a b"]); print(sys.intern(a) is sys.intern("a b"))
+```
+
+This one looks scary because of the one-item `join` and the space. Take it in pieces.
+
+**Piece 1: what is `a`?**
+`"".join(["a b"])` joins a list with just **one item**. Joining one item has nothing to glue, so the result is just `"a b"`. (CPython even has a shortcut here: if the list has exactly one real string, it may hand back that same string.) Either way, `a` holds the text `"a b"`.
+
+**Piece 2: the space doesn't matter here.**
+`"a b"` has a space, so it's not auto-interned (Step 4). But the question uses `sys.intern`, which interns **any** string regardless of what it looks like.
+
+**Piece 3: the two `sys.intern` calls.**
+
+1. `sys.intern(a)` -> asks the board for master copy of `"a b"`. Gets (or creates) one.
+2. `sys.intern("a b")` -> same text `"a b"`, asks the board again -> gets **the same master copy**.
+
+**Piece 4: compare.**
+Both calls returned the same object, so `is` -> **True**.
+
+**Answer: `True`**
+
+**The key insight (this is why it's marked hard):** you do **not** need to figure out whether `a` itself is the same object as the literal `"a b"`. Whatever it is, `sys.intern` always returns the **one master copy for that text**, so both sides are guaranteed to be the same object.
+
+---
+
+## Step 9: Summary table
+
+| Situation | Same object (`is`)? | Why |
+|---|---|---|
+| `"hello"` and `"hello"` in code | Yes | identifier-like constant, interned |
+| `"hel" + "lo"` vs `"hello"` | Yes | folded at compile time into the same constant |
+| `"".join(["hel","lo"])` vs `"hello"` | Usually no | built at run time |
+| `"hello world"` twice in the same code block | Yes | duplicate constants merged |
+| Equal strings built at run time | Usually no | separate objects |
+| `sys.intern(x) is sys.intern(y)` for equal text | **Always yes** | one master copy per text |
+
+## Step 10: Golden rules
+
+1. **Never use `is` to compare string values.** Use `==`. Whether two equal strings are the same object is an implementation detail and can change between Python versions or situations.
+2. `is` on strings is only for learning how interning works, not for real comparisons.
+3. Use `sys.intern` only when you have a real reason: millions of repeated strings (to save memory) or lots of equality checks on the same strings (to speed them up).
+4. Interning affects only **identity** (`is`, `id`). It never changes what `==` says, since equal text stays equal.
+
+## Quick recap in one picture
+
+```
+ Compile time (before running)          Run time (while running)
+ -----------------------------          ------------------------
+ "hello"          -> interned           "".join([...])    -> new object
+ "hel" + "lo"     -> folded to "hello"  input(), file     -> new object
+ same constant twice in one block       text built by code -> new object
+   -> merged into one object
+
+ sys.intern(s)  -> always gives you THE master copy for that text
+```
+
+## Extra practice (try on your own)
+
+1. `a = "py"; b = "p" + "y"; print(a is b)`
+   **Answer:** `True`. Folded at compile time into the same interned constant.
+
+2. `import sys; a = "".join(["he", "llo"]); print(a is "hello")` (ignore any warning Python prints about `is` with a literal)
+   **Answer:** `False` normally. `a` is built at run time. This is also why you should use `==`.
+
+3. `import sys; a = "".join(["he", "llo"]); print(sys.intern(a) is "hello")`
+   **Answer:** `True`. `sys.intern(a)` returns the master copy of `"hello"`, and the literal `"hello"` is that same interned constant. (Python may print a warning about using `is` with a literal; the result is still `True`.)
+
+4. `import sys; a = "".join(["x", " y"]); b = "".join(["x ", "y"]); print(a == b, a is b, sys.intern(a) is sys.intern(b))`
+   **Answer:** `True False True`. Same text, two separate run-time objects, but `sys.intern` gives both the same master copy.
 
 **Example 2.5.5.1: Compile-time vs run-time strings**
 

@@ -8618,6 +8618,914 @@ t = ([0],); t[0] += [1] if False else []; print(t)
 ### 2.5.10 Mutation through function parameters
 
 Python passes references (call by object reference). A function can mutate a mutable argument in place and the caller sees it. Rebinding the parameter has no effect on the caller.
+# Python references, copying, performance and containers (2.5.10 to 2.5.13)
+
+A complete beginner guide. I'll go one small step at a time, and I won't use a word until I've explained it.
+
+**What's inside**
+
+| Section | Topic |
+|---|---|
+| Part 0 | The foundation: names, objects and references |
+| 2.5.10 | Mutation through function parameters |
+| 2.5.11 | Defensive copying |
+| 2.5.12 | Immutable tricks and performance |
+| 2.5.13 | Object identity in containers |
+| End | Cheat sheet and extra practice |
+
+---
+
+# PART 0: The foundation (read this first, everything depends on it)
+
+## 0.1 A variable is a label, not a box
+
+Many beginners imagine a variable as a **box that holds a value**. In Python that picture causes trouble. A better picture:
+
+> The **object** lives somewhere in memory. A **variable** (also called a **name**) is a **label** stuck on that object.
+
+```python
+a = [1, 2]
+```
+
+```
+a  ------>  [1, 2]      (the list object)
+```
+
+```python
+b = a
+```
+
+Nothing is copied. A second label is stuck on the **same** object:
+
+```
+a  ------\
+          +-->  [1, 2]
+b  ------/
+```
+
+```python
+b.append(3)
+print(a)      # [1, 2, 3]   <- a sees the change, because it is the same object
+```
+
+## 0.2 Two completely different actions: mutation vs rebinding
+
+These are the two things you can do, and mixing them up is the cause of 90% of the confusion in this whole file.
+
+| Action | What it does | Example | Does it affect other labels on the same object? |
+|---|---|---|---|
+| **Mutation** | changes the **object itself** from the inside | `a.append(3)`, `a[0] = 9`, `a.sort()` | **Yes** |
+| **Rebinding** | moves **one label** to a different object | `a = [7, 8]` | **No** (other labels stay put) |
+
+Picture of rebinding:
+
+```
+BEFORE:   a ---\
+                +--> [1, 2, 3]
+          b ---/
+
+a = [7, 8]
+
+AFTER:    a ------> [7, 8]
+          b ------> [1, 2, 3]     (b is untouched)
+```
+
+Rule to remember:
+
+- **Dot-methods and index assignment** (`.append`, `.sort`, `x[0] = ...`) usually **mutate**.
+- **A bare name on the left of `=`** (`a = ...`) always **rebinds**.
+
+## 0.3 Mutable vs immutable (quick recap)
+
+- **Mutable**: the object can be changed in place. Examples: `list`, `dict`, `set`.
+- **Immutable**: the object can never be changed in place. Examples: `int`, `float`, `str`, `tuple`, `bool`, `None`.
+
+For an immutable object, there is nothing to mutate. Any "change" must create a **new** object and rebind a label to it.
+
+```python
+s = "hi"
+s = s + "!"       # creates a NEW string "hi!", rebinds s to it. The old "hi" is untouched.
+```
+
+## 0.4 What "call by object reference" means
+
+When you call a function, Python does **not** copy your object into the function. It sticks a **new label** (the parameter name) onto the **same object** you passed.
+
+```python
+def f(l):
+    ...
+
+a = [1]
+f(a)
+```
+
+Inside the call:
+
+```
+a (caller's label)  ---\
+                        +--> [1]
+l (parameter label) ---/
+```
+
+Two labels, one object. This is exactly the `b = a` picture from 0.1.
+
+Consequences, which are the whole point of section 2.5.10:
+
+1. If the function **mutates** the object, the caller sees it (same object).
+2. If the function **rebinds** its own label, only the function's label moves. The caller's label doesn't care.
+
+Other languages call this "pass by value" or "pass by reference". Python's real name is **call by object reference** (or "pass by assignment"): the parameter is assigned the same object, just like `l = a`.
+
+---
+
+# 2.5.10 Mutation through function parameters
+
+> Python passes references (call by object reference). A function can mutate a mutable argument in place and the caller sees it. Rebinding the parameter has no effect on the caller.
+
+## Example 2.5.10.1: Mutation vs rebinding
+
+```python
+def mutate(l): l.append(1)
+def rebind(l): l = [1]
+def aug(l): l += [1]
+def plus(l): l = l + [1]
+a = []; mutate(a); print(a)
+a = []; rebind(a); print(a)
+a = []; aug(a); print(a)
+a = []; plus(a); print(a)
+```
+
+Output:
+
+```
+[1]
+[]
+[1]
+[]
+```
+
+Let me trace each function using the label pictures.
+
+### Function 1: `mutate`
+
+```python
+def mutate(l): l.append(1)
+a = []; mutate(a); print(a)
+```
+
+1. `a` is a label on an empty list.
+2. Calling `mutate(a)` sticks a second label `l` on the **same** list.
+3. `l.append(1)` **mutates** the list from the inside.
+4. The function ends, label `l` disappears, but the list now holds `[1]`.
+5. `a` still points to that list -> prints `[1]`.
+
+```
+a ---\
+      +--> [1]      (mutated in place)
+l ---/
+```
+
+### Function 2: `rebind`
+
+```python
+def rebind(l): l = [1]
+a = []; rebind(a); print(a)
+```
+
+1. `l` starts as a second label on the empty list.
+2. `l = [1]` creates a **brand-new** list `[1]` and moves **only the label `l`** onto it.
+3. The original empty list is untouched; `a` still points to it.
+4. The function ends, the new `[1]` is thrown away.
+5. `a` prints `[]`.
+
+```
+a ------> []        (never touched)
+l ------> [1]       (new object, label l moved here, then discarded)
+```
+
+### Function 3: `aug` (augmented assignment `+=`)
+
+```python
+def aug(l): l += [1]
+a = []; aug(a); print(a)
+```
+
+This is the sneaky one, because it **looks** like rebinding (`l = l + ...`) but behaves like mutation.
+
+For lists, `l += [1]` does **not** mean "`l = l + [1]`". Python handles `+=` this way:
+
+1. It first tries the **in-place** method `l.__iadd__([1])`.
+2. For a list, `__iadd__` **extends the same list in place** and returns the same list.
+3. Then Python rebinds `l` to the returned object, which is **the same list**, so nothing visibly moves.
+
+So the original list was mutated, and `a` sees `[1]`.
+
+### Function 4: `plus`
+
+```python
+def plus(l): l = l + [1]
+a = []; plus(a); print(a)
+```
+
+1. `l + [1]` uses `__add__`, which builds a **new list** `[1]` (the original is not touched).
+2. `l = ...` rebinds only the label `l` to that new list.
+3. The caller's `a` still points to the original empty list -> prints `[]`.
+
+### Summary of the four
+
+| Function | Code | Mutates the caller's object? | Caller sees |
+|---|---|---|---|
+| `mutate` | `l.append(1)` | Yes | `[1]` |
+| `rebind` | `l = [1]` | No | `[]` |
+| `aug` | `l += [1]` | **Yes** (in-place `__iadd__`) | `[1]` |
+| `plus` | `l = l + [1]` | No (makes a new list) | `[]` |
+
+**The big lesson:** `l += x` and `l = l + x` look the same but are different for lists. `+=` mutates; `+` creates a new object.
+
+### Bonus: what about `+=` on immutable objects?
+
+Integers, strings and tuples have no in-place version (`__iadd__` doesn't exist for them). So Python quietly falls back to `s = s + "!"`, which creates a new object and rebinds. That's the trap in Q4 below.
+
+---
+
+## Practice 2.5.10
+
+### Q1 (BASIC)
+
+```python
+def f(x): x = 5
+v = 1; f(v); print(v)
+```
+
+**Trace:**
+1. `v` is a label on the integer `1`.
+2. `f(v)` sticks a label `x` on the same `1`.
+3. `x = 5` is **rebinding**: label `x` moves to the integer `5`. The caller's `v` still points to `1`.
+4. `print(v)` -> `1`.
+
+**Answer: `1`**
+
+(An integer is immutable anyway, so nothing could have been mutated even if we tried.)
+
+---
+
+### Q2 (MID)
+
+```python
+def f(d): d["k"] = 1
+z = {}; f(z); print(z)
+```
+
+**Trace:**
+1. `z` is a label on an empty dict.
+2. `f(z)` puts a second label `d` on the same dict.
+3. `d["k"] = 1` is **index assignment**, which **mutates** the dict in place.
+4. The dict now has the key; `z` points to it.
+
+**Answer: `{'k': 1}`**
+
+---
+
+### Q3 (HARD)
+
+```python
+def f(l): l[:] = [0]
+a = [1, 2]; f(a); print(a)
+```
+
+The trick is `l[:] = ...`. Compare:
+
+| Statement | What it does |
+|---|---|
+| `l = [0]` | **rebinds** the label (caller unaffected) |
+| `l[:] = [0]` | **slice assignment**: replaces **all the contents** of the *same* list (mutation) |
+
+`l[:]` means "every position in the list from start to end". Assigning to it says "replace everything inside this list object with these items".
+
+**Trace:**
+1. `l` and `a` are labels on the same list `[1, 2]`.
+2. `l[:] = [0]` removes all items and puts in `0`, **inside the same object**.
+3. `a` sees the mutated list.
+
+**Answer: `[0]`**
+
+This idiom is useful when you want a function to "reset" a list while keeping the caller's list object.
+
+---
+
+### Q4 (TRAP)
+
+```python
+def f(s): s += "!"
+s = "hi"; f(s); print(s)
+```
+
+**Trace:**
+1. The global `s` is a label on the string `"hi"`. Strings are **immutable**.
+2. `f(s)` puts a second label (the parameter, also called `s`) on `"hi"`.
+3. `s += "!"` -> strings have no in-place `+=`, so Python does `s = s + "!"`: builds a **new string** `"hi!"` and rebinds the **parameter** `s` to it.
+4. The global `s` still points to `"hi"`.
+
+**Answer: `hi`**
+
+Why it's a trap: if you remembered "`+=` mutates" from the list example (`aug`), you'd say `hi!`. But that was lists. Strings can't be mutated, so `+=` makes a new object.
+
+---
+
+# 2.5.11 Defensive copying
+
+> A function that must not change its argument should copy it first, or accept an immutable type (tuple). Return copies when exposing internal state.
+
+## Why this matters
+
+From 2.5.10, you know a function receiving a list can change the caller's list. Sometimes that is a nasty surprise: you pass your data in and it comes back sorted, emptied, or modified. **Defensive copying** means making your own copy before changing anything, so the caller's data is safe.
+
+## Example 2.5.11.1: Safe function
+
+```python
+def normalized(values):
+    out = list(values)
+    out.sort()
+    return out
+
+data = [3, 1, 2]
+print(normalized(data), data)
+```
+
+Output:
+
+```
+[1, 2, 3] [3, 1, 2]
+```
+
+**Step by step:**
+
+1. `data` is a label on `[3, 1, 2]`.
+2. Inside `normalized`, `values` is a second label on the same list.
+3. `out = list(values)` creates a **new list** with the same items (a copy). Now `out` is a different object.
+4. `out.sort()` sorts the **copy** in place. The original is untouched.
+5. The function returns the sorted copy.
+6. `print(normalized(data), data)` first evaluates `normalized(data)` -> `[1, 2, 3]`, then `data` -> still `[3, 1, 2]`.
+
+```
+data   ------> [3, 1, 2]       (never changed)
+values ------> [3, 1, 2]       (same object)
+out    ------> [1, 2, 3]       (separate copy, sorted)
+```
+
+Ways to copy a list:
+
+| Way | Example |
+|---|---|
+| `list(x)` | `out = list(values)` |
+| Slice | `out = values[:]` |
+| `.copy()` | `out = values.copy()` |
+| `sorted(x)` | returns a **new sorted list** (copy and sort in one step) |
+
+### Important: these are *shallow* copies
+
+A shallow copy copies only the **outer** list. If the items inside are themselves mutable, both lists still share those inner objects.
+
+```python
+orig = [[1], [2]]
+copy = list(orig)
+copy[0].append(99)
+print(orig)      # [[1, 99], [2]]   <- inner list is shared!
+```
+
+```
+orig -> [ ptr, ptr ]
+          |     |
+copy -> [ ptr, ptr ]      (new outer list, same inner lists)
+          |     |
+          v     v
+        [1,99] [2]
+```
+
+For fully independent copies of nested data use `copy.deepcopy`:
+
+```python
+import copy
+deep = copy.deepcopy(orig)
+```
+
+## Example 2.5.11.2: Freezing state
+
+```python
+class Bag:
+    def __init__(self): self._items = []
+    def add(self, x): self._items.append(x)
+    def items(self): return tuple(self._items)
+
+b = Bag(); b.add(1)
+print(b.items())
+```
+
+Output:
+
+```
+(1,)
+```
+
+**Step by step:**
+
+- `Bag` keeps its private list in `self._items`. (The leading underscore is a convention meaning "internal, please don't touch".)
+- `add` mutates that internal list.
+- `items()` returns `tuple(self._items)`: a **tuple copy** instead of the list itself.
+- `b.items()` -> `(1,)`. (A one-item tuple is written with a trailing comma.)
+
+**Why return a tuple?** Imagine `items()` returned `self._items` directly:
+
+```python
+leaky = b._items           # outsider gets the real internal list
+leaky.append("oops")       # now the Bag's internal state is changed from outside!
+```
+
+By returning a tuple copy, outsiders get a snapshot they **cannot mutate**, and even if they could, it's a copy, so the Bag stays safe.
+
+```
+Bag._items  ----> [1]            (private, real list)
+b.items()   ----> (1,)           (new immutable tuple, separate object)
+```
+
+A tuple is shallow-immutable: you can't add or remove items, but if it contains a list, that list can still be mutated.
+
+## Practice 2.5.11
+
+### Q1 (BASIC)
+
+```python
+def f(l): return sorted(l)
+a = [2, 1]; f(a); print(a)
+```
+
+**Trace:**
+- `sorted(l)` builds and returns a **new sorted list**. It never changes `l`.
+- The returned list is thrown away (we didn't store it).
+- `a` is untouched.
+
+**Answer: `[2, 1]`**
+
+---
+
+### Q2 (MID)
+
+```python
+def f(l): l.sort(); return l
+a = [2, 1]; f(a); print(a)
+```
+
+**Trace:**
+- `l.sort()` sorts **in place**, mutating the list the caller passed.
+- `l` and `a` are the same object, so `a` is now sorted.
+- The return value is ignored but the damage (mutation) is done.
+
+**Answer: `[1, 2]`**
+
+### The `sort()` vs `sorted()` rule
+
+| | `x.sort()` | `sorted(x)` |
+|---|---|---|
+| Changes original? | **Yes** (in place) | No |
+| Returns | `None` | a new sorted list |
+| Works on | lists only | any iterable |
+
+(Common bug: `x = x.sort()` sets `x` to `None`.)
+
+---
+
+# 2.5.12 Immutable tricks and performance
+
+> Tuples are smaller and slightly faster to create than lists. String `+=` in a loop is O(n^2) in theory (CPython sometimes optimises it); build lists and join. Immutable objects can be cached and shared.
+
+## Term: what is "O(n^2)"?
+
+**Big-O notation** describes how the work grows when the input grows. `n` = amount of data.
+
+| Notation | Meaning | If n doubles, work becomes... |
+|---|---|---|
+| O(n) | work grows in step with n | 2 times |
+| O(n^2) | work grows with n times n | **4 times** |
+
+So O(n^2) is fine for small inputs but becomes painfully slow for large ones.
+
+## Part A: Tuples are smaller than lists
+
+A **list** must be resizable, so it reserves extra bookkeeping and spare room. A **tuple** is fixed forever, so Python can store it compactly.
+
+### Example 2.5.12.1: Sizes
+
+```python
+import sys
+print(sys.getsizeof((1, 2, 3)) < sys.getsizeof([1, 2, 3]))
+print(sys.getsizeof([]) < sys.getsizeof([1, 2, 3, 4, 5]))
+```
+
+Output:
+
+```
+True
+True
+```
+
+`sys.getsizeof(obj)` returns the size of the object in **bytes**.
+
+- Line 1: a 3-item tuple is smaller than a 3-item list -> `True`. On a typical 64-bit CPython, roughly 64 bytes vs 88 bytes (exact numbers differ by version and machine, which is why the example only compares with `<`).
+- Line 2: an empty list is smaller than a 5-item list -> `True`. More items take more room. (Roughly 56 vs 104 bytes.)
+
+Two notes:
+- `getsizeof` is **shallow**: it measures only the container itself, not the objects it points to.
+- Comparing with `<` is safe; printing exact byte counts would vary between machines.
+
+## Part B: String `+=` in a loop is slow, `join` is fast
+
+Strings are immutable. So:
+
+```python
+s = ""
+for i in range(5):
+    s += "x"
+```
+
+Each `s += "x"` can't add to the old string. It must:
+1. allocate a **new** string one character longer,
+2. **copy** all the old characters into it,
+3. add the new character.
+
+The copying work per step grows: 0, 1, 2, 3, ..., n-1 characters. Total copying is 0 + 1 + 2 + ... + (n-1), about **n^2 / 2** -> **O(n^2)**.
+
+```
+step 1:  copy 0 chars, add 1  -> "x"
+step 2:  copy 1 char,  add 1  -> "xx"
+step 3:  copy 2 chars, add 1  -> "xxx"
+...
+step n:  copy n-1 chars, add 1
+```
+
+Why "sometimes optimised"? CPython has a trick: if only **one label** points to the string, it may resize the string in place and skip the copying. But this is an implementation detail: it doesn't work in other Python versions, and it breaks if another label points to the string. You should not rely on it.
+
+### The fix: collect pieces in a list, then `join` once
+
+```python
+parts = []
+for i in range(2000):
+    parts.append("x")
+s = "".join(parts)
+```
+
+`"".join(parts)` first adds up the total length, allocates the result **once**, and copies each piece **once** -> **O(n)**.
+
+### Example 2.5.12.2: Timing join vs +=
+
+```python
+import timeit
+
+def concat():
+    s = ""
+    for i in range(2000): s += "x"
+    return s
+
+def joined():
+    return "".join(["x" for _ in range(2000)])
+
+print(concat() == joined())
+```
+
+Output:
+
+```
+True
+```
+
+What the example really prints: only whether both functions produce the **same string**. They do, 2000 `x` characters, so `True`. It doesn't print timings (those would differ on every machine, so a book can't list them as fixed output).
+
+To actually measure, you would add something like:
+
+```python
+print(timeit.timeit(concat, number=1000))
+print(timeit.timeit(joined, number=1000))
+```
+
+`timeit.timeit(function, number=N)` runs the function N times and returns total seconds. The numbers will vary on your computer. For small strings (2000 characters) the difference is tiny, and CPython's `+=` optimisation may even make `concat` fast. With very large inputs, `join` wins clearly and reliably.
+
+The key idea: **correctness first** (both give the same result), then choose `join` for safe performance.
+
+## Part C: Immutable objects can be cached and shared
+
+Because an immutable object can never change, Python can safely **share one copy** among many labels. Nobody can modify it behind your back. Examples:
+
+- small integers (CPython reuses the objects for roughly -5 to 256),
+- interned strings (see 2.5.5),
+- the empty tuple `()` (one shared object).
+
+If these were mutable, sharing would be dangerous (like the 2D-list trap). Immutability is what makes sharing safe.
+
+## Practice 2.5.12
+
+### Q1 (BASIC)
+
+```python
+print(len("".join(["a"] * 5)))
+```
+
+**Trace:**
+1. `["a"] * 5` -> `['a', 'a', 'a', 'a', 'a']`.
+2. `"".join(...)` glues them with an empty separator -> `"aaaaa"`.
+3. `len("aaaaa")` -> `5`.
+
+**Answer: `5`**
+
+---
+
+### Q2 (MID)
+
+```python
+import sys; print(sys.getsizeof(()) < sys.getsizeof([]))
+```
+
+**Trace:**
+- An empty tuple is the most compact container possible (a bare header with no item slots).
+- An empty list still carries the extra bookkeeping needed to grow (a pointer to its item storage, and a size/capacity record).
+- So the empty tuple is smaller.
+
+**Answer: `True`** (typically around 40 bytes vs 56 bytes on 64-bit CPython)
+
+---
+
+# 2.5.13 Object identity in containers
+
+> Containers store references. Membership (`in`) and `index()` test identity first, then equality. NaN is the famous case: it is not equal to itself, but a list can still "contain" the same NaN object.
+
+## Step 1: Containers store references
+
+A list doesn't contain the objects physically. It contains **pointers** to them.
+
+```python
+a = [1]
+l = [a, a]
+```
+
+```
+l ---> [ ptr, ptr ]
+         |     |
+         +--+--+
+            v
+           [1]       (one object, referenced twice)
+```
+
+## Step 2: The rule for `in`, `index()` and `count()`
+
+When Python asks "is `x` in this list?", for **each item** `e` it checks:
+
+```
+if  e is x   ->  match       (identity first, a fast shortcut)
+elif e == x  ->  match       (then equality)
+else         ->  no match
+```
+
+In code terms: `x in L` behaves like `any(e is x or e == x for e in L)`.
+
+The same identity-then-equality check is used by `list.index()`, `list.count()`, and also when comparing two lists with `==` (each pair of items gets the same check).
+
+## Step 3: What is NaN?
+
+**NaN** means "Not a Number". It's the special float that results from impossible math like `0.0 / 0.0` (in Python you usually create it with `float("nan")`). By the floating-point standard (IEEE 754):
+
+> NaN is **not equal to anything, not even itself**.
+
+```python
+nan = float("nan")
+print(nan == nan)    # False
+print(nan != nan)    # True
+```
+
+## Example 2.5.13.1: Identity then equality
+
+```python
+nan = float("nan")
+print(nan == nan, nan in [nan], float("nan") in [nan])
+a = [1]; b = [1]
+print([a, a] == [a, b], [a, a][0] is [a, b][1])
+```
+
+Output:
+
+```
+False True False
+True False
+```
+
+### First print: three values
+
+**`nan == nan`** -> `False`. Only equality is tested, and NaN is never equal to itself.
+
+**`nan in [nan]`** -> `True`.
+- The list holds a pointer to the **same NaN object** as the label `nan`.
+- Python checks identity first: `e is x` -> **True** -> match found. It never needs `==`.
+
+**`float("nan") in [nan]`** -> `False`.
+- `float("nan")` creates a **brand-new** NaN object. It's a different object from the one in the list.
+- Identity: different objects -> no.
+- Equality: `nan == nan` -> `False`.
+- So no match.
+
+```
+nan ------------> NaN#1          (the one in the list)
+float("nan") ---> NaN#2          (a new one)
+
+NaN#2 in [NaN#1]?   is: no.  ==: no (NaN is never equal).  -> False
+NaN#1 in [NaN#1]?   is: YES.                              -> True
+```
+
+### Second print
+
+Setup:
+
+```
+a ---> [1]
+b ---> [1]       (different object, same contents)
+```
+
+**`[a, a] == [a, b]`** -> `True`.
+List comparison goes position by position:
+- Position 0: `a` vs `a` -> same object, identity shortcut -> match.
+- Position 1: `a` vs `b` -> not the same object, so check equality: `[1] == [1]` -> `True`.
+- All positions match -> the lists are equal.
+
+**`[a, a][0] is [a, b][1]`** -> `False`.
+- `[a, a][0]` is `a`.
+- `[a, b][1]` is `b`.
+- `a is b`? They are two separate lists -> `False`.
+
+### The two answers in one table
+
+| Expression | Identity? | Equal? | Result |
+|---|---|---|---|
+| `nan in [nan]` | yes | no | **True** (identity wins) |
+| `float("nan") in [nan]` | no | no | **False** |
+| `[a, a] == [a, b]` | position 0 yes; position 1 no | position 1 yes | **True** |
+| `[a, a][0] is [a, b][1]` | `a is b`: no | | **False** |
+
+## Practice 2.5.13
+
+### Q1 (BASIC)
+
+```python
+print(1 in [1.0], True in [1])
+```
+
+**Trace:**
+- `1 in [1.0]`: is `1` the same object as `1.0`? No (different types). Equal? `1 == 1.0` -> `True`. Match.
+- `True in [1]`: same object? No. Equal? `True == 1` -> `True` (`bool` is a subclass of `int`). Match.
+
+**Answer: `True True`**
+
+---
+
+### Q2 (MID)
+
+```python
+n = float("nan"); print([n].count(n), [float("nan")].count(float("nan")))
+```
+
+`.count(x)` counts items that match `x`, using the same rule (identity first, then equality).
+
+**First: `[n].count(n)`**
+- The list holds the object `n`; we ask to count `n`.
+- Identity: same object -> match. Count = `1`.
+
+**Second: `[float("nan")].count(float("nan"))`**
+- The list holds NaN object #1; the query is a **different** NaN object #2.
+- Identity: no. Equality: NaN != NaN -> no. Count = `0`.
+
+**Answer: `1 0`**
+
+---
+
+### Q3 (HARD)
+
+```python
+a = [1]; l = [a, [1]]; print(l.index([1]), l[0] is l[1])
+```
+
+**Setup:**
+
+```
+a ---------> [1]                 (object A)
+l ---> [ ptr0, ptr1 ]
+          |      |
+          v      v
+          A     [1]              (object B, a separate list written inline)
+```
+
+**`l.index([1])`**
+- The search value `[1]` in the call is yet **another** new list (call it C).
+- `index` checks each item against C, identity then equality:
+  - Index 0 (object A): is A the same object as C? No. Is `A == C`? `[1] == [1]` -> `True` -> match!
+- Returns `0` right away (index finds the first match).
+
+**`l[0] is l[1]`**
+- `l[0]` is A, `l[1]` is B. Two different list objects -> `False`.
+
+**Answer: `0 False`**
+
+Lesson: `index` and `in` can find an item that is **equal** but not **identical**. Equal does not mean same object.
+
+---
+
+# Master cheat sheet
+
+## Mutation vs rebinding
+
+| Code inside a function | Effect on caller's object |
+|---|---|
+| `l.append(x)`, `l.sort()`, `l[0] = x`, `d[k] = v` | **mutates** (caller sees it) |
+| `l[:] = [...]` | **mutates** (replaces contents in place) |
+| `l += [...]` (list) | **mutates** (in-place `__iadd__`) |
+| `l = l + [...]` | rebinds, new list (caller unaffected) |
+| `l = [...]`, `x = 5` | rebinds (caller unaffected) |
+| `s += "!"` (str), `n += 1` (int) | rebinds (immutable, new object) |
+
+## Copy tools
+
+| Want | Use |
+|---|---|
+| New sorted list, keep original | `sorted(x)` |
+| Shallow copy of a list | `list(x)`, `x[:]`, `x.copy()` |
+| Fully independent nested copy | `copy.deepcopy(x)` |
+| Safe read-only view of internal state | `tuple(self._items)` |
+
+## Speed and size
+
+| Fact | Detail |
+|---|---|
+| Tuple vs list | tuple is smaller and a bit faster to create |
+| `s += "x"` in a loop | O(n^2) in theory, copies repeatedly |
+| `"".join(parts)` | O(n), builds the result once |
+| Immutable objects | safe to share and cache |
+
+## Membership rule
+
+For `in`, `.index()`, `.count()` and list `==`: **identity first (`is`), then equality (`==`)**.
+
+---
+
+# Extra practice (try before reading the answers)
+
+1. What does this print?
+   ```python
+   def f(l): l = l + [9]
+   a = [1]; f(a); print(a)
+   ```
+   **A:** `[1]`. `l + [9]` makes a new list and only the local label moves.
+
+2. What does this print?
+   ```python
+   def f(l): l += [9]
+   a = [1]; f(a); print(a)
+   ```
+   **A:** `[1, 9]`. `+=` on a list mutates in place.
+
+3. What does this print?
+   ```python
+   def f(t): t += (9,)
+   a = (1,); f(a); print(a)
+   ```
+   **A:** `(1,)`. A tuple is immutable, so `+=` builds a new tuple and rebinds the local label.
+
+4. What does this print?
+   ```python
+   orig = [[1], [2]]
+   c = list(orig)
+   c[0].append(5)
+   print(orig)
+   ```
+   **A:** `[[1, 5], [2]]`. `list()` is a shallow copy, so the inner lists are shared.
+
+5. What does this print?
+   ```python
+   x = [3, 1, 2]
+   y = x.sort()
+   print(y, x)
+   ```
+   **A:** `None [1, 2, 3]`. `sort()` returns `None` and sorts in place.
+
+6. What does this print?
+   ```python
+   n = float("nan")
+   print(n in [n], n == n, [n] == [n])
+   ```
+   **A:** `True False True`. `in` uses identity first, `==` on NaN is False, and list comparison uses the same identity shortcut per item.
+
+7. What does this print?
+   ```python
+   a = [1]
+   print([a].index([1]), [a][0] is a)
+   ```
+   **A:** `0 True`. `index` finds the equal item at position 0, and `[a][0]` is the same object as `a`.
+
+8. In one sentence: why does a function that does `l = []` not clear the caller's list?
+   **A:** Because `l = []` only moves the function's own label to a new list; to clear the caller's list you must mutate it (for example `l.clear()` or `l[:] = []`).
 
 **Example 2.5.10.1: Mutation vs rebinding**
 

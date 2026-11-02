@@ -2243,25 +2243,7 @@ print(a, b)
 2 2
 ```
 
-**Example 2.3.4.3: The bytecode**
 
-```python
-import dis
-dis.dis("a, b = b, a")
-```
-
-**Output:**
-
-```text
-  0           0 RESUME                   0
-
-  1           2 LOAD_NAME                0 (b)
-              4 LOAD_NAME                1 (a)
-              6 SWAP                     2
-              8 STORE_NAME               1 (a)
-             10 STORE_NAME               0 (b)
-             12 RETURN_CONST             0 (None)
-```
 
 #### Practice 2.3.4
 
@@ -7484,6 +7466,432 @@ except TypeError as e:
 ```text
 TypeError: unhashable type: 'P'
 ```
+# Python identity, equality, hash and type checks: clarification + full cheat sheet
+
+This file has two parts:
+
+- **Part A**: the practice question you didn't understand, explained slowly.
+- **Part B**: every look-alike term side by side (`id`, `hash`, `is`, `==`, `isinstance`, ...), their clashes, and how they work together.
+
+---
+
+# PART A: "If you override `__eq__`, what must you do with `__hash__`?"
+
+## The question in plain words
+
+> You told Python: "two Students with the same name are equal."
+> Now you must also tell Python: "two Students with the same name go in the same locker."
+
+Why? Because a set or dict does **two steps**:
+
+1. **hash** -> go to a locker
+2. **==** -> check who is inside
+
+If two "equal" students go to **different lockers**, step 2 never happens, and Python never notices they are equal.
+
+## A1. Broken version: equal objects, different hashes
+
+```python
+class Bad:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return id(self)        # different for every object!
+
+
+a = Bad("Sakshi")
+c = Bad("Sakshi")
+
+print(a == c)                  # True   -> "equal"
+print(hash(a) == hash(c))      # False  -> but different lockers!
+
+s = {a, c}
+print(len(s))                  # 2      -> set thinks they are different people
+```
+
+`a == c` says "same person", but the set stored both. That is the bug: the set looked in two different lockers and never compared them.
+
+## A2. The other mistake: define `__eq__` and forget `__hash__`
+
+```python
+class OnlyEq:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+x = OnlyEq("Sakshi")
+print(x == OnlyEq("Sakshi"))   # True
+hash(x)                        # TypeError: unhashable type: 'OnlyEq'
+```
+
+When you define `__eq__` and not `__hash__`, Python **removes** the hash on purpose (sets `__hash__ = None`). Reason: Python refuses to guess a hash that might break the rule. So your object cannot be a dict key or set item until you write `__hash__`.
+
+## A3. Correct version: hash uses the same data as `__eq__`
+
+```python
+class Student:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)     # same data that __eq__ compares
+
+
+a = Student("Sakshi")
+c = Student("Sakshi")
+
+print(a == c)                  # True
+print(hash(a) == hash(c))      # True  -> same locker
+print(len({a, c}))             # 1     -> correctly treated as one person
+```
+
+## The golden rule (memorize this)
+
+> **Whatever `__eq__` compares, `__hash__` must use (the same data).**
+
+| `__eq__` compares | `__hash__` should use |
+|---|---|
+| `name` | `hash(self.name)` |
+| `(x, y)` | `hash((self.x, self.y))` |
+| `(name, age)` | `hash((self.name, self.age))` |
+
+Safe direction: hash may use **less** data than `__eq__` (that only causes collisions, which are legal). It must never use **more or different** data.
+
+## A4. Extra warning: don't hash data that can change
+
+```python
+s = Student("Sakshi")
+box = {s}
+s.name = "Rahul"        # changed after storing!
+print(s in box)         # False -> its locker number changed, Python can't find it
+```
+
+So keep the fields used in `__hash__` unchanging (treat the object as immutable).
+
+---
+
+# PART B: All the look-alike terms
+
+## B1. Big picture: what each thing is
+
+| Term | Kind | Question it answers |
+|---|---|---|
+| `id(x)` | function | What is the memory identity number of this exact object? |
+| `x is y` | operator | Are x and y the **exact same object**? |
+| `x == y` | operator | Do x and y have **equal value** (by `__eq__`)? |
+| `x.__eq__(y)` | method | The method Python calls when you write `x == y` |
+| `hash(x)` | function | Which locker number does x go to? |
+| `x.__hash__()` | method | The method Python calls when you write `hash(x)` |
+| `type(x)` | function | What is the exact class of x? |
+| `isinstance(x, C)` | function | Is x an object of class C **or a subclass** of C? |
+| `issubclass(A, B)` | function | Is class A a subclass of class B? |
+
+## B2. `id()` vs `is`
+
+`x is y` is basically `id(x) == id(y)` (for objects alive at the same time).
+
+```python
+a = [1, 2]
+b = [1, 2]
+c = a
+
+print(a is b)    # False -> two separate lists
+print(a is c)    # True  -> c is another name for the same list
+print(id(a) == id(c))   # True
+```
+
+Use `is` for the special single objects: `None`, `True`, `False`.
+
+```python
+if x is None:      # correct
+if x == None:      # works but not recommended
+```
+
+## B3. `is` vs `==`
+
+```python
+a = [1, 2]
+b = [1, 2]
+print(a == b)    # True  -> same contents
+print(a is b)    # False -> different objects
+```
+
+| | `is` | `==` |
+|---|---|---|
+| Compares | identity (same object) | value (via `__eq__`) |
+| Can you customize it? | **No** | **Yes** (`__eq__`) |
+| Use for | `None`, `True`, `False`, "same object?" | "same value?" |
+
+Warning: small numbers and some strings may happen to be the same object (Python caches them), so `is` can look like it works on numbers and strings. That is an implementation detail. **Never use `is` to compare numbers or strings.**
+
+## B4. `==` vs `__eq__()`
+
+They are the same thing. `a == b` makes Python call `a.__eq__(b)`.
+
+- If `a.__eq__(b)` returns `NotImplemented`, Python tries `b.__eq__(a)`.
+- If both give up, Python falls back to identity (`a is b`).
+- `a != b` calls `__ne__`, which by default simply flips the result of `__eq__`.
+
+## B5. `hash()` vs `__hash__()`
+
+Same relationship: `hash(x)` makes Python call `x.__hash__()`.
+
+```python
+class Demo:
+    def __hash__(self):
+        return 100
+
+print(hash(Demo()))   # 100
+```
+
+## B6. `isinstance()` vs `type()`
+
+```python
+print(isinstance(True, int))   # True   (bool is a subclass of int)
+print(type(True) == int)       # False  (exact class is bool)
+print(type(True) is bool)      # True
+```
+
+| | `type(x) is C` | `isinstance(x, C)` |
+|---|---|---|
+| Accepts subclasses? | No (exact match only) | Yes |
+| Accepts several classes? | No | Yes: `isinstance(x, (int, float))` |
+| Usually preferred? | Rarely | **Yes** |
+
+`issubclass` is the same idea but for classes, not objects:
+
+```python
+print(issubclass(bool, int))   # True
+```
+
+## B7. Where `isinstance` shows up next to `__eq__`
+
+That is why `__eq__` often starts like this:
+
+```python
+def __eq__(self, other):
+    if not isinstance(other, Student):
+        return NotImplemented      # "I don't know how to compare with that"
+    return self.name == other.name
+```
+
+`NotImplemented` (a value you **return**) is **not** the same as `NotImplementedError` (an error you **raise**). Don't mix them up.
+
+## B8. Special methods vs what triggers them
+
+You almost never call these directly. Python calls them for you.
+
+| You write | Python calls |
+|---|---|
+| `a == b` | `a.__eq__(b)` |
+| `a != b` | `a.__ne__(b)` |
+| `hash(a)` | `a.__hash__()` |
+| `str(a)` / `print(a)` | `a.__str__()` |
+| `repr(a)` | `a.__repr__()` |
+| `len(a)` | `a.__len__()` |
+| `x in a` | `a.__contains__(x)` |
+| `a < b` | `a.__lt__(b)` |
+
+**Important:** `is` and `id()` have **no** special method. You cannot override them. Python always controls identity.
+
+## B9. `__str__` vs `__repr__` (another look-alike pair)
+
+- `__repr__`: for developers, unambiguous (ideally looks like code).
+- `__str__`: for end users, readable.
+- `print()` uses `__str__`; if missing, it falls back to `__repr__`.
+
+---
+
+## B10. Who controls what
+
+| Thing | Python controls | You can customize |
+|---|---|---|
+| `id()` | Yes | No |
+| `is` | Yes | No |
+| `==` / `__eq__` | Default only | **Yes** |
+| `hash()` / `__hash__` | Default only | **Yes** |
+| `isinstance` | Mostly | Rarely (advanced) |
+
+---
+
+## B11. Clashes and traps (the confusing ones)
+
+**1. Equal values, different objects**
+```python
+[1] == [1]     # True
+[1] is [1]     # False
+```
+
+**2. Same hash, not equal (collision)**
+```python
+hash(-1) == hash(-2)   # True in CPython
+-1 == -2               # False
+```
+
+**3. Define `__eq__` only -> becomes unhashable** (see A2).
+
+**4. `__eq__` and `__hash__` disagree -> sets/dicts misbehave** (see A1).
+
+**5. `1`, `1.0` and `True` are all equal and share a hash**
+```python
+d = {1: "a", 1.0: "b", True: "c"}
+print(d)    # {1: 'c'}  -> one single key
+```
+
+**6. `bool` is an `int`**
+```python
+isinstance(True, int)   # True
+True + True             # 2
+```
+
+**7. `type()` vs `isinstance()` with subclasses**
+```python
+class Animal: pass
+class Dog(Animal): pass
+
+d = Dog()
+print(type(d) is Animal)       # False
+print(isinstance(d, Animal))   # True
+```
+
+**8. NaN is not equal to itself**
+```python
+nan = float("nan")
+print(nan == nan)         # False
+print(nan is nan)         # True   (same object)
+print(nan in [nan])       # True   (membership checks identity first)
+```
+
+**9. Ids of temporary objects can repeat** (ids are unique only among objects alive at the same time).
+
+**10. Changing an object doesn't change its id**
+```python
+a = [1]
+i = id(a)
+a.append(2)
+print(id(a) == i)   # True
+```
+
+---
+
+## B12. How they work together (the flow)
+
+When you do `x in some_set` or `some_dict[x]`, Python does roughly this:
+
+```
+1. h = hash(x)                       -> go to locker h
+2. for each item y in that locker:
+       if y is x:   -> FOUND          (identity shortcut)
+       if y == x:   -> FOUND          (calls __eq__)
+3. nothing matched -> NOT FOUND
+```
+
+So all three cooperate:
+
+- **`hash`** picks the locker (speed),
+- **`is`** is a quick shortcut (same object, certainly equal),
+- **`==`** makes the final decision (same value).
+
+That identity shortcut is also why `nan in [nan]` is `True` even though `nan == nan` is `False`.
+
+## B13. The contract that keeps everything in sync
+
+| Rule | Meaning |
+|---|---|
+| `a is b` -> `a == b` | The same object is equal to itself (normally) |
+| `a == b` -> `hash(a) == hash(b)` | **Required.** Equal objects must share a hash |
+| `hash(a) == hash(b)` -> `a == b` | **Not required** (collision allowed) |
+| Hash must not change during the object's life | So don't hash mutable fields |
+
+## B14. A template that always works
+
+```python
+class Student:
+    def __init__(self, name):
+        self._name = name           # treat as read-only
+
+    @property
+    def name(self):
+        return self._name
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)      # same data as __eq__
+```
+
+Shortcut: Python's `dataclass` can write both for you, with the hash and equality based on the same fields.
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Student:
+    name: str
+```
+
+---
+
+## B15. Master comparison table
+
+| | Compares | Customizable? | Returns | Typical use |
+|---|---|---|---|---|
+| `id(x)` | memory identity | No | int | debugging, "same object?" |
+| `is` | identity | No | bool | `x is None` |
+| `==` / `__eq__` | value | Yes | bool | normal comparison |
+| `hash()` / `__hash__` | locker number | Yes | int | dict keys, set items |
+| `type(x) is C` | exact class | No | bool | rare, strict check |
+| `isinstance(x, C)` | class or subclass | Rarely | bool | normal type check |
+| `issubclass(A, B)` | class relationship | Rarely | bool | class checks |
+
+---
+
+## Practice questions (with answers)
+
+1. If `__eq__` compares `name`, what should `__hash__` use?
+   **A:** `hash(self.name)`, the same data `__eq__` compares.
+
+2. What happens if you define `__eq__` but not `__hash__`?
+   **A:** Python sets `__hash__` to `None`, so the object becomes unhashable (`TypeError` when hashing).
+
+3. Two objects are equal but have different hashes. What goes wrong?
+   **A:** Sets and dicts store them in different lockers and never compare them, so they look like different items.
+
+4. `a = [1]`, `b = [1]`. What are `a == b` and `a is b`?
+   **A:** `True` and `False`.
+
+5. Can you override `is`?
+   **A:** No. Identity is controlled by Python.
+
+6. `isinstance(True, int)`: True or False? And `type(True) is int`?
+   **A:** `True`, and `False` (the exact type is `bool`).
+
+7. What is the difference between `NotImplemented` and `NotImplementedError`?
+   **A:** `NotImplemented` is a value returned from `__eq__` and similar methods meaning "I can't compare with that"; `NotImplementedError` is an exception you raise.
+
+8. Why is `nan in [nan]` True while `nan == nan` is False?
+   **A:** Membership checks identity (`is`) before `==`, and it is the same object.
+
+9. Is it OK for two unequal objects to have the same hash?
+   **A:** Yes. That is a collision. It is allowed, just slower.
+
+10. Why shouldn't you hash a field that can change?
+    **A:** If the field changes after the object is stored, its locker number changes and Python can no longer find it.
 
 #### Practice 2.5.8
 

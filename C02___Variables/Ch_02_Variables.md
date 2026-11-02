@@ -1639,354 +1639,6 @@ import math; math.pi = 3; print(math.pi)
 ### 2.2.5 Reserved keywords as names (error)
 
 Hard keywords (class, def, if, for, None, True, ...) cannot be names. Soft keywords (match, case, type, \_) can still be names but should not. A trailing underscore (class\_) is the standard workaround.
-## Python Keywords: Hard Keywords and Soft Keywords
-
-Python has some words that have a special meaning in its syntax. These words are called **keywords**.
-
-For example:
-
-```python
-if
-else
-for
-while
-class
-return
-```
-
-Python reserves these words for specific purposes. We cannot use them freely as variable names.
-
-But there is an interesting distinction: **Hard Keywords** and **Soft Keywords**.
-
----
-
-### 1. Hard Keywords
-
-Hard keywords are words that are always reserved by Python.
-
-You cannot use them as ordinary variable names.
-
-For example:
-
-```python
-class = 10
-```
-
-This produces a `SyntaxError` because `class` is a reserved keyword used to define classes.
-
-Other examples include:
-
-```python
-if
-else
-for
-while
-def
-return
-import
-try
-except
-True
-False
-None
-```
-
-Think of hard keywords as words that Python has permanently reserved for its grammar.
-
-### 2. Soft Keywords
-
-Soft keywords are slightly different.
-
-They have a special meaning only in particular syntactic situations. Outside those situations, Python allows us to use them as ordinary variable names.
-
-For example:
-
-```python
-match = 5
-
-print(match)
-```
-
-**Output:**
-
-```text
-5
-```
-
-This works because `match` is a soft keyword.
-
-However, Python also uses `match` in pattern matching:
-
-```python
-value = 10
-
-match value:
-    case 10:
-        print("Value is ten")
-    case _:
-        print("Something else")
-```
-
-**Output:**
-
-```text
-Value is ten
-```
-
-Here, `match` and `case` have special meanings because they appear in a pattern-matching statement.
-
-Other soft keywords include:
-
-- `match`
-- `case`
-- `_`
-
-The exact list depends on the Python version.
-
----
-
-### 3. How to Check Python Keywords
-
-Python provides a built-in module called `keyword` that allows us to inspect keywords programmatically.
-
-```python
-import keyword
-
-print(len(keyword.kwlist))
-print(keyword.kwlist)
-
-print(keyword.softkwlist)
-```
-
-Let's understand each part.
-
-**`import keyword`**
-
-Imports Python's built-in `keyword` module.
-
-**`keyword.kwlist`**
-
-Returns a list containing all hard keywords.
-
-**`len(keyword.kwlist)`**
-
-Returns the total number of hard keywords in that Python version.
-
-**`keyword.softkwlist`**
-
-Returns a list containing all soft keywords.
-
-Remember: the number of keywords can change between Python versions.
-
----
-
-### 4. Understanding `keyword.iskeyword()` and `keyword.issoftkeyword()`
-
-Python also provides two useful functions to check whether a particular word is a keyword.
-
-**Checking hard keywords:**
-
-```python
-import keyword
-
-print(keyword.iskeyword("class"))
-print(keyword.iskeyword("match"))
-```
-
-**Output:**
-
-```text
-True
-False
-```
-
-Why?
-
-- `"class"` is a hard keyword.
-- `"match"` is a soft keyword, not a hard keyword.
-
-**Checking soft keywords:**
-
-```python
-print(keyword.issoftkeyword("class"))
-print(keyword.issoftkeyword("match"))
-```
-
-**Output:**
-
-```text
-False
-True
-```
-
----
-
-### 5. Understanding the `compile()` Function
-
-Now let's understand a slightly different concept.
-
-Python provides a built-in function called `compile()`.
-
-It attempts to compile Python source code and returns a code object if compilation succeeds.
-
-It does not execute the code.
-
-**Syntax:**
-
-```python
-compile(source, filename, mode)
-```
-
-| Parameter | Meaning |
-|---|---|
-| `source` | The Python code we want to compile |
-| `filename` | A name used to identify the source |
-| `mode` | Specifies the kind of code being compiled |
-
-The three commonly used modes are:
-
-- `"exec"` – For multiple statements or a complete block of code.
-- `"eval"` – For a single expression.
-- `"single"` – For a single interactive statement.
-
-Let's look at an example:
-
-```python
-compile("class = 1", "<s>", "exec")
-```
-
-This produces a `SyntaxError`.
-
-Why?
-
-Because `class` is a hard keyword and cannot be used as a variable name.
-
-### 6. Understanding `try`, `except`, and `SyntaxError`
-
-Instead of allowing the program to stop when an error occurs, we can catch the error using `try` and `except`.
-
-```python
-try:
-    compile("class = 1", "<s>", "exec")
-
-except SyntaxError as e:
-    print("SyntaxError:", e.msg)
-```
-
-**Possible output:**
-
-```text
-SyntaxError: invalid syntax
-```
-
-Let's break this down:
-
-- `try`: Python attempts to execute the statements inside this block.
-- `compile()`: Attempts to compile the given source code.
-- `except SyntaxError`: Catches the syntax error if compilation fails.
-- `as e`: Stores the caught error in a variable named `e`.
-- `e.msg`: Retrieves the error message.
-
-The exact error message can vary between Python versions.
-
----
-
-### 7. Why Does `class_` Work?
-
-Consider this:
-
-```python
-class_ = 10
-
-print(class_)
-```
-
-**Output:**
-
-```text
-10
-```
-
-Why does this work?
-
-Because `class_` and `class` are two different identifiers.
-
-Python does not consider `class_` a reserved keyword.
-
-Adding an underscore is a common convention when a variable name would otherwise conflict with a keyword.
-
-### 8. Hard Keywords vs Soft Keywords
-
-| Feature | Hard Keywords | Soft Keywords |
-|---|---|---|
-| Reserved by Python | Always | Only in specific contexts |
-| Can be used as ordinary variable names? | No | Yes, outside their special contexts |
-| Example | `class`, `if`, `return` | `match`, `case`, `_` |
-| Checked using | `keyword.iskeyword()` | `keyword.issoftkeyword()` |
-
----
-
-### 9. Complete Code Example
-
-Let's put everything together:
-
-```python
-import keyword
-
-# Total number of hard keywords
-print(len(keyword.kwlist))
-
-# Display all hard keywords
-print(keyword.kwlist)
-
-# Display all soft keywords
-print(keyword.softkwlist)
-
-
-# Check whether a word is a hard keyword
-print(keyword.iskeyword("class"))
-print(keyword.iskeyword("match"))
-
-
-# Check whether a word is a soft keyword
-print(keyword.issoftkeyword("class"))
-print(keyword.issoftkeyword("match"))
-
-
-# Try compiling invalid Python code
-try:
-    compile("class = 1", "<s>", "exec")
-
-except SyntaxError as e:
-    print("SyntaxError:", e.msg)
-
-
-# Using a modified identifier
-class_ = 1
-print(class_)
-
-
-# Using a soft keyword as a variable
-match = 5
-print(match)
-```
-
----
-
-### 10. Important Things to Remember
-
-1. Keywords are reserved words that have special meanings in Python.
-2. Hard keywords cannot be used as ordinary identifiers.
-3. Soft keywords have special meanings only in particular syntactic contexts.
-4. `keyword.kwlist` gives us the list of hard keywords.
-5. `keyword.softkwlist` gives us the list of soft keywords.
-6. `keyword.iskeyword()` checks for hard keywords.
-7. `keyword.issoftkeyword()` checks for soft keywords.
-8. `compile()` checks whether source code can be compiled; it does not execute it.
-9. `SyntaxError` indicates that Python cannot understand the code's syntax.
-10. Adding an underscore, such as `class_`, gives us a different, valid identifier.
-
-**The central idea:** Not every word that Python uses specially is permanently reserved. Hard keywords are always reserved, while soft keywords are context-dependent.
 
 **Example 2.2.5.1: What happens**
 
@@ -2085,467 +1737,34 @@ print(5 .__eq__(5.0), 5 .__eq__("5"))
 
 ### 2.2.7 Private-ish naming (\_x, \_\_x, \_\_x\_\_)
 
-## 2.2.7 Private-ish Naming (`_x`, `__x`, `__x__`)
+\_x: "internal use" hint. \_\_x inside a class: name mangling to \_ClassName\_\_x, which avoids accidental clashes in subclasses. \_\_x\_\_: reserved dunder. None of these are true privacy.
 
-Python uses underscores in variable and method names to communicate how something is intended to be used.
-
-There are three important naming styles:
-
-1. `_x` – A hint that something is intended for internal use.
-2. `__x` – Triggers name mangling when used inside a class.
-3. `__x__` – A special naming convention used by Python for special methods and attributes.
-
-**Important:** Python does not have strict private variables in the same way some other programming languages do. These naming styles are conventions and mechanisms, not complete privacy.
-
----
-
-### 1. Single Underscore: `_x`
-
-A single underscore before a name is a signal to other programmers:
-
-"This is intended for internal use. You probably should not access it directly from outside the class or module."
-
-Example:
+**Example 2.2.7.1: Mangling in action**
 
 ```python
 class A:
-    _x = 10
-
-print(A._x)
-```
-
-**Output:**
-
-```text
-10
-```
-
-Notice something important:
-
-Even though `_x` starts with an underscore, Python allows us to access it.
-
-```python
-print(A._x)
-```
-
-This works perfectly.
-
-So, does `_x` make a variable private?
-
-**No!**
-
-It is simply a naming convention. It tells other programmers that the variable is intended for internal use.
-
-Think of it as a warning label, not a locked door.
-
-### 2. Double Underscore: `__x`
-
-This one is more interesting.
-
-When you write a name beginning with two underscores inside a class, Python performs something called **name mangling**.
-
-Name mangling means Python automatically changes the name internally.
-
-For example:
-
-```python
-class A:
-    def __init__(self):
-        self.__x = 10
-```
-
-Python internally changes:
-
-```text
-__x
-```
-
-Into:
-
-```text
-_A__x
-```
-
-Why?
-
-Because Python wants to reduce accidental naming conflicts, especially when a class is inherited by another class.
-
-Let's see what happens.
-
-```python
-class A:
-    def __init__(self):
-        self.__x = 10
-
-a = A()
-
-print(vars(a))
-```
-
-**Output:**
-
-```text
-{'_A__x': 10}
-```
-
-Look carefully!
-
-We wrote `self.__x`, but Python stored the attribute under the name `_A__x`.
-
-The transformation is:
-
-```text
-Original name       Name after mangling
-
-    __x       --->      _A__x
-```
-
-Here, `A` is the class name.
-
-### 3. Why Does Name Mangling Happen?
-
-Suppose we have two classes:
-
-```python
-class A:
-    def __init__(self):
-        self.__x = 10
-
-
-class B(A):
-    def __init__(self):
-        super().__init__()
-        self.__x = 20
-
-
-obj = B()
-
-print(vars(obj))
-```
-
-**Output:**
-
-```text
-{'_A__x': 10, '_B__x': 20}
-```
-
-Why are there two different attributes?
-
-Because Python mangles the names using the class in which each name is written.
-
-```text
-Class A writes:
-
-    self.__x
-         |
-         v
-      _A__x
-
-
-Class B writes:
-
-    self.__x
-         |
-         v
-      _B__x
-```
-
-Even though both classes use `__x`, Python treats them as different attribute names.
-
-This helps prevent accidental clashes between parent and child classes.
-
-**Remember:** Name mangling does not make attributes completely inaccessible. It changes their names.
-
-For example:
-
-```python
-print(obj._A__x)
-print(obj._B__x)
-```
-
-**Output:**
-
-```text
-10
-20
-```
-
-Both attributes can still be accessed.
-
----
-
-### 4. Double Underscore at Both Ends: `__x__`
-
-Now consider names such as:
-
-```python
-__init__
-__str__
-__len__
-__add__
-__eq__
-```
-
-These are commonly called **dunder methods**.
-
-Dunder means double underscore.
-
-They have special meanings in Python.
-
-For example:
-
-```python
-class A:
-    def __init__(self):
-        print("Object created")
-
-
-a = A()
-```
-
-**Output:**
-
-```text
-Object created
-```
-
-Here, `__init__` is a special method that Python calls during object initialization.
-
-Another example:
-
-```python
-class A:
-    def __str__(self):
-        return "Hello from A"
-
-
-a = A()
-
-print(a)
-```
-
-**Output:**
-
-```text
-Hello from A
-```
-
-Python uses `__str__` when you convert the object into its string representation using `str()` or `print()`.
-
-**Important:** Do not invent your own names using the double-underscore-at-both-ends convention. These names are reserved for Python's special protocols and future use.
-
----
-
-### 5. Difference Between All Three
-
-| Naming style | Meaning | Example |
-|---|---|---|
-| `_x` | Internal-use convention | `_salary` |
-| `__x` | Triggers name mangling inside a class | `__salary` |
-| `__x__` | Special Python naming convention | `__init__` |
-
-Remember:
-
-- `_x` does not prevent access.
-- `__x` changes the attribute name through name mangling.
-- `__x__` is used for special Python methods and attributes.
-
----
-
-## Example 2.2.7.1: Name Mangling in Action
-
-Let's understand the original example line by line.
-
-```python
-class A:
-
     def __init__(self):
         self.pub = 1
         self._prot = 2
         self.__priv = 3
-
-
 a = A()
-
 print(a.pub, a._prot)
-
 print([n for n in vars(a)])
-
 print(a._A__priv)
-
 try:
     print(a.__priv)
-
 except AttributeError as e:
     print("AttributeError:", e)
-```
-
-### Step 1: Creating the class
-
-```python
-class A:
-```
-
-We create a class named `A`.
-
-### Step 2: Creating the attributes
-
-```python
-def __init__(self):
-    self.pub = 1
-    self._prot = 2
-    self.__priv = 3
-```
-
-We create three attributes:
-
-| Attribute written in code | Meaning |
-|---|---|
-| `pub` | Ordinary public attribute |
-| `_prot` | Internal-use naming convention |
-| `__priv` | Name-mangled attribute |
-
-Python transforms `self.__priv` into `self._A__priv`.
-
-### Step 3: Creating an object
-
-```python
-a = A()
-```
-
-This creates an object of class `A`.
-
-Its attributes are now:
-
-```text
-       OBJECT: a
-       |
-       |---- pub       = 1
-       |
-       |---- _prot     = 2
-       |
-       |---- _A__priv  = 3
-```
-
-### Step 4: Accessing public and single-underscore attributes
-
-```python
-print(a.pub, a._prot)
 ```
 
 **Output:**
 
 ```text
 1 2
-```
-
-Both work because a single underscore does not block access.
-
-### Step 5: Understanding `vars()`
-
-```python
-print([n for n in vars(a)])
-```
-
-First, understand:
-
-```python
-vars(a)
-```
-
-It returns a dictionary containing the object's attributes (for an ordinary instance with a `__dict__`).
-
-The result here is:
-
-```python
-{
-    'pub': 1,
-    '_prot': 2,
-    '_A__priv': 3
-}
-```
-
-Now:
-
-```python
-[n for n in vars(a)]
-```
-
-This is a list comprehension.
-
-It collects the dictionary's keys into a list.
-
-**Output:**
-
-```text
 ['pub', '_prot', '_A__priv']
-```
-
-Notice that `__priv` has become `_A__priv`.
-
-### Step 6: Accessing the mangled attribute
-
-```python
-print(a._A__priv)
-```
-
-**Output:**
-
-```text
 3
-```
-
-This works because we are using the actual mangled name.
-
-### Step 7: Trying the original name
-
-```python
-try:
-    print(a.__priv)
-
-except AttributeError as e:
-    print("AttributeError:", e)
-```
-
-**Output:**
-
-```text
 AttributeError: 'A' object has no attribute '__priv'
 ```
-
-Why?
-
-Because Python stored the attribute as `_A__priv`, not `__priv`.
-
-Therefore, looking for `a.__priv` does not find the attribute.
-
----
-
-# Practice 2.2.7 — Solutions and Explanations
-
-## Q1. BASIC
-
-**Question:**
-
-```python
-class A:
-    _x = 1
-
-print(A._x)
-```
-
-**Output:**
-
-```text
-1
-```
-
-**Explanation:**
-
-1. We create a class called `A`.
-2. Inside the class, we define `_x = 1`.
-3. `_x` begins with a single underscore.
-4. A single
 
 #### Practice 2.2.7
 
@@ -2557,7 +1776,6 @@ class A:
 print(A._x)
 ```
 
-
 **2.2.7-Q2 MID**
 
 ```python
@@ -2565,7 +1783,6 @@ class A:
     def __init__(self): self.__v = 1
 print(sorted(vars(A())))
 ```
-
 
 **2.2.7-Q3 HARD**
 
@@ -2575,317 +1792,7 @@ class A:
 class B(A): pass
 print(hasattr(B, "__v"), hasattr(B, "_A__v"))
 ```
-# Solutions – Practice 2.2.7: Private-ish Naming
 
-## Q1. BASIC
-
-**Question:**
-
-```python
-class A:
-    _x = 1
-
-print(A._x)
-```
-
-**Output:**
-
-```text
-1
-```
-
-### Explanation
-
-**Step 1:** `class A:` creates a class named `A`.
-
-**Step 2:** `_x = 1` creates a class attribute named `_x`.
-
-**Step 3:** A single underscore before a name is simply a naming convention. It indicates that the attribute is intended for internal use.
-
-However, Python does not prevent us from accessing it.
-
-**Step 4:**
-
-```python
-print(A._x)
-```
-
-We access the class attribute `_x` directly using the class name `A`.
-
-Therefore, the output is:
-
-```text
-1
-```
-
-**Remember:** A single underscore does not make an attribute inaccessible.
-
----
-
-## Q2. MID
-
-**Question:**
-
-```python
-class A:
-    def __init__(self):
-        self.__v = 1
-
-print(sorted(vars(A())))
-```
-
-**Output:**
-
-```text
-['_A__v']
-```
-
-### Explanation
-
-Let's break this into smaller parts.
-
-**Step 1: Creating an object**
-
-```python
-A()
-```
-
-This creates an object of class `A`.
-
-During initialization, Python automatically calls the `__init__()` method.
-
-**Step 2: Understanding `self.__v = 1`**
-
-```python
-self.__v = 1
-```
-
-This creates an instance attribute named `__v` and assigns it the value `1`.
-
-But because the name starts with two underscores, Python performs name mangling.
-
-```text
-Name written in code:
-
-        __v
-
-          |
-          | Name mangling
-          v
-
-Actual attribute name:
-
-       _A__v
-```
-
-Here, `A` is the class name.
-
-**Step 3: Understanding `vars()`**
-
-```python
-vars(A())
-```
-
-`vars()` returns the object's attributes as a dictionary.
-
-The result is:
-
-```python
-{'_A__v': 1}
-```
-
-**Step 4: Understanding `sorted()`**
-
-```python
-sorted(vars(A()))
-```
-
-When `sorted()` receives a dictionary, it sorts the dictionary's keys by default.
-
-The dictionary contains one key:
-
-```text
-_A__v
-```
-
-Therefore, the result is:
-
-```python
-['_A__v']
-```
-
-**Important:** `sorted()` returns the dictionary's keys, not its values.
-
----
-
-## Q3. HARD
-
-**Question:**
-
-```python
-class A:
-    __v = 1
-
-class B(A):
-    pass
-
-print(hasattr(B, "__v"), hasattr(B, "_A__v"))
-```
-
-**Output:**
-
-```text
-False True
-```
-
-This question combines three concepts:
-
-1. Name mangling.
-2. Inheritance.
-3. `hasattr()`.
-
-### Step 1: Understanding class A
-
-```python
-class A:
-    __v = 1
-```
-
-We create a class attribute named `__v`.
-
-Because it starts with two underscores, Python performs name mangling.
-
-```text
-Original name:     __v
-
-Mangled name:      _A__v
-```
-
-Therefore, the actual attribute name is `_A__v`.
-
-### Step 2: Understanding class B
-
-```python
-class B(A):
-    pass
-```
-
-Here:
-
-- `A` is the parent class.
-- `B` is the child class.
-- `B` inherits attributes from `A`.
-- `pass` means we are not adding any additional statements to the class body.
-
-Since `B` inherits from `A`, it can access the inherited attribute `_A__v`.
-
-### Step 3: Understanding `hasattr()`
-
-`hasattr()` is a built-in Python function used to check whether an object has a particular attribute.
-
-**Syntax:**
-
-```python
-hasattr(object, "attribute_name")
-```
-
-It returns:
-
-- `True` if the attribute exists.
-- `False` if the attribute does not exist.
-
-### Step 4: First expression
-
-```python
-hasattr(B, "__v")
-```
-
-Python checks whether class `B` has an attribute literally named `__v`.
-
-**Result:**
-
-```text
-False
-```
-
-**Why?**
-
-Because Python changed the original attribute name `__v` into `_A__v` inside class `A`.
-
-There is no attribute literally named `__v` in the inherited class attributes.
-
-### Step 5: Second expression
-
-```python
-hasattr(B, "_A__v")
-```
-
-Now Python checks whether class `B` has an attribute named `_A__v`.
-
-**Result:**
-
-```text
-True
-```
-
-**Why?**
-
-Because `B` inherits the attribute `_A__v` from its parent class `A`.
-
-### Visual Explanation
-
-```text
-                 CLASS A
-                    |
-                 __v = 1
-                    |
-                    | Name mangling
-                    v
-                 _A__v = 1
-                    |
-                    | Inheritance
-                    v
-                 CLASS B
-                    |
-                    | Inherits _A__v
-                    |
-              +-----+------+
-              |            |
-              v            v
-         hasattr(B,    hasattr(B,
-           "__v")       "_A__v")
-              |            |
-              v            v
-            False         True
-```
-
-**The most important concept:**
-
-Name mangling uses the class in which the attribute was originally defined.
-
-Even when we access the inherited attribute through class `B`, its mangled name remains `_A__v`, because it was originally defined inside class `A`.
-
----
-
-## Final Answer Sheet
-
-| Question | Output |
-|---|---|
-| Q1 – BASIC | `1` |
-| Q2 – MID | `['_A__v']` |
-| Q3 – HARD | `False True` |
-
-## Important Concepts to Remember
-
-1. `_x` is a naming convention, not an access restriction.
-2. `__x` triggers name mangling inside a class.
-3. Name mangling changes `__x` into `_ClassName__x`.
-4. `vars()` returns an object's attribute dictionary when available.
-5. `sorted()` sorts dictionary keys by default.
-6. `hasattr()` checks whether an attribute exists.
-7. Inherited mangled attributes retain the name generated from the class in which they were originally defined.
-
-**The central idea:** Python uses name mangling to reduce accidental attribute-name clashes, especially in inheritance. It does not create truly private attributes.
 ### 2.2.8 Beginner pitfalls: shadowing built-ins (list, id, input)
 
 Assigning to a name like list, id, input, sum or max hides the built-in in that scope. Later calls fail with confusing errors. del the name to restore the built-in.
@@ -2921,331 +1828,6 @@ print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
 ```text
 True False
 ```
-# Example 2.2.8.2: Safe Check Using `hasattr()` and `builtins`
-
-## 1. The Code
-
-```python
-import builtins
-
-print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
-```
-
-**Output:**
-
-```text
-True False
-```
-
-Let's understand what is happening, one step at a time.
-
----
-
-## 2. What Is `builtins`?
-
-Python already provides many functions that we can use directly without importing anything.
-
-For example:
-
-```python
-print("Hello")
-sum([10, 20, 30])
-len("Python")
-max(10, 20, 30)
-min(10, 20, 30)
-```
-
-Where do these functions come from?
-
-They are available through a special Python module called **`builtins`**.
-
-Think of `builtins` as a collection of names that Python makes available by default.
-
-Some examples:
-
-| Name | What it does |
-|---|---|
-| `print()` | Displays something |
-| `sum()` | Calculates the total |
-| `len()` | Returns the length |
-| `max()` | Finds the largest value |
-| `min()` | Finds the smallest value |
-| `type()` | Tells us an object's type |
-
-### How do we access this module explicitly?
-
-```python
-import builtins
-```
-
-Now we can access its functions using:
-
-```python
-builtins.print("Hello")
-builtins.sum([10, 20, 30])
-builtins.len("Python")
-```
-
-Output:
-
-```text
-Hello
-60
-6
-```
-
-Notice that we use:
-
-```python
-builtins.sum()
-```
-
-instead of simply:
-
-```python
-sum()
-```
-
-Both refer to the built-in `sum` function, provided we haven't replaced the name `sum` in our current scope.
-
----
-
-## 3. What Is `hasattr()`?
-
-`hasattr()` is a built-in Python function.
-
-Its job is simple:
-
-**It checks whether an object has a particular attribute.**
-
-Syntax:
-
-```python
-hasattr(object, "attribute_name")
-```
-
-It returns:
-
-- `True` if the attribute exists.
-- `False` if the attribute does not exist.
-
-For example:
-
-```python
-class Student:
-    name = "Sam"
-    age = 20
-
-s = Student()
-
-print(hasattr(s, "name"))
-print(hasattr(s, "age"))
-print(hasattr(s, "marks"))
-```
-
-Output:
-
-```text
-True
-True
-False
-```
-
-Why?
-
-- `name` exists in the `Student` class.
-- `age` exists in the `Student` class.
-- `marks` does not exist.
-
----
-
-## 4. Now Let's Understand Our Original Example
-
-```python
-import builtins
-
-print(hasattr(builtins, "sum"), hasattr(builtins, "total"))
-```
-
-We are checking two things.
-
-### First check
-
-```python
-hasattr(builtins, "sum")
-```
-
-Python asks:
-
-"Does the `builtins` module have an attribute called `sum`?"
-
-Yes!
-
-Because `sum` is a standard built-in function.
-
-Therefore:
-
-```python
-True
-```
-
-### Second check
-
-```python
-hasattr(builtins, "total")
-```
-
-Python asks:
-
-"Does the `builtins` module have an attribute called `total`?"
-
-No!
-
-There is no standard built-in function named `total`.
-
-Therefore:
-
-```python
-False
-```
-
-### Visual representation
-
-```text
-                 builtins MODULE
-              ______________________
-             |                      |
-             |  print               |
-             |  sum          ✓      |
-             |  len                 |
-             |  max                 |
-             |  min                 |
-             |  type                |
-             |  ...                 |
-             |                      |
-             |  total        ✗      |
-             |______________________|
-
-             hasattr(builtins, "sum")
-                       |
-                       v
-                      True
-
-             hasattr(builtins, "total")
-                       |
-                       v
-                      False
-```
-
-So the final output is:
-
-```text
-True False
-```
-
----
-
-## 5. Why Is This Called a Safe Check?
-
-Suppose you want to check whether an object contains a particular attribute before trying to use it.
-
-You can do this:
-
-```python
-if hasattr(builtins, "sum"):
-    print("sum exists!")
-else:
-    print("sum does not exist!")
-```
-
-Output:
-
-```text
-sum exists!
-```
-
-This allows you to check first instead of immediately trying to access an attribute that might not exist.
-
----
-
-## 6. Important: `hasattr()` Checks Attributes, Not Just Functions
-
-Consider:
-
-```python
-class Student:
-    name = "Sam"
-
-s = Student()
-
-print(hasattr(s, "name"))
-print(hasattr(s, "age"))
-```
-
-Output:
-
-```text
-True
-False
-```
-
-Here, `name` is an attribute, but it isn't a function.
-
-So remember:
-
-**An attribute can be a variable, a function, or another object associated with an object.**
-
-`hasattr()` checks whether the requested attribute is available. It does not check whether that attribute is specifically a function.
-
----
-
-## 7. Quick Experiment
-
-Try these yourself:
-
-```python
-import builtins
-
-print(hasattr(builtins, "print"))
-print(hasattr(builtins, "len"))
-print(hasattr(builtins, "average"))
-print(hasattr(builtins, "max"))
-print(hasattr(builtins, "total"))
-```
-
-Expected output:
-
-```text
-True
-True
-False
-True
-False
-```
-
-Why?
-
-Because `print`, `len`, and `max` are standard built-in names, while `average` and `total` are not.
-
----
-
-## 8. Final Takeaway
-
-| Concept | Meaning |
-|---|---|
-| `builtins` | Module containing Python's built-in names |
-| `import builtins` | Gives us explicit access to that module |
-| `hasattr()` | Checks whether an object has an attribute |
-| `hasattr(obj, "x")` | Returns `True` or `False` |
-| `builtins.sum` | Accesses the built-in `sum` function |
-
-**The entire example in one sentence:**
-
-We import Python's `builtins` module and use `hasattr()` to check whether it contains `sum` and `total`; `sum` exists, but `total` does not.
-
---- 
-
-**Remember:** `hasattr()` is a general attribute-checking tool. It is not limited to the `builtins` module or to functions.
 
 #### Practice 2.2.8
 
@@ -3273,241 +1855,6 @@ print(type(id).__name__)
 del id
 print(type(id).__name__)
 ```
-# Understanding `del`, `type()` and `__name__` in Python
-
-## 1. The Code
-
-```python
-id = 5
-
-print(type(id).__name__)
-
-del id
-
-print(type(id).__name__)
-```
-
-## 2. Output
-
-```text
-int
-
-NameError: name 'id' is not defined
-```
-
-**Important:** The program stops at the last line because the variable `id` has been deleted.
-
----
-
-## 3. Step-by-Step Explanation
-
-### Step 1: Creating a Variable
-
-```python
-id = 5
-```
-
-We create a variable named `id` and assign the integer value `5` to it.
-
-Visual representation:
-
-```text
-       VARIABLE
-      __________
-     |          |
-     |    id    | ---------> 5
-     |__________|             |
-                              |
-                         INTEGER OBJECT
-```
-
-At this point, `id` refers to an integer object.
-
-### Step 2: Understanding `type()`
-
-```python
-print(type(id).__name__)
-```
-
-Let's divide this expression into smaller parts.
-
-**First:**
-
-```python
-type(id)
-```
-
-The `type()` function tells us the type of an object.
-
-Since `id` refers to the integer `5`:
-
-```python
-type(id)
-```
-
-Returns:
-
-```text
-<class 'int'>
-```
-
-**Second:**
-
-```python
-type(id).__name__
-```
-
-Here, `__name__` retrieves the name of the type.
-
-Instead of getting:
-
-```text
-<class 'int'>
-```
-
-We get:
-
-```text
-int
-```
-
-Therefore:
-
-```python
-print(type(id).__name__)
-```
-
-Output:
-
-```text
-int
-```
-
-### Step 3: Understanding `del`
-
-```python
-del id
-```
-
-The `del` statement deletes the variable name `id` from the current namespace.
-
-Before deletion:
-
-```text
-id  ----------------->  5
-```
-
-After deletion:
-
-```text
-id  ----X
-
-The name `id` no longer exists.
-```
-
-**Important:** `del id` removes the name `id`. It does not necessarily destroy the object itself.
-
-The object may continue to exist if something else still refers to it.
-
-### Step 4: Accessing the Deleted Variable
-
-```python
-print(type(id).__name__)
-```
-
-Python tries to find the variable `id`.
-
-But we already deleted that name!
-
-Therefore, Python raises:
-
-```text
-NameError: name 'id' is not defined
-```
-
-The program cannot complete this statement.
-
----
-
-## 4. Understanding All the Concepts Together
-
-| Expression | Meaning |
-|---|---|
-| `type(id)` | Returns the type of the object referenced by `id` |
-| `type(id).__name__` | Returns the name of that type |
-| `del id` | Deletes the variable name `id` |
-| `NameError` | Raised when Python cannot find the requested name |
-
----
-
-## 5. An Interesting Detail: `id` Is Already a Built-in Function!
-
-Python already has a built-in function called `id()`.
-
-For example:
-
-```python
-print(id(100))
-```
-
-It returns the identity value of the object.
-
-But when we write:
-
-```python
-id = 5
-```
-
-We create a variable named `id` that shadows the built-in function.
-
-This means Python now finds our variable instead of the built-in function when we use the name `id`.
-
-### What happens after `del id`?
-
-```python
-id = 5
-
-print(type(id).__name__)
-
-del id
-
-print(type(id).__name__)
-print(id(100))
-```
-
-Output:
-
-```text
-int
-builtin_function_or_method
-<some integer value>
-```
-
-Why does this work?
-
-1. Initially, `id` refers to our integer variable.
-2. `del id` removes our variable name.
-3. Python can now find the original built-in function named `id`.
-4. `id(100)` calls that built-in function.
-
-The exact identity value can vary between executions.
-
----
-
-## 6. Important Takeaways
-
-- `type()` tells us the type of an object.
-- `.__name__` retrieves the name of a type.
-- `del` removes a variable name from its namespace.
-- Accessing a deleted name generally raises `NameError`, unless another name with that spelling is available.
-- Deleting a variable name does not necessarily destroy the object.
-- A variable can shadow a built-in Python name.
-
-**The main lesson:**
-
-`del id` deletes the variable named `id`, not necessarily the integer object `5`. Once that variable name is removed, Python can no longer use it to access the integer.
-
-
 
 ### 2.2.9 Naming for readability
 
@@ -3564,618 +1911,6 @@ hi hi hi
 1 3
 10
 ```
-# 2.2.10 — Throwaway Name `_` in Python
-
-## 1. What Is `_`?
-
-In Python, `_` (a single underscore) is a valid variable name.
-
-For example:
-
-```python
-a = 10
-b = 20
-_ = 30
-
-print(a)
-print(b)
-print(_)
-```
-
-**Output:**
-
-```text
-10
-20
-30
-```
-
-Nothing magical happened!
-
-We created three variables:
-
-```text
-a  ──────>  10
-
-b  ──────>  20
-
-_  ──────>  30
-```
-
-So why do programmers use `_`?
-
-Because sometimes we receive a value but don't actually need it.
-
-Instead of giving that value a meaningful name, we use `_` to indicate:
-
-**"I know this value exists, but I don't need it."**
-
-This is called a *throwaway name* or *throwaway variable*.
-
----
-
-## 2. Example 2.2.10.1 — Common Uses
-
-Let's understand the three examples separately.
-
-### A. Using `_` in a `for` loop
-
-```python
-for _ in range(3):
-    print("hi", end=" ")
-
-print()
-```
-
-**Output:**
-
-```text
-hi hi hi
-```
-
-Let's understand it step by step.
-
-**Step 1:**
-
-```python
-range(3)
-```
-
-This produces three numbers:
-
-```text
-0
-1
-2
-```
-
-**Step 2:**
-
-```python
-for _ in range(3):
-```
-
-A `for` loop takes one value at a time from the sequence.
-
-Normally, we might write:
-
-```python
-for i in range(3):
-    print(i)
-```
-
-Output:
-
-```text
-0
-1
-2
-```
-
-Here, `i` stores each number.
-
-But in our original example:
-
-```python
-for _ in range(3):
-    print("hi", end=" ")
-```
-
-We don't need the numbers `0`, `1`, or `2`.
-
-We only want the loop to run three times.
-
-Therefore, we use `_` instead of `i`.
-
-**Visual representation:**
-
-```text
-          range(3)
-              |
-              v
-        +-----------+
-        |  0        | ----> Loop runs
-        |  1        | ----> Loop runs
-        |  2        | ----> Loop runs
-        +-----------+
-              |
-              v
-       Print "hi" each time
-
-
-       Output:
-       hi hi hi
-```
-
-Notice something important:
-
-`_` still receives each value. We are simply choosing not to use it.
-
-**Step 3:**
-
-```python
-print("hi", end=" ")
-```
-
-Normally, `print()` moves to the next line after printing.
-
-But `end=" "` tells Python to put a space instead of a newline.
-
-Therefore, all three `hi` values appear on the same line.
-
-**Step 4:**
-
-```python
-print()
-```
-
-This prints an empty line break, moving the cursor to the next line.
-
----
-
-### B. Using `_` in Unpacking
-
-Consider:
-
-```python
-a, _, c = (1, 2, 3)
-
-print(a, c)
-```
-
-**Output:**
-
-```text
-1 3
-```
-
-First, understand what unpacking means.
-
-Unpacking means taking individual values from a collection and assigning them to separate variables.
-
-For example:
-
-```python
-a, b, c = (1, 2, 3)
-```
-
-Python assigns:
-
-```text
-a  <-----  1
-
-b  <-----  2
-
-c  <-----  3
-```
-
-Now look at our original code:
-
-```python
-a, _, c = (1, 2, 3)
-```
-
-Python still assigns all three values.
-
-```text
-       (1, 2, 3)
-           |
-           v
-
-     a       _       c
-     |       |       |
-     v       v       v
-     1       2       3
-```
-
-We simply don't care about the middle value.
-
-Therefore:
-
-```python
-print(a, c)
-```
-
-prints:
-
-```text
-1 3
-```
-
-**Important:** `_` does not skip the second value. It receives that value just like any other variable.
-
----
-
-### C. Using `*_` in Unpacking
-
-Now let's understand the slightly more interesting example.
-
-```python
-first, *_ = [10, 20, 30]
-
-print(first)
-```
-
-**Output:**
-
-```text
-10
-```
-
-First, let's understand the `*` symbol in unpacking.
-
-The `*` symbol collects multiple remaining values into a list.
-
-For example:
-
-```python
-first, *others = [10, 20, 30]
-
-print(first)
-print(others)
-```
-
-Output:
-
-```text
-10
-[20, 30]
-```
-
-Visual representation:
-
-```text
-       [10, 20, 30]
-             |
-             v
-       first, *others
-          |       |
-          v       v
-         10    [20, 30]
-```
-
-Now replace `others` with `_`:
-
-```python
-first, *_ = [10, 20, 30]
-```
-
-Python performs the same unpacking:
-
-```text
-       [10, 20, 30]
-             |
-             v
-       first, *_
-          |    |
-          v    v
-         10  [20, 30]
-```
-
-The variable `first` gets `10`.
-
-The variable `_` gets `[20, 30]`.
-
-We don't need the remaining values, so we use `_`.
-
-**Important:** `*_` does not mean ignore everything automatically. The `*` collects the remaining values into a list, and `_` is the variable receiving that list.
-
----
-
-## 3. Practice 2.2.10 — Solutions
-
-### Q1. BASIC
-
-**Question:**
-
-```python
-a, _ = (1, 2)
-print(a)
-```
-
-**Output:**
-
-```text
-1
-```
-
-**Explanation:**
-
-We have two values:
-
-```text
-(1, 2)
-```
-
-And two variables:
-
-```text
-a, _
-```
-
-Python assigns:
-
-```text
-a  <-----  1
-
-_  <-----  2
-```
-
-We print only `a`.
-
-Therefore, the output is `1`.
-
----
-
-### Q2. MID
-
-**Question:**
-
-```python
-_, _, z = (1, 2, 3)
-print(z)
-```
-
-**Output:**
-
-```text
-3
-```
-
-**Explanation:**
-
-Python assigns the values one by one:
-
-```text
-       (1, 2, 3)
-           |
-           v
-
-     _       _       z
-     |       |       |
-     v       v       v
-     1       2       3
-```
-
-The first `_` receives `1`.
-
-The second `_` receives `2`.
-
-The variable `z` receives `3`.
-
-We print `z`.
-
-Therefore, the output is `3`.
-
-**A small but important detail:**
-
-Both `_` variables have the same name!
-
-The second assignment replaces the value previously stored in `_`.
-
-After unpacking:
-
-```python
-print(_)
-```
-
-would print:
-
-```text
-2
-```
-
----
-
-### Q3. HARD
-
-**Question:**
-
-```python
-for _ in range(2):
-    pass
-
-print(_)
-```
-
-**Output:**
-
-```text
-1
-```
-
-**Explanation:**
-
-This question is interesting because it tests whether you understand that `_` is still an ordinary variable.
-
-**Step 1:**
-
-```python
-range(2)
-```
-
-Produces:
-
-```text
-0
-1
-```
-
-**Step 2:**
-
-```python
-for _ in range(2):
-```
-
-The loop runs twice.
-
-Let's track the value of `_`.
-
-| Loop iteration | Value assigned to `_` |
-|---|---:|
-| First iteration | 0 |
-| Second iteration | 1 |
-
-Visual representation:
-
-```text
-          range(2)
-              |
-              v
-          First round
-              |
-              v
-          _ = 0
-              |
-              v
-         Second round
-              |
-              v
-          _ = 1
-              |
-              v
-         Loop finishes
-              |
-              v
-          print(_)
-              |
-              v
-              1
-```
-
-**Step 3: What is `pass`?**
-
-```python
-pass
-```
-
-`pass` is a statement that does nothing.
-
-It is used when Python requires a statement, but we don't want to perform any operation.
-
-For example:
-
-```python
-for _ in range(2):
-    pass
-```
-
-The loop still runs twice. It simply performs no action inside the loop.
-
-**Step 4:**
-
-```python
-print(_)
-```
-
-Here is the important part:
-
-After the loop finishes, `_` still exists.
-
-Its last assigned value was `1`.
-
-Therefore:
-
-```text
-1
-```
-
-**Why doesn't `_` disappear after the loop?**
-
-Because `for` loops do not automatically delete their loop variables after completion.
-
-The variable `_` remains available in the surrounding scope.
-
----
-
-## 4. Very Important: `_` Is Not Always a Throwaway Variable
-
-There is another special convention involving `_` in the Python interactive interpreter (REPL).
-
-In the standard Python REPL, `_` stores the result of the last evaluated expression.
-
-For example:
-
-```python
->>> 10 + 20
-30
-
->>> _
-30
-
->>> _ + 5
-35
-```
-
-Here, `_` refers to the previous result.
-
-**But be careful!**
-
-This special REPL behaviour is different from using `_` as an ordinary variable in a Python script.
-
-For example:
-
-```python
-_ = 100
-print(_)
-```
-
-Output:
-
-```text
-100
-```
-
-In a normal Python script, `_` is simply a variable name unless a particular environment or library gives it some other meaning.
-
----
-
-## 5. Summary — Everything in One Place
-
-| Situation | Example | Meaning |
-|---|---|---|
-| Ordinary variable | `_ = 10` | Stores the value `10` |
-| For loop | `for _ in range(3)` | Loop value is not needed |
-| Unpacking | `a, _ = (1, 2)` | Second value is not needed |
-| Star unpacking | `first, *_ = [1, 2, 3]` | Collects remaining values into `_` |
-| Multiple unpacking targets | `_, _, z = (1, 2, 3)` | First two values are not needed |
-| REPL | `_` | Refers to the last evaluated result in the standard Python REPL |
-
----
-
-## 6. Final Takeaway
-
-Remember these three things:
-
-1. `_` is an ordinary, valid Python variable name.
-2. Programmers commonly use `_` when they don't need a particular value.
-3. `_` still stores the value assigned to it. It does not automatically discard or delete that value.
-
-**One sentence to remember:**
-
-`_` means "I am receiving this value, but I don't intend to use it."
-
-
 
 #### Practice 2.2.10
 
@@ -4202,8 +1937,43 @@ print(_)
 
 Python accepts Unicode letters in identifiers and normalises them with NFKC, so different spellings can be the same name. Lookalike characters (Latin a vs Cyrillic a) create different names, a source of bugs and attacks. Prefer ASCII.
 
+**Example 2.2.11.1: NFKC folding and lookalikes**
 
+```python
+import unicodedata
+ﬁ = 1
+print(fi)
+a1 = "latin"
+а = "cyrillic"
+print(a1, "a" == "\u0430", unicodedata.name("\u0430"))
+```
 
+**Output:**
+
+```text
+1
+latin False CYRILLIC SMALL LETTER A
+```
+
+#### Practice 2.2.11
+
+**2.2.11-Q1 BASIC**
+
+```python
+print("ñ".isidentifier())
+```
+
+**2.2.11-Q2 MID**
+
+```python
+print("ﬁ".isidentifier())
+```
+
+**2.2.11-Q3 HARD**
+
+```python
+import unicodedata; print(unicodedata.normalize("NFKC", "ﬁ"))
+```
 
 ### 2.2.12 Naming in competitive programming
 
@@ -4473,7 +2243,25 @@ print(a, b)
 2 2
 ```
 
+**Example 2.3.4.3: The bytecode**
 
+```python
+import dis
+dis.dis("a, b = b, a")
+```
+
+**Output:**
+
+```text
+  0           0 RESUME                   0
+
+  1           2 LOAD_NAME                0 (b)
+              4 LOAD_NAME                1 (a)
+              6 SWAP                     2
+              8 STORE_NAME               1 (a)
+             10 STORE_NAME               0 (b)
+             12 RETURN_CONST             0 (None)
+```
 
 #### Practice 2.3.4
 
@@ -4605,853 +2393,6 @@ x <<= 2; x >>= 1; print(x)
 14
 28
 ```
-# Python Bitwise Operators and Bitwise Shift Operators
-
-## 1. Understanding the Starting Value
-
-Before understanding the last operators, we need to know the current value of `x`.
-
-```python
-x = 121
-x %= 7
-
-print(x)
-```
-
-**Output:**
-
-```
-2
-```
-
-### Why?
-
-`%` gives us the remainder after division.
-
-```
-121 ÷ 7
-
-7 × 17 = 119
-121 - 119 = 2
-```
-
-Therefore:
-
-```
-x = 2
-```
-
-> **Important:** All the following operations happen one after another. Each operation uses the updated value of `x`.
-
----
-
-## 2. First Group: Bitwise Assignment Operators
-
-The operators are:
-
-- `&=` : Bitwise AND assignment
-- `|=` : Bitwise OR assignment
-- `^=` : Bitwise XOR assignment
-
-Before understanding these, we must understand binary numbers.
-
-### 2.1 What is Binary?
-
-Decimal numbers use ten digits:
-
-```
-0 1 2 3 4 5 6 7 8 9
-```
-
-Binary numbers use only two digits:
-
-```
-0 and 1
-```
-
-#### Binary place values
-
-In decimal, place values are:
-
-```
-1000    100    10    1
-```
-
-In binary, place values are:
-
-```
-8    4    2    1
-```
-
-These come from powers of 2:
-
-| Position | Calculation | Value |
-|---|---|---|
-| First from left | 2³ | 8 |
-| Second from left | 2² | 4 |
-| Third from left | 2¹ | 2 |
-| Fourth from left | 2⁰ | 1 |
-
-A binary digit tells us whether that place value is included.
-
-- `1` means include that value.
-- `0` means do not include that value.
-
-### 2.2 Converting Decimal 2 into Binary
-
-Available place values:
-
-```
-8    4    2    1
-```
-
-We need to represent decimal 2.
-
-| Place value | Do we need it? | Binary digit |
-|---|---|---|
-| 8 | No | 0 |
-| 4 | No | 0 |
-| 2 | Yes | 1 |
-| 1 | No | 0 |
-
-Therefore:
-
-```
-Decimal:  2
-
-Binary:   0010
-```
-
-Check:
-
-```
-0 × 8 = 0
-0 × 4 = 0
-1 × 2 = 2
-0 × 1 = 0
-
-Total = 2
-```
-
-Therefore: **2 = 0010 in binary.**
-
-### 2.3 Converting Decimal 6 into Binary
-
-Available place values:
-
-```
-8    4    2    1
-```
-
-We need to represent decimal 6.
-
-| Place value | Do we need it? | Binary digit |
-|---|---|---|
-| 8 | No | 0 |
-| 4 | Yes | 1 |
-| 2 | Yes | 1 |
-| 1 | No | 0 |
-
-Therefore:
-
-```
-Decimal:  6
-
-Binary:   0110
-```
-
-Check:
-
-```
-0 × 8 = 0
-1 × 4 = 4
-1 × 2 = 2
-0 × 1 = 0
-
-Total = 6
-```
-
-Therefore: **6 = 0110 in binary.**
-
----
-
-## 3. Bitwise AND (`&`)
-
-### 3.1 What does AND mean?
-
-AND compares two binary digits.
-
-Its rule:
-
-> **Both digits must be 1 to produce 1. Otherwise, the result is 0.**
-
-#### AND truth table
-
-| First bit | Second bit | Result |
-|---|---|---|
-| 0 | 0 | 0 |
-| 0 | 1 | 0 |
-| 1 | 0 | 0 |
-| 1 | 1 | 1 |
-
-### 3.2 Understanding the operation
-
-```python
-x = 2
-x &= 6
-```
-
-Remember that `x &= 6` is equivalent to `x = x & 6`.
-
-We already know `x = 2`.
-
-Convert both numbers into binary:
-
-```
-2 = 0010
-6 = 0110
-```
-
-Now compare each column separately:
-
-```
-       0 0 1 0
-       0 1 1 0
-       --------
-       ? ? ? ?
-```
-
-Column-by-column calculation:
-
-```
-Column 1:  0 AND 0 = 0
-Column 2:  0 AND 1 = 0
-Column 3:  1 AND 1 = 1
-Column 4:  0 AND 0 = 0
-```
-
-Final calculation:
-
-```
-       0010
-   AND 0110
-   --------
-       0010
-```
-
-Convert the answer into decimal:
-
-```
-0010 = 0 + 0 + 2 + 0
-
-Answer = 2
-```
-
-Therefore:
-
-```
-x = 2
-```
-
-### 3.3 Important point
-
-`x &= 6` means `x = x & 6`.
-
-It performs the AND operation and assigns the result back to `x`.
-
----
-
-## 4. Bitwise OR (`|`)
-
-### 4.1 What does OR mean?
-
-OR also compares two binary digits.
-
-Its rule:
-
-> **If AT LEAST ONE digit is 1, the result is 1.**
-
-#### OR truth table
-
-| First bit | Second bit | Result |
-|---|---|---|
-| 0 | 0 | 0 |
-| 0 | 1 | 1 |
-| 1 | 0 | 1 |
-| 1 | 1 | 1 |
-
-### 4.2 Understanding the operation
-
-```python
-x |= 9
-```
-
-Equivalent to `x = x | 9`.
-
-Our current value is `x = 2`.
-
-Convert both numbers into binary:
-
-```
-2 = 0010
-9 = 1001
-```
-
-Now compare:
-
-```
-       0010
-    OR 1001
-    --------
-       1011
-```
-
-Let's understand each column:
-
-```
-0 OR 1 = 1
-0 OR 0 = 0
-1 OR 0 = 1
-0 OR 1 = 1
-```
-
-Therefore the result is `1011`.
-
-Convert binary `1011` into decimal:
-
-| Binary digit | Place value |
-|---|---|
-| 1 | 8 |
-| 0 | 0 |
-| 1 | 2 |
-| 1 | 1 |
-
-```
-8 + 0 + 2 + 1 = 11
-```
-
-Therefore:
-
-```
-x = 11
-```
-
-### 4.3 Important point
-
-`x |= 9` means `x = x | 9`.
-
----
-
-## 5. Bitwise XOR (`^`)
-
-### 5.1 What does XOR mean?
-
-XOR stands for **Exclusive OR**.
-
-Its rule:
-
-> **If the two bits are DIFFERENT, the result is 1. If they are SAME, the result is 0.**
-
-#### XOR truth table
-
-| First bit | Second bit | Result |
-|---|---|---|
-| 0 | 0 | 0 |
-| 0 | 1 | 1 |
-| 1 | 0 | 1 |
-| 1 | 1 | 0 |
-
-Remember:
-
-- Same digits = `0`
-- Different digits = `1`
-
-### 5.2 Understanding the operation
-
-```python
-x ^= 5
-```
-
-Equivalent to `x = x ^ 5`.
-
-Our current value is `x = 11`.
-
-Convert both numbers into binary:
-
-```
-11 = 1011
- 5 = 0101
-```
-
-Now compare:
-
-```
-        1011
-    XOR 0101
-    --------
-        1110
-```
-
-Column-by-column:
-
-```
-1 XOR 0 = 1
-0 XOR 1 = 1
-1 XOR 0 = 1
-1 XOR 1 = 0
-```
-
-Therefore the result is `1110`.
-
-Convert binary `1110` into decimal:
-
-```
-8 + 4 + 2 + 0 = 14
-```
-
-Therefore:
-
-```
-x = 14
-```
-
-### 5.3 Important point
-
-`x ^= 5` means `x = x ^ 5`.
-
----
-
-## 6. Tracking All Three Operators Together
-
-Remember that the value of `x` changes after every operation.
-
-| Operation | Calculation | New value of x |
-|---|---|---|
-| Starting value | — | 2 |
-| `x &= 6` | 2 AND 6 | 2 |
-| `x \|= 9` | 2 OR 9 | 11 |
-| `x ^= 5` | 11 XOR 5 | 14 |
-
-**Final result after these three operators: `14`**
-
----
-
-## 7. Second Group: Bitwise Shift Assignment Operators
-
-Now we move to:
-
-```python
-x <<= 2
-x >>= 1
-```
-
-These are called **bitwise shift operators**.
-
-There are two directions:
-
-- `<<` shifts binary digits to the **LEFT**.
-- `>>` shifts binary digits to the **RIGHT**.
-
-Let's understand them separately.
-
----
-
-## 8. Left Shift (`<<`)
-
-### 8.1 What does left shift mean?
-
-Left shift moves binary digits towards the left.
-
-Example:
-
-```
-Original:  1110
-```
-
-Shift left by two positions:
-
-```
-Original:  1110
-Shifted:   111000
-```
-
-Two zeroes are added on the right.
-
-### 8.2 Understanding the actual operation
-
-```python
-x <<= 2
-```
-
-Equivalent to `x = x << 2`.
-
-Our current value is `x = 14`.
-
-Convert 14 into binary:
-
-```
-14 = 1110
-```
-
-Shift left by two positions:
-
-```
-Original:  1110
-Shifted:   111000
-```
-
-Now convert `111000` into decimal.
-
-Binary place values:
-
-```
-32    16    8    4    2    1
-```
-
-Binary digits:
-
-```
- 1     1    1    0    0    0
-```
-
-Calculation:
-
-```
-32 + 16 + 8 + 0 + 0 + 0
-
-= 56
-```
-
-Therefore:
-
-```
-x = 56
-```
-
-### 8.3 Shortcut for positive integers
-
-Shifting left by one position multiplies by 2.
-
-Shifting left by two positions multiplies by 4.
-
-In general:
-
-```
-x << n  =  x × 2ⁿ
-```
-
-For our example:
-
-```
-14 << 2
-
-= 14 × 2²
-= 14 × 4
-= 56
-```
-
----
-
-## 9. Right Shift (`>>`)
-
-### 9.1 What does right shift mean?
-
-Right shift moves binary digits towards the right.
-
-Example:
-
-```
-Original:  111000
-```
-
-Shift right by one position:
-
-```
-Original:  111000
-Shifted:    11100
-```
-
-The rightmost digit is discarded.
-
-### 9.2 Understanding the actual operation
-
-```python
-x >>= 1
-```
-
-Equivalent to `x = x >> 1`.
-
-Our current value is `x = 56`.
-
-Convert 56 into binary:
-
-```
-56 = 111000
-```
-
-Shift right by one position:
-
-```
-Original:  111000
-Shifted:    11100
-```
-
-Now convert `11100` into decimal.
-
-Binary place values:
-
-```
-16    8    4    2    1
-```
-
-Binary digits:
-
-```
- 1    1    1    0    0
-```
-
-Calculation:
-
-```
-16 + 8 + 4 + 0 + 0
-
-= 28
-```
-
-Therefore:
-
-```
-x = 28
-```
-
-### 9.3 Shortcut for positive integers
-
-Shifting right by one position divides by 2, rounding down.
-
-In general:
-
-```
-x >> n  =  x // 2ⁿ
-```
-
-For our example:
-
-```
-56 >> 1
-
-= 56 // 2
-= 28
-```
-
----
-
-## 10. Complete Value Tracking
-
-This is the entire sequence from the original example.
-
-| Step | Operation | Value of x |
-|---|---|---|
-| 1 | Starting value | 2 |
-| 2 | `x &= 6` | 2 |
-| 3 | `x \|= 9` | 11 |
-| 4 | `x ^= 5` | 14 |
-| 5 | `x <<= 2` | 56 |
-| 6 | `x >>= 1` | 28 |
-
-**Final output:**
-
-```
-14
-28
-```
-
-(`14` is the value after the XOR step, and `28` is the final value after the last shift.)
-
----
-
-## 11. Complete Python Code to Run in Your Console
-
-Copy this entire code into your Python console.
-
-```python
-x = 2
-
-# BITWISE AND
-x &= 6
-print("After AND:", x)
-
-# BITWISE OR
-x |= 9
-print("After OR:", x)
-
-# BITWISE XOR
-x ^= 5
-print("After XOR:", x)
-
-# LEFT SHIFT
-x <<= 2
-print("After LEFT SHIFT:", x)
-
-# RIGHT SHIFT
-x >>= 1
-print("After RIGHT SHIFT:", x)
-```
-
-**Expected output:**
-
-```
-After AND: 2
-After OR: 11
-After XOR: 14
-After LEFT SHIFT: 56
-After RIGHT SHIFT: 28
-```
-
----
-
-## 12. Quick Revision Table
-
-| Operator | Name | Main rule |
-|---|---|---|
-| `&` | AND | Both bits must be 1 |
-| `\|` | OR | At least one bit must be 1 |
-| `^` | XOR | Bits must be different |
-| `<<` | Left shift | Move bits left |
-| `>>` | Right shift | Move bits right |
-| `&=` | AND assignment | Perform AND and assign |
-| `\|=` | OR assignment | Perform OR and assign |
-| `^=` | XOR assignment | Perform XOR and assign |
-| `<<=` | Left shift assignment | Shift left and assign |
-| `>>=` | Right shift assignment | Shift right and assign |
-
----
-
-## 13. Practice Questions
-
-Try these without looking at the answers first.
-
-### Q1 — BASIC
-
-What is the result of:
-
-```
-  1010
-& 1100
-------
-```
-
-Options:
-
-- A. `1000`
-- B. `1110`
-- C. `0110`
-
-### Q2 — BASIC
-
-What is:
-
-```python
-5 | 3
-```
-
-Options:
-
-- A. `1`
-- B. `6`
-- C. `7`
-
-### Q3 — MEDIUM
-
-What is:
-
-```python
-12 << 1
-```
-
-Options:
-
-- A. `6`
-- B. `24`
-- C. `48`
-
-### Q4 — MEDIUM
-
-What is:
-
-```python
-20 >> 2
-```
-
-Options:
-
-- A. `5`
-- B. `10`
-- C. `40`
-
----
-
-## 14. Answers with Explanations
-
-### Q1. Answer: A — `1000`
-
-```
-    1010
-AND 1100
---------
-    1000
-```
-
-Only the first position from the left has two 1s.
-
-### Q2. Answer: C — `7`
-
-```
-5 = 0101
-3 = 0011
-
-    0101
-OR  0011
---------
-    0111
-```
-
-`0111` = 4 + 2 + 1 = **7**
-
-### Q3. Answer: B — `24`
-
-```
-12 << 1
-
-= 12 × 2
-= 24
-```
-
-### Q4. Answer: A — `5`
-
-```
-20 >> 2
-
-= 20 // 4
-= 5
-```
-
----
-
-## 15. Final Things to Remember
-
-1. Binary uses only `0` and `1`.
-2. Binary place values are powers of 2.
-3. Convert decimal numbers into binary before performing bitwise operations.
-4. **AND:** Both bits must be 1.
-5. **OR:** At least one bit must be 1.
-6. **XOR:** Different bits produce 1; same bits produce 0.
-7. Left shift moves bits to the left.
-8. Right shift moves bits to the right.
-9. Augmented assignment operators perform an operation and assign the result back to the variable.
-10. Always track the updated value of `x` before performing the next operation.
-
-> **Learning advice:** First become comfortable with binary conversion and the AND, OR, and XOR truth tables. Then practise left and right shifts. Do not rush to memorise everything at once.
-
 
 **Example 2.3.6.2: In place vs rebind**
 
@@ -5472,1123 +2413,6 @@ print(u, t)
 ```
 
 **Example 2.3.6.3: Matrix operator exists but no builtin type uses it**
-# Example 2.3.6.3: Matrix operator exists but no builtin type uses it
-
-## 1. The code
-
-```python
-try:
-    x = 1; x @= 2
-except TypeError as e:
-    print("TypeError:", e)
-```
-
-**Output:**
-
-```
-TypeError: unsupported operand type(s) for @=: 'int' and 'int'
-```
-
-> The exact wording of the error message can differ slightly between Python versions. The output above is from Python 3.12.
-
----
-
-## 2. What is this code trying to show?
-
-Python has an operator `@` and an assignment version `@=`. They were added in **Python 3.5** (PEP 465) for **matrix multiplication**.
-
-The surprising part: **no built-in Python type actually uses it.** Not `int`, not `float`, not `str`, not `list`. So even though the operator *exists* in the language, using it on built-in types fails with a `TypeError`.
-
-The `try / except` block is only there so the error is **caught and printed** instead of crashing the program.
-
----
-
-## 3. Line-by-line explanation
-
-### Line 1: `try:`
-
-Start of a protected block. Python runs the indented code and **watches for errors**.
-
-### Line 2: `x = 1; x @= 2`
-
-This line has **two statements** separated by a semicolon `;`.
-
-| Part | Meaning |
-|---|---|
-| `x = 1` | Create the variable `x` and store the integer `1` in it. |
-| `;` | Separator. Lets you write two statements on one line. |
-| `x @= 2` | Try to do `x = x @ 2`, i.e. matrix-multiply `x` by `2` and store the result back in `x`. |
-
-It is the same as writing:
-
-```python
-x = 1
-x @= 2
-```
-
-### Line 3: `except TypeError as e:`
-
-Runs **only if** a `TypeError` happened inside the `try` block.
-
-- `TypeError` = the kind of error we expect (an operation used on a wrong type).
-- `as e` = store the error object in the variable `e` so we can look at it.
-
-### Line 4: `print("TypeError:", e)`
-
-Prints the label `TypeError:` followed by the error message stored in `e`.
-
----
-
-## 4. What does `@=` mean?
-
-It is an **augmented assignment operator**, just like `+=` or `*=`:
-
-| Short form | Long form |
-|---|---|
-| `x += 2` | `x = x + 2` |
-| `x *= 2` | `x = x * 2` |
-| `x @= 2` | `x = x @ 2` |
-
-So `x @= 2` means: *"matrix-multiply x by 2, then store the result back into x."*
-
----
-
-## 5. What is matrix multiplication? (quick idea)
-
-A matrix is a grid of numbers. Matrix multiplication combines **rows of the first matrix** with **columns of the second matrix**.
-
-Example with two 2×2 matrices:
-
-```
-A = | 1  2 |        B = | 5  6 |
-    | 3  4 |            | 7  8 |
-```
-
-Each result cell = (row of A) × (column of B), multiplied pairwise and added up:
-
-```
-Row 1 × Col 1  =  1×5 + 2×7  =  5 + 14  =  19
-Row 1 × Col 2  =  1×6 + 2×8  =  6 + 16  =  22
-Row 2 × Col 1  =  3×5 + 4×7  = 15 + 28  =  43
-Row 2 × Col 2  =  3×6 + 4×8  = 18 + 32  =  50
-```
-
-Result:
-
-```
-A @ B = | 19  22 |
-        | 43  50 |
-```
-
-This is **not** the same as `*`. A plain number like `1` or `2` is not a matrix, so `1 @ 2` has no meaning, and Python's `int` type does not define it.
-
----
-
-## 6. Why does the error happen?
-
-When Python sees `x @= 2` it looks for special methods on the objects:
-
-1. First `x.__imatmul__(2)` (the in-place version).
-2. If that does not exist, `x.__matmul__(2)` (the normal version).
-3. If that fails too, it tries the right-hand side's `__rmatmul__`.
-
-The `int` type has **none** of these, so Python raises a `TypeError`:
-
-```python
-print(hasattr(int, "__matmul__"), hasattr(int, "__imatmul__"))
-```
-
-```
-False False
-```
-
-### Reading the error message
-
-```
-TypeError: unsupported operand type(s) for @=: 'int' and 'int'
-```
-
-| Part | Meaning |
-|---|---|
-| `TypeError` | The kind of error: wrong type for this operation. |
-| `unsupported operand type(s)` | The values on both sides can't be used with this operator. |
-| `for @=` | The operator that failed. |
-| `'int' and 'int'` | The types of the left value (`x` is `1`) and right value (`2`). |
-
----
-
-## 7. Step-by-step execution
-
-| Step | What Python does | Result |
-|---|---|---|
-| 1 | Enters the `try` block | Starts watching for errors |
-| 2 | Runs `x = 1` | `x` points to the int `1` |
-| 3 | Runs `x @= 2` | Looks for `__imatmul__` and `__matmul__` on `int`: **not found** |
-| 4 | Raises `TypeError` | The rest of the `try` block is skipped |
-| 5 | Finds `except TypeError as e` | The error matches, so it is stored in `e` |
-| 6 | Runs `print("TypeError:", e)` | Prints the message |
-| 7 | Program continues normally | No crash |
-
-Notice that `x` is **still `1`** after the failure, because the assignment never completed:
-
-```python
-x = 1
-try:
-    x @= 2
-except TypeError as e:
-    print("caught")
-print(x)
-```
-
-```
-caught
-1
-```
-
----
-
-## 8. Compare with the other augmented operators
-
-These all work on integers:
-
-| Operator | Name | Example (`x = 7`) | Result |
-|---|---|---|---|
-| `+=` | add | `x += 2` | `9` |
-| `-=` | subtract | `x -= 2` | `5` |
-| `*=` | multiply | `x *= 2` | `14` |
-| `/=` | divide | `x /= 2` | `3.5` |
-| `//=` | floor divide | `x //= 2` | `3` |
-| `%=` | remainder | `x %= 2` | `1` |
-| `**=` | power | `x **= 2` | `49` |
-| `&=` `\|=` `^=` `<<=` `>>=` | bitwise | works on ints | |
-| `@=` | **matrix multiply** | `x @= 2` | **TypeError** |
-
-`@=` is the odd one out: it is a valid operator, but integers do not support it.
-
----
-
-## 9. Other built-in types fail too
-
-```python
-try:
-    a = [1, 2]; a @= [3, 4]
-except TypeError as e:
-    print("TypeError:", e)
-```
-
-```
-TypeError: unsupported operand type(s) for @=: 'list' and 'list'
-```
-
-```python
-try:
-    s = "ab"; s @= "c"
-except TypeError as e:
-    print("TypeError:", e)
-```
-
-```
-TypeError: unsupported operand type(s) for @=: 'str' and 'str'
-```
-
-The plain (non-assignment) operator fails in the same way:
-
-```python
-try:
-    x = 1
-    y = x @ 2
-except TypeError as e:
-    print("TypeError:", e)
-```
-
-```
-TypeError: unsupported operand type(s) for @: 'int' and 'int'
-```
-
----
-# How to Write `__matmul__` From Scratch
-
-This guide explains **how** to arrive at this code, **why** each piece is there, what to do if you **don't want to write it that way**, and the **advantages** of each style.
-
-```python
-def __matmul__(self, other):
-    print("__matmul__ called")
-    n = len(other.rows[0])
-    return M([[sum(r[k] * other.rows[k][j] for k in range(len(other.rows)))
-               for j in range(n)] for r in self.rows])
-```
-
-Nobody writes this in one go. The secret is a **recipe**: do it by hand, write it with plain loops, then (only if you want) shorten it. We will follow that recipe.
-
----
-
-## Part 1: The goal
-
-We want this to work:
-
-```python
-a = M([[1, 2], [3, 4]])
-b = M([[5, 6], [7, 8]])
-print(a @ b)
-```
-
-and print the matrix product:
-
-```
-M([[19, 22], [43, 50]])
-```
-
-So we need to decide four things:
-
-1. How do we **store** a matrix? (a list of rows)
-2. How do we **calculate** the product? (the matrix-multiplication rule)
-3. How do we make Python call our code when it sees `@`? (the `__matmul__` method)
-4. How do we **package** the answer? (return a new `M`)
-
----
-
-## Part 2: Storing a matrix
-
-A matrix is a grid. In Python the natural way is a **list of rows**, where each row is itself a list:
-
-```python
-A = [[1, 2],
-     [3, 4]]
-```
-
-```
-A[0]     -> [1, 2]     (row 0)
-A[1]     -> [3, 4]     (row 1)
-A[0][1]  -> 2          (row 0, column 1)
-A[1][0]  -> 3          (row 1, column 0)
-```
-
-The first index picks the **row**, the second index picks the **column**.
-
-Useful sizes:
-
-```python
-len(A)      # number of rows       -> 2
-len(A[0])   # number of columns    -> 2
-```
-
----
-
-## Part 3: The math, by hand, for ONE cell
-
-The rule: **result[i][j] = (row i of A) paired with (column j of B), multiply pairs, then add.**
-
-```
-A = [[1, 2],        B = [[5, 6],
-     [3, 4]]             [7, 8]]
-```
-
-Let's find the cell in **row 0, column 1** of the answer.
-
-```
-row 0 of A      = [1, 2]
-column 1 of B   = [6, 8]      (the 2nd number from each row of B)
-
-pair and multiply:  1×6 = 6
-                    2×8 = 16
-add:                6 + 16 = 22
-```
-
-So `result[0][1] = 22`.
-
-**Write that one cell in code first:**
-
-```python
-A = [[1, 2], [3, 4]]
-B = [[5, 6], [7, 8]]
-
-row = A[0]                                  # [1, 2]
-col = [B[k][1] for k in range(len(B))]      # [6, 8]
-
-total = 0
-for k in range(len(row)):
-    total += row[k] * col[k]
-
-print(row, col, total)
-```
-
-```
-[1, 2] [6, 8] 22
-```
-
-Two ideas appear here:
-
-- **Getting a column:** a column is "the same position in every row", so `B[k][j]` for every row `k`.
-- **Sum of products:** loop over `k`, multiply `row[k] * col[k]`, add to a running total. Combined directly: `A[i][k] * B[k][j]`.
-
----
-
-## Part 4: Do ALL the cells (plain loops)
-
-One cell needs `i` (which row of A) and `j` (which column of B). To fill the **whole** answer we repeat for every `i` and every `j`. That is **two more loops**.
-
-Build it from the inside out:
-
-```python
-def matmul_loops(A, B):
-    result = []                              # the answer, built row by row
-    for i in range(len(A)):                  # for every ROW of A
-        new_row = []                         # start a fresh answer row
-        for j in range(len(B[0])):           # for every COLUMN of B
-            total = 0
-            for k in range(len(B)):          # walk along the row / down the column
-                total += A[i][k] * B[k][j]   # multiply the pair, add it up
-            new_row.append(total)            # finished one cell
-        result.append(new_row)               # finished one row
-    return result
-
-print(matmul_loops([[1, 2], [3, 4]], [[5, 6], [7, 8]]))
-```
-
-```
-[[19, 22], [43, 50]]
-```
-
-**This is a perfectly good solution.** If you can write this, you understand the algorithm. Everything after this is just rewriting it in shorter form.
-
-### What each loop means
-
-| Loop | Variable | Counts over | How many times |
-|---|---|---|---|
-| outer | `i` | rows of A | `len(A)` |
-| middle | `j` | columns of B | `len(B[0])` |
-| inner | `k` | pairs being multiplied | `len(B)` (same as columns of A) |
-
-### Shape rule (important)
-
-You can only multiply if **columns of A = rows of B**:
-
-```
-(2 × 3)  @  (3 × 2)  ->  (2 × 2)      OK, the inner 3 and 3 match
-(2 × 2)  @  (3 × 2)  ->  error        2 and 3 don't match
-```
-
-Test with a non-square example:
-
-```python
-C = [[1, 2, 3],
-     [4, 5, 6]]          # 2 rows, 3 columns
-D = [[7, 8],
-     [9, 10],
-     [11, 12]]           # 3 rows, 2 columns
-
-print(matmul_loops(C, D))
-```
-
-```
-[[58, 64], [139, 154]]
-```
-
-Check one cell by hand: `1×7 + 2×9 + 3×11 = 7 + 18 + 33 = 58`. ✓
-
----
-
-## Part 5: Shortening loops into comprehensions
-
-A comprehension is a loop that **builds a list in one expression**.
-
-### The pattern
-
-These two do the same thing:
-
-```python
-# loop
-squares = []
-for x in range(4):
-    squares.append(x * x)
-```
-
-```python
-# comprehension
-squares = [x * x for x in range(4)]
-```
-
-```
-[0, 1, 4, 9]
-```
-
-**Recipe for converting:**
-
-1. Take the thing you `append(...)`: that goes at the **front**.
-2. Take the `for ...` line: that goes **after** it.
-3. Wrap everything in `[ ]`.
-
-### Step 5.1: The innermost loop becomes `sum(...)`
-
-The inner loop only adds up products:
-
-```python
-total = 0
-for k in range(len(B)):
-    total += A[i][k] * B[k][j]
-```
-
-That is "add up `A[i][k] * B[k][j]` for every `k`", which is exactly what `sum` does with a **generator expression**:
-
-```python
-total = sum(A[i][k] * B[k][j] for k in range(len(B)))
-```
-
-A generator expression is a comprehension **without brackets** that hands values to `sum` one at a time (no temporary list is stored).
-
-```python
-print(sum(x * x for x in range(4)))   # 0 + 1 + 4 + 9
-```
-
-```
-14
-```
-
-### Step 5.2: The middle loop becomes a list comprehension for a row
-
-```python
-new_row = []
-for j in range(len(B[0])):
-    new_row.append(total)
-```
-
-becomes:
-
-```python
-new_row = [sum(A[i][k] * B[k][j] for k in range(len(B))) for j in range(len(B[0]))]
-```
-
-### Step 5.3: The outer loop becomes a list comprehension of rows
-
-```python
-result = []
-for i in range(len(A)):
-    result.append(new_row)
-```
-
-becomes a list comprehension **wrapped around** the previous one:
-
-```python
-result = [[sum(A[i][k] * B[k][j] for k in range(len(B)))
-           for j in range(len(B[0]))]
-          for i in range(len(A))]
-```
-
-### Step 5.4: Loop over rows directly instead of by index
-
-Instead of `for i in range(len(A))` and `A[i]`, Python lets you loop over the rows themselves: `for r in A`. Then `A[i][k]` becomes `r[k]`:
-
-```python
-def matmul_comp(A, B):
-    return [[sum(r[k] * B[k][j] for k in range(len(B)))
-             for j in range(len(B[0]))]
-            for r in A]
-
-print(matmul_comp([[1, 2], [3, 4]], [[5, 6], [7, 8]]))
-```
-
-```
-[[19, 22], [43, 50]]
-```
-
-### How to READ a nested comprehension
-
-Read it **from the inside out**, or read the `for` parts **left to right as nested loops**:
-
-```
-[ [ sum(r[k] * B[k][j] for k in range(len(B)))   <- value of ONE cell
-    for j in range(len(B[0])) ]                  <- repeat for every column  -> one ROW
-  for r in A ]                                   <- repeat for every row     -> whole matrix
-```
-
----
-
-## Part 6: Putting it inside a class
-
-We want `a @ b` to work. Python translates `a @ b` into `a.__matmul__(b)`. So we write a class with that method.
-
-### 6.1: The skeleton
-
-```python
-class M:
-    def __init__(self, rows):
-        self.rows = rows
-```
-
-- `class M:` defines a new type called `M`.
-- `__init__` runs when you create `M(...)`.
-- `self` means "this particular matrix object".
-- `self.rows = rows` stores the list of rows **inside** the object, so later we can use `self.rows`.
-
-### 6.2: A readable print
-
-Without it, `print(M(...))` shows something ugly like `<__main__.M object at 0x...>`. `__repr__` controls how the object is displayed:
-
-```python
-    def __repr__(self):
-        return f"M({self.rows})"
-```
-
-### 6.3: The `__matmul__` method
-
-- `self` = the matrix on the **left** of `@`.
-- `other` = the matrix on the **right** of `@`.
-- Both are `M` objects, so their lists are `self.rows` and `other.rows`.
-
-Translate our function by replacing `A` with `self.rows` and `B` with `other.rows`:
-
-```python
-    def __matmul__(self, other):
-        return M([[sum(r[k] * other.rows[k][j] for k in range(len(other.rows)))
-                   for j in range(len(other.rows[0]))]
-                  for r in self.rows])
-```
-
-Finally **return `M(...)`**, not a bare list. That way the answer is also a matrix, so you can chain: `a @ b @ c`.
-
----
-
-## Part 7: The original code, line by line
-
-```python
-def __matmul__(self, other):
-    print("__matmul__ called")
-    n = len(other.rows[0])
-    return M([[sum(r[k] * other.rows[k][j] for k in range(len(other.rows)))
-               for j in range(n)] for r in self.rows])
-```
-
-| Piece | What it does | Why |
-|---|---|---|
-| `def __matmul__(self, other):` | Defines what `@` does for `M` objects. | Python calls this when it sees `a @ b`. |
-| `print("__matmul__ called")` | Prints a message. | Just a **debug/teaching** line to prove Python really called the method. Delete it in real code. |
-| `n = len(other.rows[0])` | `n` = number of columns of the right-hand matrix. | We need it for `range(n)` and it gives the inner expression a short name. |
-| `for r in self.rows` | `r` becomes each row of the left matrix, one at a time. | Outermost loop: one answer row per left row. |
-| `for j in range(n)` | `j` = each column number of the right matrix. | Middle loop: one answer cell per column. |
-| `for k in range(len(other.rows))` | `k` = position along the row / down the column. `len(other.rows)` is the number of rows of the right matrix. | Innermost loop: the pairs to multiply. |
-| `r[k] * other.rows[k][j]` | Left row's `k`-th item times right matrix's item in row `k`, column `j`. | One pair to multiply. |
-| `sum(...)` | Adds all the products. | Gives the value of one cell. |
-| `M([...])` | Wraps the finished list of rows in a new `M`. | So the result is a matrix object, not a plain list. |
-
----
-
-## Part 8: What if I don't want to write it that way?
-
-You don't have to. Here are the alternatives, all giving the same answer.
-
-### Option A: Plain loops inside the method (easiest to read)
-
-```python
-class M:
-    def __init__(self, rows):
-        self.rows = rows
-
-    def __repr__(self):
-        return f"M({self.rows})"
-
-    def __matmul__(self, other):
-        result = []
-        for r in self.rows:
-            new_row = []
-            for j in range(len(other.rows[0])):
-                total = 0
-                for k in range(len(other.rows)):
-                    total += r[k] * other.rows[k][j]
-                new_row.append(total)
-            result.append(new_row)
-        return M(result)
-```
-
-### Option B: Use `zip` (clean and Pythonic)
-
-`zip` pairs up items. `zip(*B)` flips rows into columns (a **transpose**):
-
-```python
-B = [[5, 6], [7, 8]]
-print(list(zip(*B)))
-```
-
-```
-[(5, 7), (6, 8)]
-```
-
-These are the **columns** of B. Now each cell is "pair a row with a column and multiply":
-
-```python
-    def __matmul__(self, other):
-        cols = list(zip(*other.rows))
-        return M([[sum(a * b for a, b in zip(r, c)) for c in cols]
-                  for r in self.rows])
-```
-
-Here `zip(r, c)` pairs `r[0]` with `c[0]`, `r[1]` with `c[1]`, and so on, so you no longer need `k` or index arithmetic like `other.rows[k][j]`.
-
-### Option C: Split into small helper steps
-
-```python
-    def __matmul__(self, other):
-        cols = list(zip(*other.rows))
-        def dot(row, col):
-            return sum(a * b for a, b in zip(row, col))
-        return M([[dot(r, c) for c in cols] for r in self.rows])
-```
-
-Each small piece has a name (`dot`, `cols`), so the code explains itself.
-
-### Option D: Let NumPy do it
-
-```python
-import numpy as np
-
-a = np.array([[1, 2], [3, 4]])
-b = np.array([[5, 6], [7, 8]])
-print(a @ b)
-```
-
-```
-[[19 22]
- [43 50]]
-```
-
-In real projects you almost always use NumPy for this. Writing it by hand is for **learning** and for understanding what `@` does.
-
-### Verify they all agree
-
-```python
-A = [[1, 2], [3, 4]]
-B = [[5, 6], [7, 8]]
-print(matmul_loops(A, B))
-print(matmul_comp(A, B))
-print(matmul_zip(A, B))
-```
-
-```
-[[19, 22], [43, 50]]
-[[19, 22], [43, 50]]
-[[19, 22], [43, 50]]
-```
-
----
-
-## Part 9: Advantages and disadvantages
-
-| Style | Advantages | Disadvantages |
-|---|---|---|
-| **A. Plain loops** | Easiest to read and learn. Easy to debug: you can `print` inside any loop. Works the same in almost every language. | Longer. More temporary variables (`result`, `new_row`, `total`). |
-| **Nested comprehension (original)** | Short. No temporary variables. The whole result is one expression. Very "Pythonic" once you are used to it. | Hard to read when nested 3 deep. Hard to debug (no place to put a `print`). Easy to get brackets wrong. |
-| **B. `zip` version** | Short **and** readable. No index juggling (`k`, `j`). Mirrors the math: "row paired with column". | Needs you to know `zip` and `zip(*B)`. Transposing builds an extra list of columns. |
-| **C. Helper `dot`** | Self-documenting. Each piece can be tested separately. | A few more lines. |
-| **D. NumPy** | Dramatically faster, handles huge matrices, battle-tested. | Needs an external library. You learn less about how it works. |
-
-### Is the comprehension faster than loops?
-
-I measured multiplying two 120×120 matrices (average of 3 runs on the machine used to write this guide):
-
-| Version | Time |
-|---|---|
-| Plain loops | about 0.071 s |
-| Nested comprehension | about 0.078 s |
-| `zip` version | about 0.072 s |
-| NumPy | about 0.00008 s |
-
-So:
-
-- The comprehension is **not meaningfully faster** than loops here. Don't choose it for speed.
-- NumPy is roughly **a thousand times faster** (the exact number depends on the machine).
-- Choose your style for **readability**, and switch to NumPy when speed matters.
-
----
-
-## Part 10: Making it safer (shape check)
-
-If the shapes don't match, our code could crash with a confusing `IndexError` or silently give wrong results. Add a check at the top:
-
-```python
-    def __matmul__(self, other):
-        if len(self.rows[0]) != len(other.rows):
-            raise ValueError("columns of left must equal rows of right")
-        cols = list(zip(*other.rows))
-        return M([[sum(a * b for a, b in zip(r, c)) for c in cols]
-                  for r in self.rows])
-```
-
-Test it:
-
-```python
-try:
-    M([[1, 2]]) @ M([[1, 2]])
-except ValueError as e:
-    print("ValueError:", e)
-```
-
-```
-ValueError: columns of left must equal rows of right
-```
-
----
-
-## Part 11: Final complete class
-
-```python
-class M:
-    def __init__(self, rows):
-        self.rows = rows
-
-    def __repr__(self):
-        return f"M({self.rows})"
-
-    def __matmul__(self, other):
-        if len(self.rows[0]) != len(other.rows):
-            raise ValueError("columns of left must equal rows of right")
-        cols = list(zip(*other.rows))
-        return M([[sum(a * b for a, b in zip(r, c)) for c in cols]
-                  for r in self.rows])
-
-
-a = M([[1, 2], [3, 4]])
-b = M([[5, 6], [7, 8]])
-print(a @ b)
-```
-
-```
-M([[19, 22], [43, 50]])
-```
-
----
-
-## Part 12: How to write this kind of code yourself (the recipe)
-
-1. **Understand the task on paper.** Do one small example by hand (we computed `22`).
-2. **Solve the smallest piece first.** One cell, then one row, then the whole thing.
-3. **Write plain loops.** Make it correct before making it short.
-4. **Test with small, known answers.** Use a 2×2 you can check by hand, then a non-square one.
-5. **Refactor (optional).** Turn loops into comprehensions only if it stays readable.
-6. **Name things.** Use names like `cols`, `dot`, `row` instead of one-letter names when it helps.
-7. **Use `print` to see inside.** Print `row`, `col`, `total` while building.
-
-**Rule of thumb:** if you need more than a few seconds to understand your own one-liner, write it with loops or helper functions instead.
-
----
-
-## Part 13: Practice exercises
-
-Try these, writing plain loops first.
-
-### E1: Transpose
-
-Write `transpose(A)` so that `transpose([[1, 2, 3], [4, 5, 6]])` gives `[[1, 4], [2, 5], [3, 6]]`.
-
-### E2: Dot product
-
-Write `dot(u, v)` so that `dot([1, 2, 3], [4, 5, 6])` gives `32`.
-
-### E3: Matrix addition
-
-Add `__add__` to class `M` so `M([[1, 2], [3, 4]]) + M([[5, 6], [7, 8]])` gives `M([[6, 8], [10, 12]])`.
-
-### E4: Identity matrix
-
-Write `identity(n)` so that `identity(3)` gives `[[1, 0, 0], [0, 1, 0], [0, 0, 1]]`.
-
-### E5: Convert to a comprehension
-
-Rewrite this loop as a comprehension:
-
-```python
-result = []
-for x in range(5):
-    if x % 2 == 0:
-        result.append(x * 10)
-```
-
----
-
-## Part 14: Answers
-
-**E1:**
-
-```python
-def transpose(A):
-    return [list(col) for col in zip(*A)]
-
-print(transpose([[1, 2, 3], [4, 5, 6]]))
-```
-
-Loop version:
-
-```python
-def transpose(A):
-    result = []
-    for j in range(len(A[0])):
-        result.append([A[i][j] for i in range(len(A))])
-    return result
-```
-
-**E2:**
-
-```python
-def dot(u, v):
-    return sum(a * b for a, b in zip(u, v))
-```
-
-**E3:**
-
-```python
-    def __add__(self, other):
-        return M([[a + b for a, b in zip(r1, r2)]
-                  for r1, r2 in zip(self.rows, other.rows)])
-```
-
-**E4:**
-
-```python
-def identity(n):
-    return [[1 if i == j else 0 for j in range(n)] for i in range(n)]
-```
-
-**E5:**
-
-```python
-result = [x * 10 for x in range(5) if x % 2 == 0]
-print(result)
-```
-
-```
-[0, 20, 40]
-```
-
-The `if` goes **at the end** of the comprehension.
-
----
-
-## Part 15: Key takeaways
-
-1. A matrix is a **list of rows**. `A[i][j]` = row `i`, column `j`.
-2. Each answer cell = **sum of (row of A) × (column of B)** pair by pair.
-3. Build it up: **one cell, then a row, then everything.**
-4. **Plain loops are always fine.** Comprehensions are shorthand for the same loops.
-5. To convert: the `append(...)` value goes first, then the `for`, all inside `[ ]`.
-6. `sum(generator)` replaces an accumulate-in-a-loop pattern.
-7. In `__matmul__`, `self` is the left matrix and `other` is the right matrix. Return a new `M`.
-8. `zip(*B)` gives the columns of `B` and makes the code much easier to read.
-9. Choose style for **readability**. Use **NumPy** when speed matters.
-10. The `print("__matmul__ called")` line is only for demonstration.
-
-
-## 10. So who uses `@`?
-
-### 10.1 NumPy (the main user)
-
-NumPy arrays implement matrix multiplication:
-
-```python
-import numpy as np
-
-a = np.array([[1, 2], [3, 4]])
-b = np.array([[5, 6], [7, 8]])
-
-print(a @ b)
-```
-
-```
-[[19 22]
- [43 50]]
-```
-
-This matches the hand calculation in section 5.
-
-The in-place form also works:
-
-```python
-a @= b
-print(a)
-```
-
-```
-[[19 22]
- [43 50]]
-```
-
-For 1-D arrays, `@` gives the **dot product**:
-
-```python
-v = np.array([1, 2, 3])
-w = np.array([4, 5, 6])
-print(v @ w)      # 1×4 + 2×5 + 3×6
-```
-
-```
-32
-```
-
-### 10.2 Your own class
-
-You can make `@` work for your own objects by defining `__matmul__`:
-
-```python
-class M:
-    def __init__(self, rows):
-        self.rows = rows
-
-    def __matmul__(self, other):
-        print("__matmul__ called")
-        n = len(other.rows[0])
-        return M([[sum(r[k] * other.rows[k][j] for k in range(len(other.rows)))
-                   for j in range(n)] for r in self.rows])
-
-    def __repr__(self):
-        return f"M({self.rows})"
-
-a = M([[1, 2], [3, 4]])
-b = M([[5, 6], [7, 8]])
-print(a @ b)
-a @= b
-print(a)
-```
-
-```
-__matmul__ called
-M([[19, 22], [43, 50]])
-__matmul__ called
-M([[19, 22], [43, 50]])
-```
-
-Note that `a @= b` worked even though the class only defined `__matmul__`. If `__imatmul__` is missing, Python **falls back** to `__matmul__` and rebinds the name.
-
-### 10.3 The in-place hook
-
-If you define `__imatmul__`, Python uses it for `@=`:
-
-```python
-class P:
-    def __imatmul__(self, other):
-        print("__imatmul__ called")
-        return self
-
-p = P()
-p @= 3
-```
-
-```
-__imatmul__ called
-```
-
-### Method summary
-
-| You write | Python calls first | Fallback |
-|---|---|---|
-| `a @ b` | `a.__matmul__(b)` | `b.__rmatmul__(a)` |
-| `a @= b` | `a.__imatmul__(b)` | `a.__matmul__(b)`, then `b.__rmatmul__(a)` |
-
----
-
-## 11. Don't confuse it with the decorator `@`
-
-The same `@` symbol is also used for **decorators**:
-
-```python
-@my_decorator
-def f():
-    ...
-```
-
-Position tells them apart: a decorator `@` is at the **start of a line** above a `def` or `class`. The matrix `@` sits **between two values** as an operator.
-
----
-
-## 12. Key takeaways
-
-1. `@` and `@=` are the **matrix multiplication** operator (Python 3.5+).
-2. `x @= 2` means `x = x @ 2`.
-3. Built-in types (`int`, `float`, `str`, `list`, ...) **do not implement it**, so you get a `TypeError`.
-4. The `try / except TypeError as e` block catches the error so the program does not crash.
-5. The message is `unsupported operand type(s) for @=: 'int' and 'int'`.
-6. `x` keeps its old value because the assignment never happened.
-7. `@` works with **NumPy arrays** and with **your own classes** that define `__matmul__` (and optionally `__imatmul__`).
-8. `@` here is not the decorator `@`.
-
----
-
-## 13. Practice questions
-
-Try these before looking at the answers.
-
-### Q1: BASIC
-
-```python
-try:
-    x = 1; x @= 2
-except TypeError:
-    print("caught")
-else:
-    print("ok")
-```
-
-### Q2: BASIC
-
-```python
-x = 3
-try:
-    x @= 4
-except TypeError:
-    pass
-print(x)
-```
-
-### Q3: MEDIUM
-
-```python
-a = [1]
-a += [2]
-print(a)
-try:
-    a @= [3]
-except TypeError as e:
-    print("TypeError:", e)
-```
-
-### Q4: MEDIUM
-
-```python
-import numpy as np
-print(np.array([1, 2, 3]) @ np.array([4, 5, 6]))
-```
-
-### Q5: HARD
-
-```python
-class N:
-    def __matmul__(self, other):
-        return "plain @ used"
-
-n = N()
-n @= 5
-print(n)
-```
-
----
-
-## 14. Answers
-
-**Q1:** `caught`
-`x @= 2` raises a `TypeError`, so the `except` block runs. The `else` block runs only when there is **no** error.
-
-**Q2:** `3`
-The `@=` fails, `except` swallows the error with `pass`, and `x` was never changed.
-
-**Q3:**
-```
-[1, 2]
-TypeError: unsupported operand type(s) for @=: 'list' and 'list'
-```
-`+=` works on lists (it extends the list), but `@=` does not.
-
-**Q4:** `32`
-For 1-D arrays `@` is the dot product: 1×4 + 2×5 + 3×6 = 4 + 10 + 18.
-
-**Q5:** `plain @ used`
-The class has no `__imatmul__`, so Python falls back to `__matmul__`. The returned string `"plain @ used"` is then assigned to `n`, so `print(n)` shows it.
-
 
 ```python
 try:
@@ -8478,6 +4302,433 @@ dict       mutable
 set        mutable
 bytearray  mutable
 ```
+# Python Mutable vs Immutable Objects
+
+This explanation explores one important Python concept:
+
+**Mutable vs Immutable objects**
+
+In simple language:
+
+-   **Mutable:** An object whose contents you can change after creating
+    it.
+-   **Immutable:** An object whose contents you cannot change after
+    creating it.
+
+------------------------------------------------------------------------
+
+## 1. First, understand the big picture
+
+The code creates a collection of tests:
+
+``` python
+tests = [
+    ("int", lambda: ...),
+    ("str", lambda: ...),
+    ("tuple", lambda: ...),
+]
+```
+
+Each test contains two things:
+
+1.  The name of a Python data type.
+2.  A small function that tries to modify an object of that type.
+
+For example:
+
+``` python
+("list", lambda: [1, 2].__setitem__(0, 9))
+```
+
+This means:
+
+"Take a list and try to change its first element to `9`."
+
+## 2. What is `lambda`?
+
+A lambda is simply a small function written in one line.
+
+**Normal function:**
+
+``` python
+def add():
+    return 10 + 20
+```
+
+**Lambda function:**
+
+``` python
+add = lambda: 10 + 20
+```
+
+Both return `30` when called.
+
+So:
+
+``` python
+lambda: [1, 2].__setitem__(0, 9)
+```
+
+means:
+
+"Create a function that, when called, tries to change the first element
+of `[1, 2]` to `9`."
+
+Notice that it doesn't execute immediately. It executes when we call
+that function.
+
+## 3. What is `__setitem__`?
+
+This looks scary, but it is actually quite simple.
+
+You normally write:
+
+``` python
+my_list = [1, 2]
+my_list[0] = 9
+```
+
+Python provides a special method called `__setitem__` for this kind of
+item assignment:
+
+``` python
+my_list.__setitem__(0, 9)
+```
+
+Both mean:
+
+**Change the element at index `0` to `9`.**
+
+So whenever you see:
+
+``` python
+.__setitem__(0, 9)
+```
+
+Think:
+
+``` python
+[0] = 9
+```
+
+One more thing:
+
+-   `__setitem__` changes an item at a particular position.
+-   `add()` adds an element to a set.
+-   `__setattr__` attempts to set an object's attribute.
+
+These are different operations.
+
+------------------------------------------------------------------------
+
+## 4. Now let's examine every test
+
+### Test 1: Integer
+
+``` python
+("int", lambda: (lambda x: x.__setattr__("a", 1))(5))
+```
+
+This is a little unusual.
+
+The inner lambda receives `5` as `x`, then attempts to attach an
+attribute named `a` to that integer.
+
+Integers do not allow arbitrary new attributes, so this attempt raises
+an `AttributeError`.
+
+**Result: Immutable.**
+
+### Test 2: String
+
+``` python
+("str", lambda: "abc".__setitem__(0, "x"))
+```
+
+The intention is equivalent to trying:
+
+``` python
+text = "abc"
+text[0] = "x"
+```
+
+Can we change the first character of an existing string this way?
+
+No. Strings are immutable.
+
+In this particular test, Python raises `AttributeError` because strings
+do not provide `__setitem__`.
+
+**Result: Immutable.**
+
+### Test 3: Tuple
+
+``` python
+("tuple", lambda: (1, 2).__setitem__(0, 9))
+```
+
+The intention is equivalent to:
+
+``` python
+numbers = (1, 2)
+numbers[0] = 9
+```
+
+Tuples do not allow modification of their elements.
+
+In this particular test, Python raises `AttributeError` because tuples
+do not provide `__setitem__`.
+
+**Result: Immutable.**
+
+### Test 4: Bytes
+
+``` python
+("bytes", lambda: b"ab".__setitem__(0, 1))
+```
+
+`bytes` represents an immutable sequence of byte values.
+
+The intention is equivalent to:
+
+``` python
+data = b"ab"
+data[0] = 1
+```
+
+You cannot modify an existing `bytes` object.
+
+In this particular test, Python raises `AttributeError` because `bytes`
+does not provide `__setitem__`.
+
+**Result: Immutable.**
+
+### Test 5: List
+
+``` python
+("list", lambda: [1, 2].__setitem__(0, 9))
+```
+
+Equivalent:
+
+``` python
+numbers = [1, 2]
+numbers[0] = 9
+```
+
+Now the list becomes:
+
+``` python
+[9, 2]
+```
+
+Lists allow modification.
+
+**Result: Mutable.**
+
+### Test 6: Dictionary
+
+``` python
+("dict", lambda: {}.__setitem__("k", 1))
+```
+
+Equivalent:
+
+``` python
+data = {}
+data["k"] = 1
+```
+
+Now the dictionary becomes:
+
+``` python
+{"k": 1}
+```
+
+Dictionaries allow adding and modifying key-value pairs.
+
+**Result: Mutable.**
+
+### Test 7: Set
+
+``` python
+("set", lambda: {1}.add(2))
+```
+
+Equivalent:
+
+``` python
+numbers = {1}
+numbers.add(2)
+
+print(numbers)
+```
+
+Output:
+
+``` python
+{1, 2}
+```
+
+Sets allow adding and removing elements.
+
+**Result: Mutable.**
+
+### Test 8: Bytearray
+
+``` python
+("bytearray", lambda: bytearray(b"ab").__setitem__(0, 1))
+```
+
+Equivalent:
+
+``` python
+data = bytearray(b"ab")
+data[0] = 1
+```
+
+Unlike `bytes`, `bytearray` allows modification.
+
+**Result: Mutable.**
+
+------------------------------------------------------------------------
+
+## 5. Now understand the loop
+
+This is the part that runs all eight tests.
+
+``` python
+for name, f in tests:
+```
+
+Remember each item looks like this:
+
+``` python
+("list", lambda: [1, 2].__setitem__(0, 9))
+```
+
+Python unpacks it:
+
+-   `name` receives `"list"`.
+-   `f` receives the lambda function.
+
+Now:
+
+``` python
+try:
+    f()
+    print(f"{name:10} mutable")
+```
+
+`f()` executes the test.
+
+If it succeeds, Python prints `mutable`.
+
+But what if it fails?
+
+``` python
+except (TypeError, AttributeError) as e:
+    print(f"{name:10} immutable ({type(e).__name__})")
+```
+
+Python catches either a `TypeError` or an `AttributeError` and prints
+`immutable` along with the error type.
+
+A small formatting detail:
+
+``` python
+{name:10}
+```
+
+means reserve 10 character spaces for the name so the output lines up
+neatly.
+
+And:
+
+``` python
+type(e).__name__
+```
+
+gets the error class name, such as `AttributeError` or `TypeError`.
+
+## 6. Final summary
+
+  Data type     Mutable or immutable?
+  ------------- -----------------------
+  `int`         Immutable
+  `str`         Immutable
+  `tuple`       Immutable
+  `bytes`       Immutable
+  `list`        Mutable
+  `dict`        Mutable
+  `set`         Mutable
+  `bytearray`   Mutable
+
+### Mutable
+
+`list`, `dict`, `set`, `bytearray`
+
+Their contents can be changed after creation.
+
+### Immutable
+
+`int`, `str`, `tuple`, `bytes`
+
+Their contents cannot be changed after creation.
+
+------------------------------------------------------------------------
+
+## 7. Test your understanding: Object references
+
+Consider:
+
+``` python
+x = [10, 20, 30]
+y = x
+
+y[0] = 999
+
+print(x)
+```
+
+What will Python print?
+
+The answer is:
+
+``` python
+[999, 20, 30]
+```
+
+Why?
+
+Because `y = x` does not create a new list. Both names refer to the
+**same list**.
+
+So changing the list through `y` also changes what you see through `x`.
+
+This connects mutability with Python's object references, which is the
+next important piece of the puzzle.
+
+------------------------------------------------------------------------
+
+## Important note about the original test
+
+The test uses different operations for different types:
+
+-   `__setattr__` for the integer test.
+-   `__setitem__` for strings, tuples, bytes, lists, dictionaries, and
+    bytearrays.
+-   `add()` for the set test.
+
+For the immutable string, tuple, and bytes tests, the specific error is
+`AttributeError` because those objects do not have a `__setitem__`
+method. The tests still demonstrate that these objects cannot be
+modified in the attempted way.
+
+Also, each lambda creates or uses a fresh object during its test. The
+code is checking whether the attempted operation succeeds; it is not
+comparing two variables that refer to the same object.
+
 
 **Example 2.5.1.2: Hashability follows mutability**
 

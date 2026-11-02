@@ -6244,6 +6244,163 @@ Do not memorize this incorrect rule:
 Mutable   = always unhashable
 Immutable = always hashable
 ```
+# Hash collisions: same hash, different objects
+
+## The idea
+
+A **hash** is a locker number made from an object. A **hash collision** is when two objects get the **same locker number** but are **not equal**.
+
+```
+Object A -----> Hash value 123
+Object B -----> Hash value 123
+
+A == B  ?  False   (they are still different objects)
+```
+
+The rule Python requires is one-directional:
+
+```
+a == b   ->  hash(a) == hash(b)     (must always be true)
+hash(a) == hash(b)   ->  a == b     (NOT guaranteed, this is a collision)
+```
+
+---
+
+## Example 1: A real collision built into Python
+
+In CPython (the standard Python), the integers `-1` and `-2` have the same hash:
+
+```python
+print(hash(-1))        # -2
+print(hash(-2))        # -2
+print(hash(-1) == hash(-2))   # True   <- same hash
+print(-1 == -2)               # False  <- different values
+```
+
+Both are perfectly normal hashable ints, same hash, yet unequal.
+(Why? `-1` is reserved internally as an error signal, so Python changes its hash to `-2`.)
+
+And a dictionary still keeps them apart correctly:
+
+```python
+d = {-1: "minus one", -2: "minus two"}
+print(len(d))      # 2
+print(d[-1])       # minus one
+print(d[-2])       # minus two
+```
+
+---
+
+## Example 2: Two objects of your own class with the same hash
+
+Here we create a `Point` class whose hash only looks at `x`. So points with the same `x` but different `y` collide.
+
+```python
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        return isinstance(other, Point) and (self.x, self.y) == (other.x, other.y)
+
+    def __hash__(self):
+        return hash(self.x)      # ignores y on purpose
+
+
+a = Point(1, 2)
+b = Point(1, 5)
+
+print(hash(a) == hash(b))   # True   <- collision: same hash
+print(a == b)               # False  <- unequal objects
+```
+
+Both `a` and `b` are hashable, they share a hash, and they are not equal.
+
+### Python still handles them correctly
+
+Python first uses the hash to pick the locker, then uses `==` to check which item in the locker is the right one:
+
+```python
+d = {a: "first", b: "second"}
+print(len(d))      # 2   (two separate keys, not one)
+print(d[a])        # first
+print(d[b])        # second
+```
+
+---
+
+## Example 3: The extreme case (every object collides)
+
+A legal but terrible hash function: always return the same number.
+
+```python
+class Bad:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return isinstance(other, Bad) and self.name == other.name
+
+    def __hash__(self):
+        return 1                 # everyone shares locker 1
+
+
+x = Bad("x")
+y = Bad("y")
+
+print(hash(x), hash(y))     # 1 1
+print(x == y)               # False
+
+d = {x: "X", y: "Y"}
+print(d[x], d[y])           # X Y   (still correct, just slower)
+```
+
+Correct results, but Python must check every item in the locker one by one, so lookups become slow. Collisions are **allowed**, but too many of them hurt performance.
+
+---
+
+## Example 4: The rule that cannot be broken
+
+Equal objects **must** have equal hashes. Here is a case where that holds:
+
+```python
+print(1 == 1.0 == True)                  # True
+print(hash(1), hash(1.0), hash(True))    # 1 1 1
+
+d = {1: "a", 1.0: "b"}
+print(d)                                 # {1: 'b'}  (they count as the SAME key)
+```
+
+If equal objects had different hashes, Python would look in the wrong locker and lose track of keys. That is why `__eq__` and `__hash__` must agree.
+
+---
+
+## Key takeaways
+
+| Statement | True? |
+|---|---|
+| Equal objects must have equal hashes | Yes |
+| Equal hashes means equal objects | **No** (collision) |
+| Dicts and sets check `==` after matching hashes | Yes |
+| Hash is safe to use as a unique ID | **No** |
+
+> **Never use a hash value as a unique identifier for an object.** Two different objects can share the same hash. If you need a unique ID, use something designed for it, such as `id(obj)` (unique while the object is alive) or a `uuid`.
+
+## Practice
+
+1. Does `hash(-1) == hash(-2)` mean `-1 == -2`?
+   **A:** No. It is a collision. The hashes match, the values don't.
+
+2. If `a == b` is `True`, can `hash(a)` differ from `hash(b)`?
+   **A:** No. That would break Python's rule.
+
+3. If `hash(a) == hash(b)`, can `a == b` be `False`?
+   **A:** Yes. That is exactly a hash collision.
+
+4. Why does the dictionary in Example 2 still return the right values?
+   **A:** After finding the locker by hash, Python compares the keys with `==` to pick the correct one.
+
 
 That is not universally true for every Python object.
 

@@ -7626,6 +7626,338 @@ print(good)
 [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
 ```
+# 2.5.6 Two classic Python traps: the 2D list and the default argument
+
+Both traps have **one root cause**:
+
+> Several names (or slots) point to the **same mutable object**, so changing it through one is visible through all.
+
+Keep the earlier idea in mind: a variable is a **label pointing to an object**, not a box holding the value. `is` asks "same object?", and `id()` shows the object's identity.
+
+---
+
+# Part 1: Example 2.5.6.2, the 2D list trap
+
+```python
+bad = [[0] * 3] * 3
+bad[0][0] = 1
+print(bad)
+good = [[0] * 3 for _ in range(3)]
+good[0][0] = 1
+print(good)
+```
+
+Output:
+
+```
+[[1, 0, 0], [1, 0, 0], [1, 0, 0]]
+[[1, 0, 0], [0, 0, 0], [0, 0, 0]]
+```
+
+## Step 1: Break `[[0] * 3] * 3` into two operations
+
+Python builds it from the inside out.
+
+**Inner part: `[0] * 3`**
+Creates one list: `[0, 0, 0]`. Call this list **R** (for "row").
+
+**Outer part: `[R] * 3`**
+The `*` on a list means "repeat the **items** of this list". The item is just a **pointer to R**. Python copies the **pointer** three times, **not** the row itself.
+
+So the outer list holds three pointers, all to the same row:
+
+```
+bad ---> [ ptr, ptr, ptr ]
+           |    |    |
+           +----+----+
+                |
+                v
+            [0, 0, 0]      <- ONE single row, shared by all three slots
+```
+
+You can prove it:
+
+```python
+bad = [[0] * 3] * 3
+print(bad[0] is bad[1])        # True
+print(bad[1] is bad[2])        # True
+print(id(bad[0]) == id(bad[2]))  # True
+```
+
+## Step 2: What does `bad[0][0] = 1` do?
+
+Read it from left to right:
+
+1. `bad[0]` -> follow the first pointer -> reaches row **R**.
+2. `[0] = 1` -> set position 0 of **R** to `1`.
+
+Only one row exists, so that is the **only** thing that changes. But all three slots point to it:
+
+```
+bad ---> [ ptr, ptr, ptr ]
+           |    |    |
+           +----+----+
+                |
+                v
+            [1, 0, 0]
+```
+
+Printing shows the same row three times:
+
+```
+[[1, 0, 0], [1, 0, 0], [1, 0, 0]]
+```
+
+It looks like three rows changed, but it was **one row seen three times**.
+
+## Step 3: Why doesn't this problem happen with `[0] * 3`?
+
+The inner list holds `0`, which is an **integer**, and integers are **immutable** (they cannot change in place). If you write `row[0] = 1`, you don't change the number `0`; you just make that slot point to a different object `1`. Sharing immutable objects is harmless.
+
+The trap appears only when the repeated item is **mutable** (list, dict, set, ...).
+
+## Step 4: The good version
+
+```python
+good = [[0] * 3 for _ in range(3)]
+```
+
+A **list comprehension** runs the expression `[0] * 3` **again for every loop turn**. Each turn creates a **brand-new row**:
+
+```
+good ---> [ ptr1, ptr2, ptr3 ]
+             |     |     |
+             v     v     v
+          [0,0,0] [0,0,0] [0,0,0]    <- three separate rows
+```
+
+Proof:
+
+```python
+good = [[0] * 3 for _ in range(3)]
+print(good[0] is good[1])    # False
+```
+
+Now `good[0][0] = 1` changes only the first row:
+
+```
+[[1, 0, 0], [0, 0, 0], [0, 0, 0]]
+```
+
+(`_` is just a throwaway variable name meaning "I don't need the loop value".)
+
+## Step 5: Other ways to get it right
+
+```python
+# Plain loop
+grid = []
+for _ in range(3):
+    grid.append([0] * 3)
+
+# Copy each row explicitly
+row = [0] * 3
+grid = [row[:] for _ in range(3)]    # row[:] makes a copy
+```
+
+## Quick rule
+
+| Code | Rows are... |
+|---|---|
+| `[[0] * 3] * 3` | one shared row (**trap**) |
+| `[[0] * 3 for _ in range(3)]` | separate rows (**correct**) |
+
+---
+
+# Part 2: Example 2.5.6.3, default argument sharing
+
+```python
+def add(x, bucket=[]):
+    bucket.append(x)
+    return bucket
+
+print(add(1), add(2))
+```
+
+Output:
+
+```
+[1, 2] [1, 2]
+```
+
+## Step 1: When is a default value created?
+
+This is the key fact:
+
+> A default value is created **once**, when the `def` line runs (when the function is defined). It is **not** created again on each call.
+
+So the `[]` is built a single time, stored with the function, and reused whenever you don't pass `bucket`. You can even see it:
+
+```python
+def add(x, bucket=[]):
+    bucket.append(x)
+    return bucket
+
+print(add.__defaults__)    # ([],)   <- the one stored list
+add(1)
+print(add.__defaults__)    # ([1],)  <- the same stored list, now changed
+```
+
+Picture:
+
+```
+function add  ---> stores default ---> []   (one list, created once)
+```
+
+## Step 2: Trace the calls
+
+`print(add(1), add(2))` evaluates the arguments from left to right.
+
+**Call `add(1)`**
+- `bucket` not given, so it uses the stored list **L** (currently empty).
+- `L.append(1)` -> L is `[1]`.
+- Returns **L itself** (not a copy).
+
+**Call `add(2)`**
+- `bucket` not given, so it uses the **same** stored list **L**.
+- `L.append(2)` -> L is `[1, 2]`.
+- Returns **L itself** again.
+
+## Step 3: Why does the print show `[1, 2] [1, 2]`?
+
+Both calls returned **the same list object L**. By the time `print` runs, `L` is `[1, 2]`, so printing shows it twice:
+
+```
+first result  ---\
+                  +---> L = [1, 2]
+second result ---/
+```
+
+Many people expect `[1] [2]`, thinking each call gets a fresh list. That would be true only if a new list were made on every call.
+
+Proof it's the same object:
+
+```python
+r1 = add(1)
+r2 = add(2)
+print(r1 is r2)     # True
+print(r1)           # [1, 2]  (first call's result changed after the second call)
+```
+
+Even `r1` changed after the second call, because `r1` is just another label for `L`.
+
+## Step 4: The standard fix
+
+Use `None` as the default and create the list **inside** the function, so a fresh list is made on every call:
+
+```python
+def add(x, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(x)
+    return bucket
+
+print(add(1), add(2))    # [1] [2]
+```
+
+Why `is None`? Because `None` is the single special "nothing" object, and `is` is the right way to check for it (also `is` can't be fooled by an object whose `==` is customized).
+
+Now each call that doesn't pass `bucket` builds its own new list.
+
+## When is a shared default actually fine?
+
+If the default is **immutable** (number, string, tuple, `None`, `True`), sharing is harmless because it can't be changed in place:
+
+```python
+def greet(name, greeting="Hello"):    # safe, strings can't change
+    return greeting + ", " + name
+```
+
+The danger is only with **mutable defaults**: `[]`, `{}`, `set()`.
+
+---
+
+# Both traps side by side
+
+| | 2D list trap | Default argument trap |
+|---|---|---|
+| Where the sharing hides | `*` copies pointers, not objects | the default is created once, at `def` |
+| Shared object | the inner row list | the default list |
+| Symptom | changing one row changes all | calls remember earlier calls |
+| Fix | build each row separately (comprehension) | default `None`, create inside the function |
+| Root cause | same mutable object reached by many names | same mutable object reached by many names |
+
+# Practice questions (with answers)
+
+1. What does this print?
+   ```python
+   a = [[]] * 2
+   a[0].append("x")
+   print(a)
+   ```
+   **A:** `[['x'], ['x']]`. Both slots point to the same inner list.
+
+2. What does this print?
+   ```python
+   a = [[] for _ in range(2)]
+   a[0].append("x")
+   print(a)
+   ```
+   **A:** `[['x'], []]`. Each slot has its own list.
+
+3. True or False?
+   ```python
+   b = [[0] * 3] * 3
+   print(b[0] is b[2])
+   ```
+   **A:** `True`. They are the same row.
+
+4. What does this print?
+   ```python
+   x = [0] * 3
+   x[0] = 5
+   print(x)
+   ```
+   **A:** `[5, 0, 0]`. Ints are immutable, so there is no sharing problem; only slot 0 is reassigned.
+
+5. What does this print?
+   ```python
+   def f(n, acc=[]):
+       acc.append(n)
+       return acc
+
+   f(1)
+   f(2)
+   print(f(3))
+   ```
+   **A:** `[1, 2, 3]`. The default list is shared across all three calls.
+
+6. What does this print after fixing with `None`?
+   ```python
+   def f(n, acc=None):
+       if acc is None:
+           acc = []
+       acc.append(n)
+       return acc
+
+   f(1)
+   f(2)
+   print(f(3))
+   ```
+   **A:** `[3]`. Each call makes a new list.
+
+7. In one sentence: why does `add(1), add(2)` print the same list twice?
+   **A:** Both calls return the same stored default list, and printing happens after the second call has already added `2` to it.
+
+8. What does this print?
+   ```python
+   def g(x, d={}):
+       d[x] = True
+       return len(d)
+
+   print(g("a"), g("b"), g("a"))
+   ```
+   **A:** `1 2 2`. The default dict is shared. After `"a"` it has 1 key, after `"b"` it has 2, and adding `"a"` again doesn't add a new key.
+
 
 **Example 2.5.6.3: Default argument sharing**
 

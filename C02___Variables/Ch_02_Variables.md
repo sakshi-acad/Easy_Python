@@ -4728,6 +4728,374 @@ modified in the attempted way.
 Also, each lambda creates or uses a fresh object during its test. The
 code is checking whether the attempted operation succeeds; it is not
 comparing two variables that refer to the same object.
+# Practical Applications of `setattr()` and `lambda` in Python
+
+Let's understand where `setattr()` and `lambda` are useful in real
+Python programs.
+
+------------------------------------------------------------------------
+
+## 1. `setattr()` --- setting an attribute dynamically
+
+Normally, we create an object's attributes directly:
+
+``` python
+class Student:
+    pass
+
+s = Student()
+
+s.name = "Sakshi"
+s.age = 20
+s.course = "Data Science"
+```
+
+Here, we write each attribute name ourselves.
+
+But what if the information comes from a dictionary, and we don't know
+all the keys in advance?
+
+We can use `setattr()`.
+
+### Example: creating object attributes from a dictionary
+
+``` python
+class Student:
+    pass
+
+s = Student()
+
+student_data = {
+    "name": "Sakshi",
+    "age": 20,
+    "course": "Data Science",
+    "marks": 95
+}
+
+for key, value in student_data.items():
+    setattr(s, key, value)
+```
+
+### What happens?
+
+The dictionary contains key-value pairs:
+
+``` text
+student_data
+    |
+    +-- "name"   -> "Sakshi"
+    +-- "age"    -> 20
+    +-- "course" -> "Data Science"
+    +-- "marks"  -> 95
+```
+
+The loop takes one pair at a time.
+
+For example, on the first iteration:
+
+``` python
+key = "name"
+value = "Sakshi"
+
+setattr(s, key, value)
+```
+
+This is equivalent to:
+
+``` python
+s.name = "Sakshi"
+```
+
+On another iteration:
+
+``` python
+key = "age"
+value = 20
+
+setattr(s, key, value)
+```
+
+This is equivalent to:
+
+``` python
+s.age = 20
+```
+
+After the loop, the object has these attributes:
+
+``` python
+print(s.name)    # Sakshi
+print(s.age)     # 20
+print(s.course)  # Data Science
+print(s.marks)   # 95
+```
+
+**Main idea:** `setattr(object, attribute_name, value)` lets us set an
+attribute when its name is stored in a variable.
+
+------------------------------------------------------------------------
+
+## 2. `lambda` --- a small function written in one line
+
+A normal function:
+
+``` python
+def is_passed(marks):
+    return marks >= 40
+```
+
+The same function using `lambda`:
+
+``` python
+is_passed = lambda marks: marks >= 40
+```
+
+Both can be called like this:
+
+``` python
+print(is_passed(75))  # True
+print(is_passed(25))  # False
+```
+
+A lambda function has this general structure:
+
+``` python
+lambda parameters: expression
+```
+
+-   `lambda` starts the function.
+-   `parameters` are the inputs.
+-   The expression is evaluated and its result is returned
+    automatically.
+
+A lambda is useful when a small function is needed briefly, especially
+when passing a function to another function.
+
+------------------------------------------------------------------------
+
+## 3. Practical example: filtering marks
+
+Suppose we have students' marks:
+
+``` python
+marks = [45, 90, 67, 32, 88, 95, 51]
+```
+
+We want to keep only marks greater than 60.
+
+We can use `filter()` with a lambda:
+
+``` python
+result = list(filter(lambda x: x > 60, marks))
+
+print(result)
+```
+
+Output:
+
+``` text
+[90, 67, 88, 95]
+```
+
+### Understand the execution
+
+The expression:
+
+``` python
+lambda x: x > 60
+```
+
+is a function. It receives one value and checks whether that value is
+greater than 60.
+
+`filter()` gives each item from `marks` to this function.
+
+``` text
+45  -> 45 > 60? -> False -> rejected
+90  -> 90 > 60? -> True  -> kept
+67  -> 67 > 60? -> True  -> kept
+32  -> 32 > 60? -> False -> rejected
+88  -> 88 > 60? -> True  -> kept
+95  -> 95 > 60? -> True  -> kept
+51  -> 51 > 60? -> False -> rejected
+```
+
+`filter()` produces the items for which the function returns `True`.
+`list()` converts that result into a list.
+
+------------------------------------------------------------------------
+
+## 4. Using `setattr()` and `lambda` together
+
+Let's combine both ideas.
+
+``` python
+class Student:
+    pass
+
+s = Student()
+
+data = {
+    "name": "Sakshi",
+    "marks": 85,
+    "attendance": 90
+}
+
+# Add dictionary values as object attributes
+for key, value in data.items():
+    setattr(s, key, value)
+
+# Create a small function to check whether the student passed
+has_passed = lambda student: student.marks >= 40
+
+print(s.name)
+print(has_passed(s))
+```
+
+Output:
+
+``` text
+Sakshi
+True
+```
+
+### What happened, step by step?
+
+**Step 1:** We created an empty `Student` class and an object named `s`.
+
+**Step 2:** We stored student information in the dictionary `data`.
+
+**Step 3:** The loop used `setattr()` to add the dictionary information
+to `s`.
+
+The object now has:
+
+``` text
+s
+|
++-- name       = "Sakshi"
++-- marks      = 85
++-- attendance = 90
+```
+
+**Step 4:** We created this lambda function:
+
+``` python
+has_passed = lambda student: student.marks >= 40
+```
+
+It accepts a student object, reads its `marks` attribute, and checks
+whether the marks are at least 40.
+
+**Step 5:** We called it:
+
+``` python
+has_passed(s)
+```
+
+Since `s.marks` is `85`, the expression `85 >= 40` is `True`.
+
+------------------------------------------------------------------------
+
+## 5. Important distinction: `setattr()` versus `__setattr__()`
+
+These are related, but they are written differently.
+
+``` python
+class Student:
+    pass
+
+s = Student()
+
+s.name = "Sakshi"
+setattr(s, "name", "Sakshi")
+s.__setattr__("name", "Sakshi")
+```
+
+All three lines set the object's `name` attribute in this simple
+example.
+
+-   `s.name = "Sakshi"` is the usual attribute-assignment syntax.
+-   `setattr(s, "name", "Sakshi")` is the built-in function.
+-   `s.__setattr__("name", "Sakshi")` directly calls the special method.
+
+`setattr()` is generally the clearest choice when the attribute name is
+stored in a variable.
+
+------------------------------------------------------------------------
+
+## 6. When are these useful?
+
+  -----------------------------------------------------------------------
+  Tool                                Useful when...
+  ----------------------------------- -----------------------------------
+  `setattr()`                         Attribute names come from data,
+                                      dictionaries, or configuration
+
+  `lambda`                            You need a short function for a
+                                      small operation
+
+  `filter()` + `lambda`               You want to select items that
+                                      satisfy a condition
+
+  `setattr()` + loop                  You want to populate an object's
+                                      attributes from many key-value
+                                      pairs
+  -----------------------------------------------------------------------
+
+These tools are useful, but they are not compulsory. A normal `def`
+function and direct attribute assignment are often clearer when the
+logic is larger or used repeatedly.
+
+------------------------------------------------------------------------
+
+## 7. Tiny practice questions
+
+Try answering these before looking up the concepts again.
+
+**Question 1**
+
+``` python
+class Book:
+    pass
+
+b = Book()
+setattr(b, "title", "Python Basics")
+
+print(b.title)
+```
+
+What will be printed?
+
+**Question 2**
+
+``` python
+double = lambda x: x * 2
+print(double(7))
+```
+
+What will be printed?
+
+**Question 3**
+
+``` python
+numbers = [2, 5, 8, 11]
+answer = list(filter(lambda x: x % 2 == 0, numbers))
+print(answer)
+```
+
+Which numbers will remain?
+
+------------------------------------------------------------------------
+
+## Final takeaway
+
+-   `setattr()` sets an object's attribute using a name that can be
+    stored in a variable.
+-   `lambda` creates a small anonymous function.
+-   `filter()` can use a function to decide which items to keep.
+-   You can combine these tools, but choose the clearest approach for
+    the problem.
 
 
 **Example 2.5.1.2: Hashability follows mutability**
